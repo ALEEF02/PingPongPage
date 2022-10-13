@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!-- Fill the following sections with appropriate info -->
+		<meta name="theme-color" content="#0e0e16"/>
+		<meta name="author" content="Anthony Ford">
+		<meta name="Description" content="Developer and Prospect Software Engineer">
+		<meta name="keywords" content="ALEEF02, aleef, aleef02, aleefo2, ALEEF, dev, developer, javascript, JavaScript, Javascript, React Native, RN, CSS, Anthony Ford, Anthony L Ford, Anthony Lee Ford, Anthony F">
+		<meta name="apple-mobile-web-app-capable" content="yes"/>
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta property="og:title" content="ALEEF02 &middot; Anthony Ford">
+		<meta property="og:description" content="Anthony Ford - App Developer, Software Engineer and Tinkerer">
+		<meta property="og:image" content="https://s.gravatar.com/avatar/0c923c59c41de9bf767a6f2193602aef?s=375">
+		
+		<link rel="image_src" href="https://s.gravatar.com/avatar/0c923c59c41de9bf767a6f2193602aef?s=375">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<link rel="manifest" href="manifest.json">
+		<link rel="shortcut icon" href="favicon.ico"/>
+		<link rel="icon" sizes="16x16 32x32" href="favicon.ico">
+		<link rel="canonical" href="https://aleef.dev/">
+		<!-->
+		<link rel="preconnect" href="https://www.googletagmanager.com">
+		<link rel="preconnect" href="https://www.google-analytics.com">
+		-->
+		<link rel="preconnect" href="https://cdn.getforge.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com">
+		<link rel="apple-touch-icon" href="apple-touch-icon.png">
+		<link rel="apple-touch-startup-image" href="apple-touch-icon.png">
+		
+		<title>PingPongPage</title>
+		
+		<script>
+			// Handles Service Worker registration
+			if ('serviceWorker' in navigator) {
+				console.log('Queing Worker...');
+				window.addEventListener('load', function() {
+					console.log('Registering Worker...');
+					navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+						console.log('ServiceWorker registration successful with scope: ', registration.scope);
+					}, function(err) {
+						console.log('ServiceWorker registration failed: ', err);
+					});
+				});
+			} else {
+				console.log('Browser does not support service worker');
+			}
+		</script>
+		
+		<script type="application/ld+json">
+			{
+				"name": "Anthony Ford",
+				"alternateName": "ALEEF02",
+				"description": "Anthony Ford - App Developer, Software Engineer and Tinkerer",
+				"headline": "Anthony Ford - App Developer, Software Engineer and Tinkerer",
+				"url": "https://aleef.dev",
+				"image": "https://s.gravatar.com/avatar/0c923c59c41de9bf767a6f2193602aef?s=375",
+				"sameAs": [
+					"https://twitter.com/ALEEF022",
+					"https://github.com/ALEEF02",
+					"https://play.google.com/store/apps/dev?id=6643565958992084937&hl=en_US",
+					"https://scratch.mit.edu/users/ALEEF02/"
+				],
+				"publisher": {
+					"@type": "Organization",
+					"logo": {
+						"@type": "ImageObject",
+						"url": "https://s.gravatar.com/avatar/0c923c59c41de9bf767a6f2193602aef?s=375"
+					}
+				},
+				"@type": "WebSite",
+				"@context": "http://schema.org"
+			}
+		</script>
+	</head>
+	<body>
+		
+	</body>
+</html>
