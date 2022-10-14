@@ -15,7 +15,14 @@
     <jetty.version>11.0.12</jetty.version>
     <exec.mainClass>ppp.ServerMain</exec.mainClass>
   </properties>
-
+  
+	<repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+	
   <dependencies>
     <!-- Jakarta Servlets API -->
     <dependency>
@@ -36,6 +43,20 @@
       <artifactId>jetty-annotations</artifactId>
       <version>${jetty.version}</version>
     </dependency>
+	
+	<!-- MySQL -->
+	<dependency>
+		<groupId>mysql</groupId>
+		<artifactId>mysql-connector-java</artifactId>
+		<version>8.0.30</version>
+	</dependency>
+	
+	<!-- Env Builder -->
+	<dependency>
+		<groupId>com.github.MaikWezinkhof</groupId>
+		<artifactId>ConfigurationBuilder</artifactId>
+		<version>0.4</version>
+	</dependency>
   </dependencies>
 
   <build>
