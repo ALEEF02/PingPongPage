@@ -23,7 +23,7 @@ public class WebDb {
     }
 
     public static void init() {
-        int cores = Runtime.getRuntime().availableProcessors();
+        //int cores = Runtime.getRuntime().availableProcessors();
         connections.clear();
         connections.put(DEFAULT_CONNECTION, new MySQLAdapter(ServerConfig.DB_HOST, ServerConfig.DB_PORT, ServerConfig.DB_USER, ServerConfig.DB_PASS, ServerConfig.DB_NAME));
        /* for (int i = 1; i < cores; i++) {

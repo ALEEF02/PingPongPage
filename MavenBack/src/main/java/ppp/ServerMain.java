@@ -8,6 +8,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import com.kaaz.configuration.ConfigurationBuilder;
 
 import ppp.ServerConfig;
+import ppp.auth.OktaAuth;
 import ppp.db.WebDb;
 
 /**
@@ -39,6 +40,9 @@ public class ServerMain {
 		
 		// Connect to the DB
 		WebDb.init();
+		
+		// Start up Okta
+		//OktaAuth.init();
 		
 		// Start the server! 🚀
 		server.start();

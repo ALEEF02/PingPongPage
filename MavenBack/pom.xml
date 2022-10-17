@@ -13,6 +13,7 @@
     <maven.compiler.target>11</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jetty.version>11.0.12</jetty.version>
+    <okta.sdk.version>3.0.4</okta.sdk.version>
     <exec.mainClass>ppp.ServerMain</exec.mainClass>
   </properties>
   
@@ -57,6 +58,14 @@
 		<artifactId>ConfigurationBuilder</artifactId>
 		<version>0.4</version>
 	</dependency>
+	
+	<!-- Okta -->
+	<dependency>
+		<groupId>com.okta.idx.sdk</groupId>
+		<artifactId>okta-idx-java-api</artifactId>
+		<version>${okta.sdk.version}</version>
+	</dependency>
+	
   </dependencies>
 
   <build>

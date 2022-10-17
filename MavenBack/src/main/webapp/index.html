@@ -48,6 +48,40 @@
 			}
 		</script>
 		
+		<script>
+			window.addEventListener('load', function() {
+				var gamesTable = document.getElementById("gamesTable");
+				var gamesReq = new XMLHttpRequest();
+				
+				gamesReq.onreadystatechange = function(){
+					if(gamesReq.readyState == 4 && gamesReq.status == 200){
+						var games = JSON.parse(gamesReq.responseText);
+						for (var i = 0; i < games.length; i++) {
+							var newRow = document.createElement('tr');
+							var date = document.createElement('td');
+							var winner = document.createElement('td');
+							var loser = document.createElement('td');
+							var winnerScore = document.createElement('td');
+							var loserScore = document.createElement('td');
+							date.innerHTML = new Date(games[i].date);
+							winner.innerHTML = games[i].winner;
+							loser.innerHTML = games[i].winner == games[i].sender ? games[i].receiver : games[i].sender;
+							winnerScore.innerHTML = games[i].winnerScore;
+							loserScore.innerHTML = games[i].loserScore;
+							newRow.appendChild(date);
+							newRow.appendChild(winner);
+							newRow.appendChild(loser);
+							newRow.appendChild(winnerScore);
+							newRow.appendChild(loserScore);
+							gamesTable.appendChild(newRow);
+						}
+					}
+				}
+				gamesReq.open('GET', '/games');
+				gamesReq.send();
+			});
+		</script>
+		
 		<script type="application/ld+json">
 			{
 				"name": "Anthony Ford",
@@ -84,7 +118,7 @@
 		<a href = "/user">View Profile<a> <!--Leads to user page to display user name, stats, etc.-->
 	</div>
 	<div>
-		<table>
+		<table id="playerTable">
 			<tr>
 				<th>First Name</th>
 				<th>Last Name</th>
@@ -104,6 +138,15 @@
 				<td>Anthony</td>
 				<td>Ford</td>
 				<td>1900</td>
+			</tr>
+		</table>
+		<table id="gamesTable">
+			<tr>
+				<th>Date</th>
+				<th>Winner</th>
+				<th>Loser</th>
+				<th>Winner's Score</th>
+				<th>Loser's Score</th>
 			</tr>
 		</table>
 	</div>
