@@ -23,3 +23,46 @@ body {
 	margin: 0 auto;
 	color: #fff;
 }
+
+.header {
+  background-color: #f1f1f1;
+  padding: 20px;
+  text-align: center;
+  color: black;
+}
+
+.navBar{
+	overflow: hidden;
+	background-color: #5A5A5A;
+	width: 100%;
+}
+.navBar a{
+	display: block;
+	text-align: center;
+	padding: 14px 16px;
+	color: white;
+	float: left;
+	text-decoration: none;	
+}
+.navBar li a:hover{background-color: #800000;}
+
+th, td{
+	text-align: left;
+	padding: 8px;
+	color: black
+}
+
+.leaderboard{
+	float:left;
+}
+.recent{
+	float: right;
+}
+
+
+
+
+
+	
+	
+
