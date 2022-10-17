@@ -22,11 +22,23 @@ public final class StatusEnum {
 	
 	    public static Status fromNum(int type)
 	    {
-	        for (Status ticketType : values())
+	        for (Status statusType : values())
 	        {
-	            if (ticketType.type == type)
+	            if (statusType.type == type)
 	            {
-	                return ticketType;
+	                return statusType;
+	            }
+	        }
+	        return ANY;
+	    }
+	    
+	    public static Status fromString(String key)
+	    {
+	        for (Status status : values())
+	        {
+	            if (status.toString().equalsIgnoreCase(key))
+	            {
+	                return status;
 	            }
 	        }
 	        return ANY;

@@ -15,4 +15,16 @@ public class OGame extends AbstractModel {
     public int winner = 0;
     public int winnerScore = 0;
     public int loserScore = 0;
+    
+    public String toJSON() {
+    	return "{\"id\":\"" + id + 
+    			"\",\"date\":\"" + date.toString() + 
+    			"\",\"status\":\"" + status + 
+    			"\",\"sender\":\"" + sender + 
+    			"\",\"receiver\":\"" + receiver + 
+    			"\",\"winner\":\"" + winner + 
+    			"\",\"winnerScore\":\"" + winnerScore + 
+    			"\",\"loserScore\":\"" + loserScore +
+    			"\"}";
+    }
 }
