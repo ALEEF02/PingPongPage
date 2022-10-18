@@ -10,6 +10,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.transaction.Status;
+
 public class CGames {
 
     private static OGame fillRecord(ResultSet resultset) throws SQLException {
@@ -36,6 +38,30 @@ public class CGames {
                 "SELECT * " +
                         "FROM games " +
                         "ORDER BY id DESC LIMIT ?", limit)) {
+            while (rs.next()) {
+                ret.add(fillRecord(rs));
+            }
+            rs.getStatement().close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return ret;
+    }
+    
+    public static List<OGame> getLatestGamesByStatus(StatusEnum.Status status) {
+    	return getLatestGamesByStatus(status, 20);
+    }
+    
+    public static List<OGame> getLatestGamesByStatus(StatusEnum.Status status, int limit) {
+    	if (limit < 1 || limit > 200) limit = 20;
+    	if (status == StatusEnum.Status.ANY) return getLatestGames(limit);
+    	
+        List<OGame> ret = new ArrayList<>();
+        try (ResultSet rs = WebDb.get().select(
+                "SELECT * " +
+                        "FROM games " +
+                		"WHERE status = ? " +
+                        "ORDER BY id DESC LIMIT ?", status.getNum(), limit)) {
             while (rs.next()) {
                 ret.add(fillRecord(rs));
             }
@@ -142,6 +168,40 @@ public class CGames {
 	        System.out.println(e);
 	    }
 	    return ret;
+    }
+    
+    public static List<OGame> getGamesBetweenUsers(int userId1, int userId2) {
+    	return getGamesBetweenUsers(userId2, userId2, StatusEnum.Status.ANY);
+    }
+    
+    public static List<OGame> getGamesBetweenUsers(int userId1, int userId2, StatusEnum.Status status) {
+        List<OGame> ret = new ArrayList<>();
+        if (status == StatusEnum.Status.ANY) {
+	        try (ResultSet rs = WebDb.get().select(
+	                "SELECT * " +
+	                        "FROM games " +
+	                        "WHERE (receiver = ? AND sender = ?) OR (receiver = ? AND sender = ?)", userId1, userId2, userId2, userId1)) {
+	            while (rs.next()) {
+	                ret.add(fillRecord(rs));
+	            }
+	            rs.getStatement().close();
+	        } catch (Exception e) {
+	            System.out.println(e);
+	        }
+        } else {
+        	try (ResultSet rs = WebDb.get().select(
+	                "SELECT * " +
+	                        "FROM games " +
+	                        "WHERE status = ? AND ((receiver = ? AND sender = ?) OR (receiver = ? AND sender = ?))", userId1, userId2, userId2, userId1, status.getNum())) {
+	            while (rs.next()) {
+	                ret.add(fillRecord(rs));
+	            }
+	            rs.getStatement().close();
+	        } catch (Exception e) {
+	            System.out.println(e);
+	        }
+        }
+        return ret;
     }
 
     public static void insert(int sender, int receiver, int winner, int winnerScore, int loserScore) {

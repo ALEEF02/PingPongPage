@@ -18,12 +18,15 @@ import ppp.meta.StatusEnum.Status;
 
 /*
  * API REF:
- * Parameters:
- * 	None: Latest games
- * 	sender: games of the sender 
- * 	receiver: games being received
- * 	user: Any games with the user
- * 	status: The status of the game.
+ * Ind: independent, Exc: exclusive of other exclusives
+ * Parameters, highest priority first:
+ * 	None: 20 latest games, regardless of status
+ * 	status [ind]: The status of the game.
+ * 	limit [ind]: The maximum number of games to return when NOT looking for a User's games. Valid 1-200. Default 20.
+ * 	sender [exc]: games of the sender 
+ * 	receiver [exc]: games being received
+ * 	user [exc]: Any games with the user(s)
+ * 		if two users are provided, all games between those two are returned
  */
 
 @WebServlet("/games")
@@ -35,9 +38,15 @@ public class GetGames extends HttpServlet {
 		Map<String, String[]> parameters = request.getParameterMap();
 		List<OGame> games = null;
 		StatusEnum.Status status = Status.ANY;
+		int limit = 20;
 		try {
 			if (parameters.containsKey("status")) {
 				status = StatusEnum.Status.fromString(parameters.get("status")[0]);
+			}
+			if (parameters.containsKey("limit")) {
+				try {
+					limit = Integer.parseInt(parameters.get("limit")[0]);
+				} catch (Exception e) {}
 			}
 			
 			if (parameters.containsKey("sender")) {
@@ -60,48 +69,45 @@ public class GetGames extends HttpServlet {
 				games = CGames.getUsersReceivedGames(user, status);				
 			} else if (parameters.containsKey("user")) {
 				int user = 0;
-				try {
-					user = Integer.parseInt(parameters.get("user")[0]);
-				} catch (Exception e) {
-				    response.getWriter().print("[]");
-				    return;
-			    }
-				games = CGames.getGamesForUserByStatus(user, status);				
+				if (parameters.get("user").length == 2) {
+					
+					int user2 = 0;
+					
+					try {
+						user = Integer.parseInt(parameters.get("user")[0]);
+						user2 = Integer.parseInt(parameters.get("user")[1]);
+					} catch (Exception e) {
+					    response.getWriter().print("[]");
+					    return;
+				    }
+					games = CGames.getGamesBetweenUsers(user, user2, status);
+					
+				} else {
+					
+					try {
+						user = Integer.parseInt(parameters.get("user")[0]);
+					} catch (Exception e) {
+					    response.getWriter().print("[]");
+					    return;
+				    }
+					games = CGames.getGamesForUserByStatus(user, status);
+					
+				}
+			} else if (status != StatusEnum.Status.ANY) {
+				games = CGames.getLatestGamesByStatus(status, limit);
 			} else {
-				games = CGames.getLatestGames();
+				games = CGames.getLatestGames(limit);
 			}
+			
 			response.setContentType("application/json;");
-		    /*response.getWriter().println("<h1>All Games:</h1>");
-		    response.getWriter().println("<table>");
-		    response.getWriter().println("<tr><td>" + "id" + 
-	    		"</td><td>" + "date" + 
-	    		"</td><td>" + "status"+
-	    		"</td><td>" + "sender"+
-	    		"</td><td>" + "receiver"+
-	    		"</td><td>" + "winner"+
-	    		"</td><td>" + "winnerScore" +
-	    		"</td><td>" + "loserScore"+
-	    		"</td></tr>");*/
 		    response.getWriter().print("[");
 		    for (OGame game:games) {
 				response.getWriter().print(game.toJSON());
-		    	/*
-			    response.getWriter().println("<tr><td>" + game.id + 
-			    		"</td><td>" + game.date.toString() + 
-			    		"</td><td>" + game.status + 
-			    		"</td><td>" + game.sender + 
-			    		"</td><td>" + game.receiver + 
-			    		"</td><td>" + game.winner + 
-			    		"</td><td>" + game.winnerScore + 
-			    		"</td><td>" + game.loserScore + 
-			    		"</td></tr>");
-	    		*/
 		    	if (games.indexOf(game) != games.size() - 1) {
 		    		response.getWriter().print(",");
 		    	}
 		    }
 		    response.getWriter().print("]");
-		    //response.getWriter().println("</table><p>(<a href=\"\">Refresh</a>)</p>");*/
 		    
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
