@@ -23,9 +23,18 @@ body {
 	margin: 0 auto;
 	color: #fff;
 }
+/*
 
+git remote -v (double checks our remote. This should need to be changed this project since we've settled on the name for the project)
+git add . (Add all files to staging area)
+git commit -m "MESSAGE HERE LMAO" (Stage our commit)
+git push origin main (Send our commit to the server)
+
+done :D
+
+*/
 .header {
-  background-color: #f1f1f1;
+  background-color: #800000;
   padding: 20px;
   text-align: center;
   color: black;
@@ -41,23 +50,26 @@ body {
 	text-align: center;
 	padding: 14px 16px;
 	color: white;
-	float: left;
+	float: right;
 	text-decoration: none;	
 }
-.navBar li a:hover{background-color: #800000;}
+.navBar a.left{float:left;}
+.navBar a:hover{background-color: #000000;}
 
 th, td{
 	text-align: left;
 	padding: 8px;
 	color: black
 }
-
-.leaderboard{
-	float:left;
+.tablesContainer{margin: 30px;}
+table, td, th{
+	border: 2px solid #000000;
+	text-align: center;
 }
-.recent{
-	float: right;
-}
+table{width: 50%}
+tr:nth-child(even) {background-color: #A9A9A9;}
+.leaderboard{float:left;}
+.recent{float: right;}
 
 
 

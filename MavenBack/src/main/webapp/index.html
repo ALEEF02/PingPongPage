@@ -110,15 +110,16 @@
 	</head>
 	<body>
 	
-	<div class = "header">
+	<!--<div class = "header">
 		<h1>Welcome to the UCC PingPongPage</h1> 
-		</div>
+		</div>-->
 	<div class = "navBar">
-		<a href = "/game">Register A Game Here<a> <!--Leads to seprate page for ppl to register their games-->
-		<a href = "/user">View Profile<a> <!--Leads to user page to display user name, stats, etc.-->
+		<a href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" class = "left">Welcome to the UCC Ping Pong Page!</a>
+		<a href = "/user">View Profile</a> <!--Leads to user page to display user name, stats, etc.-->
+		<a href = "/game">Register A Game Here</a> <!--Leads to seprate page for ppl to register their games-->
 	</div>
-	<div>
-		<table id="playerTable">
+	<div class = "tablesContainer">
+		<table id="playerTable" class = "leaderboard">
 			<tr>
 				<th>First Name</th>
 				<th>Last Name</th>
@@ -127,7 +128,7 @@
 			<tr>
 				<td>Jonathan</td>
 				<td>Memoli</td>
-				<td>280000</td>
+				<td>2800</td>
 			</tr>
 			<tr>
 				<td>Stephanie</td>
@@ -140,7 +141,7 @@
 				<td>1900</td>
 			</tr>
 		</table>
-		<table id="gamesTable">
+		<table id="gamesTable" class = "recent">
 			<tr>
 				<th>Date</th>
 				<th>Winner</th>
