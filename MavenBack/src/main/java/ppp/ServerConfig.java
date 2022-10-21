@@ -28,20 +28,4 @@ public class ServerConfig {
     //mysql database name
     @ConfigurationOption
     public static String DB_NAME = "ppp";
-
-    //mysql database name
-    @ConfigurationOption
-    public static String OKTA_ISSUER = "";
-
-    //mysql database name
-    @ConfigurationOption
-    public static String OKTA_CLIENT_ID = "";
-
-    //mysql database name
-    @ConfigurationOption
-    public static String OKTA_CLIENT_SECRET = "";
-
-    //mysql database name
-    @ConfigurationOption
-    public static String OKTA_REDIRECT_URI = "";
 }

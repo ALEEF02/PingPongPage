@@ -60,11 +60,13 @@
 	</dependency>
 	
 	<!-- Okta -->
+	<!--
 	<dependency>
 		<groupId>com.okta.idx.sdk</groupId>
 		<artifactId>okta-idx-java-api</artifactId>
 		<version>${okta.sdk.version}</version>
 	</dependency>
+	-->
 	
   </dependencies>
 
