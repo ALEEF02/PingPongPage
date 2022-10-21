@@ -28,4 +28,20 @@ public class ServerConfig {
     //mysql database name
     @ConfigurationOption
     public static String DB_NAME = "ppp";
+
+    //Num of digits for the authentication code
+    @ConfigurationOption
+    public static int AUTH_NUM_DIGITS = 8;
+
+    //Emailer host
+    @ConfigurationOption
+    public static String EMAIL_HOST = "";
+    
+    //Emailer host
+    @ConfigurationOption
+    public static String EMAIL_USER = "";
+    
+    //Emailer host
+    @ConfigurationOption
+    public static String EMAIL_PASSWORD = "";
 }

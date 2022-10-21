@@ -43,31 +43,40 @@ public class GetGames extends HttpServlet {
 			if (parameters.containsKey("status")) {
 				status = StatusEnum.Status.fromString(parameters.get("status")[0]);
 			}
+			
 			if (parameters.containsKey("limit")) {
 				try {
 					limit = Integer.parseInt(parameters.get("limit")[0]);
 				} catch (Exception e) {}
 			}
 			
+			
 			if (parameters.containsKey("sender")) {
+				
 				int user = 0;
 				try {
 					user = Integer.parseInt(parameters.get("sender")[0]);
 				} catch (Exception e) {
+					response.setStatus(400);
 				    response.getWriter().print("[]");
 				    return;
 			    }
 				games = CGames.getUsersSentGames(user, status);
+				
 			} else if (parameters.containsKey("receiver")) {
+				
 				int user = 0;
 				try {
 					user = Integer.parseInt(parameters.get("receiver")[0]);
 				} catch (Exception e) {
+					response.setStatus(400);
 				    response.getWriter().print("[]");
 				    return;
 			    }
-				games = CGames.getUsersReceivedGames(user, status);				
+				games = CGames.getUsersReceivedGames(user, status);
+				
 			} else if (parameters.containsKey("user")) {
+				
 				int user = 0;
 				if (parameters.get("user").length == 2) {
 					
@@ -77,6 +86,7 @@ public class GetGames extends HttpServlet {
 						user = Integer.parseInt(parameters.get("user")[0]);
 						user2 = Integer.parseInt(parameters.get("user")[1]);
 					} catch (Exception e) {
+						response.setStatus(400);
 					    response.getWriter().print("[]");
 					    return;
 				    }
@@ -87,12 +97,14 @@ public class GetGames extends HttpServlet {
 					try {
 						user = Integer.parseInt(parameters.get("user")[0]);
 					} catch (Exception e) {
+						response.setStatus(400);
 					    response.getWriter().print("[]");
 					    return;
 				    }
 					games = CGames.getGamesForUserByStatus(user, status);
 					
 				}
+				
 			} else if (status != StatusEnum.Status.ANY) {
 				games = CGames.getLatestGamesByStatus(status, limit);
 			} else {

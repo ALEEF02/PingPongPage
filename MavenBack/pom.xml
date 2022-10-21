@@ -13,7 +13,6 @@
     <maven.compiler.target>11</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jetty.version>11.0.12</jetty.version>
-    <okta.sdk.version>3.0.4</okta.sdk.version>
     <exec.mainClass>ppp.ServerMain</exec.mainClass>
   </properties>
   
@@ -67,6 +66,13 @@
 		<version>${okta.sdk.version}</version>
 	</dependency>
 	-->
+	
+	<!-- Simple Java Mail -->
+	<dependency>
+		<groupId>org.simplejavamail</groupId>
+		<artifactId>simple-java-mail</artifactId>
+		<version>7.5.0</version>
+	</dependency>
 	
   </dependencies>
 

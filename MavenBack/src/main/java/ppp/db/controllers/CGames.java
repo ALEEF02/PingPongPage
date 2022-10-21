@@ -10,8 +10,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.transaction.Status;
-
 public class CGames {
 
     private static OGame fillRecord(ResultSet resultset) throws SQLException {

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Login</title>
+		<script>
+			function setPersonInfo() {
+				var email = document.getElementById('email').value;
+				var auth = document.getElementById('auth').value;
+				var postData = 'email=' + email;
+				if (auth != "") {
+					postData += '&authCode=' + auth;
+				} else {
+					document.getElementById('auth').hidden=false;
+				}
+				var ajaxRequest = new XMLHttpRequest();
+				ajaxRequest.open('POST', 'http://localhost:8080/auth');
+				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				ajaxRequest.send(postData);
+			}
+		</script>
+	</head>
+	<body>
+		<p>Email:</p>
+		<input type="text" id="email">
+		<p>Auth Code:</p>
+		<input type="text" id="auth" hidden=true>
+		<p>
+			<button type="button" onclick="setPersonInfo()">Send Email</button>
+		</p>
+	</body>
+</html>
