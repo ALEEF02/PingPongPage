@@ -19,7 +19,7 @@ public class ServerConfig {
 
     //mysql user
     @ConfigurationOption
-    public static String DB_USER = "root";
+    public static String DB_USER = "";
 
     //mysql password
     @ConfigurationOption

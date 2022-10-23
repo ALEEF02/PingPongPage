@@ -11,6 +11,13 @@ import ppp.db.model.OUser;
 
 public class CUser {
     
+	/**
+	 * Find a user by their email. This does NOT check to see if they are logged in.
+	 * DO NOT serve this information to an unauthenticated user!
+	 *
+	 * @param email The email address to lookup
+	 * @return {@code OUser} filled if the user exists
+	 */
     public static OUser findBy(String email) {
         OUser s = new OUser();
         try (ResultSet rs = WebDb.get().select(

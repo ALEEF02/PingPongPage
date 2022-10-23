@@ -1,5 +1,6 @@
 package ppp.auth;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,8 +13,10 @@ import org.simplejavamail.mailer.MailerBuilder;
 import com.sanctionco.jmail.JMail;
 
 import ppp.ServerConfig;
+import ppp.db.controllers.CUser;
+import ppp.db.model.OUser;
 
-public class Emailer {
+public class Authenticator {
 	
 	// Simple Java Mail docs: https://www.simplejavamail.org/features.html
 	
@@ -31,6 +34,8 @@ public class Emailer {
 	 */
 	public boolean compareAuthCode(String email, int inputAuthCode) {
 		
+		// TODO: Sanatize email input
+		
 		if (!emailsSent.containsKey(email)) return false;
 		
 		int timeSent = emailsSent.get(email)[0];
@@ -44,8 +49,24 @@ public class Emailer {
 			Integer[] update = emailsSent.get(email);
 			update[2]++;
 			emailsSent.replace(email, update);
+		} else {
+			emailsSent.remove(email);
 		}
 		return sentAuthCode == inputAuthCode;
+	}
+	
+	/**
+	 * Checks the input email and token to be login
+	 *
+	 * @param email The email address of the user
+	 * @param toekn The token for the user
+	 * @return {@code boolean} returns {@code true} if the email and token are a match
+	 */
+	public boolean login(String email, String token) {
+		OUser user = CUser.findBy(email);
+		if (user.id == 0 || user.email == "" || user.token == "" || user.tokenExpiryDate.before(new Date()) || user.token.length() < 2) return false;
+		if (!user.token.equals(token)) return false;
+		return true;
 	}
 	
 	private Mailer getMailer() {
@@ -66,14 +87,15 @@ public class Emailer {
 	 * Send an email to the user with an authentication code for login.
 	 *
 	 * @param toEmailAddress The email address of the user
-	 * @return {@code int} with the authentication code that was sent.
+	 * @return {@code boolean} true if the email was valid and and auth code was sent
 	 */
-	public void sendAuthEmail(String toEmailAddress) {
+	public boolean sendAuthEmail(String toEmailAddress) {
+		// TODO: Sanatize email input
 		double now = (System.currentTimeMillis() / 1000D);
         if (emailsSent.containsKey(toEmailAddress)) {
 	        double time = now - emailsSent.get(toEmailAddress)[0];
 	        if (time < 60 * 10) { // 10 minutes, but will expire after 5 minutes. This extra 5 minute delay is anti-brute force
-	            return;
+	            return false;
 	        }
         }
 		final int authCode = (int)(Math.random() * Math.pow(10, ServerConfig.AUTH_NUM_DIGITS));
@@ -87,6 +109,6 @@ public class Emailer {
 		getMailer().sendMail(email);
 		Integer mapVal[] = {Integer.valueOf((int)now), Integer.valueOf(authCode), 0};
         emailsSent.put(toEmailAddress, mapVal);
-		return;
+		return true;
 	}
 }
