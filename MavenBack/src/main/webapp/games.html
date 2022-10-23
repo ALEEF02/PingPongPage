@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Games Manager</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script>
+			var login = new XMLHttpRequest();
+			var us;
+			
+			login.onreadystatechange = function(){
+				if (login.readyState == 4){
+					if (login.status == 200) {
+						// User is logged in
+						us = JSON.parse(login.responseText);
+						getGames();
+					} else {
+						window.location.replace("http://localhost:8080/login");
+					}
+				}
+			}
+			login.open('GET', '/api/users');
+			login.send();
+		
+		
+			function acceptGame(id) {
+				var idNum = id.target.id.substring(id.target.id.indexOf("accept") + 6)
+				var postData = 'acceptGame=1&id=' + idNum;
+				document.getElementById(id.target.id).disabled = true;
+				document.getElementById('decline' + idNum).disabled = true;
+				var ajaxRequest = new XMLHttpRequest();
+				ajaxRequest.open('POST', 'http://localhost:8080/api/games');
+				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				ajaxRequest.send(postData);
+				ajaxRequest.onreadystatechange = function(){
+					if (ajaxRequest.readyState == 4) {
+						if (ajaxRequest.status == 200) {
+							// Successfully accepted the game
+							document.getElementById(id.target.id).parentElement.parentElement.remove();
+						} else {
+							console.warn(JSON.parse(gamesReq.responseText).error);
+						}
+					}
+				}
+			}
+			
+			function declineGame(id) {
+				var idNum = id.target.id.substring(id.target.id.indexOf("decline") + 7)
+				var postData = 'declineGame=1&id=' + idNum;
+				document.getElementById(id.target.id).disabled = true;
+				document.getElementById('accept' + idNum).disabled = true;
+				var ajaxRequest = new XMLHttpRequest();
+				ajaxRequest.open('POST', 'http://localhost:8080/api/games');
+				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				ajaxRequest.send(postData);
+				ajaxRequest.onreadystatechange = function(){
+					if (ajaxRequest.readyState == 4) {
+						if (ajaxRequest.status == 200) {
+							// Successfully accepted the game
+							document.getElementById(id.target.id).parentElement.parentElement.remove();
+						} else {
+							console.warn(JSON.parse(gamesReq.responseText).error);
+						}
+					}
+				}
+			}
+			
+			
+			function getGames() {
+				var gamesTable = document.getElementById("gamesTable");
+				var gamesReq = new XMLHttpRequest();
+				
+				gamesReq.onreadystatechange = function(){
+					if (gamesReq.readyState == 4 && gamesReq.status == 200) {
+						var games = JSON.parse(gamesReq.responseText);
+						for (var i = 0; i < games.length; i++) {
+						
+							var newRow = document.createElement('tr');
+							var date = document.createElement('td');
+							var winner = document.createElement('td');
+							var loser = document.createElement('td');
+							var winnerScore = document.createElement('td');
+							var loserScore = document.createElement('td');
+							var action = document.createElement('td');
+							
+							date.innerHTML = new Date(games[i].date);
+							winner.innerHTML = games[i].winner;
+							loser.innerHTML = games[i].winner == games[i].sender ? games[i].receiver : games[i].sender;
+							winnerScore.innerHTML = games[i].winnerScore;
+							loserScore.innerHTML = games[i].loserScore;
+							
+							if (games[i].receiver == us.id) {
+								var accept = document.createElement('button');
+								var decline = document.createElement('button');
+								accept.innerHTML = "\&#10003;";
+								decline.innerHTML = "X";
+								accept.id = "accept" + games[i].id;
+								decline.id = "decline" + games[i].id;
+								accept.onclick = function(bruh = games[i].id){acceptGame(bruh)};
+								decline.onclick = function(bruh = games[i].id){declineGame(bruh)};
+								action.appendChild(accept);
+								action.appendChild(decline);
+							} // TODO: Need else statement here to handle us being the sender and canceling games. As of 10/23/22 5 PM, no API for game cancelation exists
+							
+							newRow.appendChild(date);
+							newRow.appendChild(winner);
+							newRow.appendChild(loser);
+							newRow.appendChild(winnerScore);
+							newRow.appendChild(loserScore);
+							newRow.appendChild(action);
+							gamesTable.appendChild(newRow);
+							
+						}
+					}
+				}
+				gamesReq.open('GET', '/api/games?status=PENDING&user=' + us.id);
+				gamesReq.send();
+			}
+		</script>
+	</head>
+	<body>
+		<p>Your Pending Games:</p>
+		<table id="gamesTable" class="leaderboard">
+			<tr>
+				<th>Date</th>
+				<th>Winner</th>
+				<th>Loser</th>
+				<th>Winner's Score</th>
+				<th>Loser's Score</th>
+				<th>Action</th>
+			</tr>
+		</table>
+	</body>
+</html>

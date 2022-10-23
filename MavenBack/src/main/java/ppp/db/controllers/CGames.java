@@ -25,6 +25,22 @@ public class CGames {
         return bank;
     }
     
+    public static OGame getGameById(int id) {
+        OGame ret = new OGame();
+        try (ResultSet rs = WebDb.get().select(
+                "SELECT * " +
+                        "FROM games " +
+                        "WHERE id = ?", id)) {
+            if (rs.next()) {
+                ret = fillRecord(rs);
+            }
+            rs.getStatement().close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return ret;
+    }
+    
     public static List<OGame> getLatestGames() {
     	return getLatestGames(20);
     }

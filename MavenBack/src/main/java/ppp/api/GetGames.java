@@ -41,6 +41,10 @@ public class GetGames extends HttpServlet {
 		List<OGame> games = null;
 		StatusEnum.Status status = Status.ANY;
 		int limit = 20;
+
+		Authenticator auth = new Authenticator();
+		boolean loggedIn = auth.login(request);
+		
 		try {
 			if (parameters.containsKey("status")) {
 				status = StatusEnum.Status.fromString(parameters.get("status")[0]);
@@ -55,6 +59,12 @@ public class GetGames extends HttpServlet {
 			
 			if (parameters.containsKey("sender")) {
 				
+				if (!loggedIn) {
+					response.setStatus(401);
+					response.getWriter().println("https://www.youtube.com/watch?v=GPXkjtpGCFI&t=7s");
+					return;
+				}
+				
 				int user = 0;
 				try {
 					user = Integer.parseInt(parameters.get("sender")[0]);
@@ -67,6 +77,12 @@ public class GetGames extends HttpServlet {
 				
 			} else if (parameters.containsKey("receiver")) {
 				
+				if (!loggedIn) {
+					response.setStatus(401);
+					response.getWriter().println("https://www.youtube.com/watch?v=GPXkjtpGCFI&t=7s");
+					return;
+				}
+				
 				int user = 0;
 				try {
 					user = Integer.parseInt(parameters.get("receiver")[0]);
@@ -78,6 +94,12 @@ public class GetGames extends HttpServlet {
 				games = CGames.getUsersReceivedGames(user, status);
 				
 			} else if (parameters.containsKey("user")) {
+				
+				if (!loggedIn) {
+					response.setStatus(401);
+					response.getWriter().println("https://www.youtube.com/watch?v=GPXkjtpGCFI&t=7s");
+					return;
+				}
 				
 				int user = 0;
 				if (parameters.get("user").length == 2) {
@@ -141,7 +163,10 @@ public class GetGames extends HttpServlet {
 	 * 			to: username of person to send game to
 	 * 			myScore: Requester's score
 	 * 			theirScore: Reciever's score
-	 * 			
+	 * 		acceptGame:
+	 * 			id: id of the game to accept
+	 * 		declineGame:
+	 * 			id: id of the game to accept
 	 */
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -158,6 +183,10 @@ public class GetGames extends HttpServlet {
 		}
 		
 		OUser me = CUser.findByEmail((String)request.getSession().getAttribute("email"));
+		if (me.id == 0) {
+			response.setStatus(500);
+		    response.getWriter().print(createError("User is both logged in and not logged in??"));
+		}
 		
 		try {
 			
@@ -213,6 +242,8 @@ public class GetGames extends HttpServlet {
 					return;
 				}
 				
+				// Everything looks good with this submission. Let's chuck it into the database.
+				
 				if (myScore > theirScore) {
 					newGame.winner = me.id;
 					newGame.winnerScore = myScore;
@@ -224,6 +255,55 @@ public class GetGames extends HttpServlet {
 				}
 				
 				CGames.insert(newGame);
+				response.setStatus(200);
+				return;
+				
+			} else if (parameters.containsKey("acceptGame") || parameters.containsKey("declineGame")) {
+				
+				if (!parameters.containsKey("id")) {
+					response.setStatus(400);
+					response.getWriter().println(createError("Missing Parameters"));
+					return;
+				}
+				
+				int gameId = 0; 
+				try {
+					gameId = Integer.parseInt(parameters.get("id")[0]);
+				} catch (Exception e) {
+					response.setStatus(400);
+					response.getWriter().println(createError("Invalid gameId"));
+				    return;
+			    }
+				
+				OGame existingGame = CGames.getGameById(gameId);
+				if (existingGame.id == 0) {
+					response.setStatus(400);
+					response.getWriter().println(createError("Invalid gameId"));
+				    return;
+				}
+				
+				if (existingGame.receiver != me.id) {
+					response.setStatus(401);
+					response.getWriter().println(createError("Not your game!"));
+				    return;
+				}
+
+				if (existingGame.status != StatusEnum.Status.PENDING) {
+					response.setStatus(400);
+					response.getWriter().println(createError("This game has already been finalized"));
+				    return;
+				}
+				
+				if (parameters.containsKey("acceptGame")) {
+					existingGame.status = StatusEnum.Status.ACCEPTED;
+					
+					// TODO: Epic elo things here :D
+					
+				} else {
+					existingGame.status = StatusEnum.Status.REJECTED;					
+				}
+				
+				CGames.update(existingGame);
 				response.setStatus(200);
 				return;
 			}
