@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import ppp.db.controllers.CUser;
 import ppp.db.model.OUser;
 
-@WebServlet("/auth")
+@WebServlet("/api/auth")
 public class AuthServlet extends HttpServlet {
 	
 	Authenticator emailer = new Authenticator();
@@ -52,11 +52,13 @@ public class AuthServlet extends HttpServlet {
 			response.setStatus(200);
 			response.getWriter().println("huh. That worked. now what?");
 			request.getSession().setAttribute("email", email);
-			OUser user = CUser.findBy(email);
+			request.getSession().setMaxInactiveInterval(-1);
+			OUser user = CUser.findByEmail(email);
 			Date now = new Date();
 			
 			if (user.id == 0) { // This is the user's first time logging in. Set them up
 				user.email = email;
+				user.username = email.substring(0, email.indexOf("@"));
 				user.signUpDate = new Timestamp(now.getTime());
 				user.lastSignIn = new Timestamp(now.getTime());
 				
@@ -80,35 +82,29 @@ public class AuthServlet extends HttpServlet {
 				
 				user.token = genNewToken();
 				request.getSession().setAttribute("token", user.token);
-				CUser.update(user);
+				CUser.update(user, true);
 			}
 			
 		} else if (request.getParameterMap().containsKey("loggingIn")) {
 			
-			System.out.println("Someone is trying to log in");
-			System.out.println((String)request.getSession().getAttribute("email"));
+			// This is a good example of the login process. However, it should be removed from here and implemented on each API level!
 			
 			String email = (String)request.getSession().getAttribute("email");
-			String token = (String)request.getSession().getAttribute("token");
-			if (token == null || token.length() < 2) {
-				response.setStatus(400);
-				response.getWriter().println("https://www.youtube.com/watch?v=GPXkjtpGCFI&t=7s");
-				return;
-			}
-			OUser user = CUser.findBy(email);
-			if (!emailer.login(email, token)) {
+			
+			System.out.print("Someone is trying to log in - ");
+			System.out.println(email);
+			
+			if (!emailer.login(request)) {
 				response.setStatus(401);
 				response.getWriter().println("https://www.youtube.com/watch?v=GPXkjtpGCFI&t=7s");
 				return;
 			}
 			
-			// At this point we know that this person is that of the email provided. Setup account if it doesn't exist now.
-			response.setStatus(200);
-			response.getWriter().println("hey, that's the right token :D");
+			OUser user = CUser.findByEmail(email);
 			
-			user.lastSignIn = new Timestamp(new Date().getTime());
-				
-			CUser.update(user);
+			// This user has a valid email & token pair. Serve them the things they want & have access to.
+			response.setStatus(200);
+			response.getWriter().println("hey," + user.username + ", that's the right token :D Here are the things you want...");
 			
 		} else if (request.getParameterMap().containsKey("email")) {
 			String email = request.getParameter("email");

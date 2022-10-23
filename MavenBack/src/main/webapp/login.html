@@ -3,17 +3,19 @@
 	<head>
 		<title>Login</title>
 		<script>
-			window.addEventListener('load', function() {
+			var login = new XMLHttpRequest();
 			
-				var postData = 'loggingIn=1';
-				var ajaxRequest = new XMLHttpRequest();
-				ajaxRequest.open('POST', 'http://localhost:8080/auth');
-				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-				ajaxRequest.send(postData);
-			});
+			login.onreadystatechange = function(){
+				if (login.readyState == 4 && login.status == 200) {
+					// User is already logged in
+					window.location.replace("http://localhost:8080/");
+				}
+			}
+			login.open('GET', '/api/users');
+			login.send();
 		
 		
-			function setPersonInfo() {
+			function sendEmail() {
 				var email = document.getElementById('email').value;
 				var auth = document.getElementById('auth').value;
 				var postData = 'email=' + email;
@@ -21,11 +23,18 @@
 					postData += '&authCode=' + auth;
 				} else {
 					document.getElementById('auth').hidden=false;
+					document.getElementById('submitButton').innerHTML = "Submit One-Time Password";
 				}
 				var ajaxRequest = new XMLHttpRequest();
-				ajaxRequest.open('POST', 'http://localhost:8080/auth');
+				ajaxRequest.open('POST', 'http://localhost:8080/api/auth');
 				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 				ajaxRequest.send(postData);
+				ajaxRequest.onreadystatechange = function(){
+					if (ajaxRequest.readyState == 4 && ajaxRequest.status == 200 && auth != "") {
+						// User has successfully logged in!
+						window.location.replace("http://localhost:8080/");
+					}
+				}
 			}
 		</script>
 	</head>
@@ -36,7 +45,7 @@
 			<p>Auth Code:</p>
 			<input type="text" id="auth" hidden=true>
 			<p>
-				<button type="button" onclick="setPersonInfo()">Send Email</button>
+				<button type="button" id="submitButton" onclick="sendEmail()">Send Email</button>
 			</p>
 	</body>
 </html>

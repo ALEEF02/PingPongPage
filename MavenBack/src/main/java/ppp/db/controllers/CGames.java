@@ -168,10 +168,25 @@ public class CGames {
 	    return ret;
     }
     
+    /**
+	 * Get all games between two users, regardless of status
+	 *
+	 * @param userId1 One userId
+	 * @param userId2 Another userId
+	 * @return List<OGame> All games found. Can be empty.
+	 */
     public static List<OGame> getGamesBetweenUsers(int userId1, int userId2) {
     	return getGamesBetweenUsers(userId2, userId2, StatusEnum.Status.ANY);
     }
     
+    /**
+	 * Get all games between two users, by status
+	 *
+	 * @param userId1 One userId
+	 * @param userId2 Another userId
+	 * @param status Status of game to find
+	 * @return List<OGame> All games found. Can be empty.
+	 */
     public static List<OGame> getGamesBetweenUsers(int userId1, int userId2, StatusEnum.Status status) {
         List<OGame> ret = new ArrayList<>();
         if (status == StatusEnum.Status.ANY) {

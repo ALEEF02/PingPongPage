@@ -16,7 +16,19 @@ public class OUser extends AbstractModel {
     public boolean banned = false;
     public int rank = -1;
     
-    public void generateToken() {
-    	
+	/**
+	 * Returns a JSON Object as a String with insensitive info
+	 *
+	 * @return {@code String} JSON with insensitive info
+	 */
+    public String toPublicJSON() {
+    	return "{\"id\":\"" + id + 
+    			"\",\"username\":\"" + username + 
+    			"\",\"elo\":\"" + elo + 
+    			"\",\"signUpDate\":\"" + signUpDate + 
+    			"\",\"lastSignIn\":\"" + lastSignIn + 
+    			"\",\"banned\":\"" + banned + 
+    			"\",\"rank\":\"" + rank + 
+    			"\"}";
     }
 }

@@ -1,5 +1,6 @@
 package ppp.auth;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.simplejavamail.mailer.MailerBuilder;
 
 import com.sanctionco.jmail.JMail;
 
+import jakarta.servlet.http.HttpServletRequest;
 import ppp.ServerConfig;
 import ppp.db.controllers.CUser;
 import ppp.db.model.OUser;
@@ -56,16 +58,36 @@ public class Authenticator {
 	}
 	
 	/**
-	 * Checks the input email and token to be login
+	 * Checks the request to be logged in. Call this to check before giving out sensitive info!
+	 *
+	 * @param request The HTTP Request to be checked
+	 * @return {@code boolean} returns {@code true} if the session's email and token are a match
+	 */
+	public boolean login(HttpServletRequest request) {
+		String email = (String)request.getSession().getAttribute("email");
+		String token = (String)request.getSession().getAttribute("token");
+		if (email == null || !email.endsWith("@stevens.edu") || token == null || token.length() < 2) {
+			return false;
+		}
+		return login(email, token);
+	}
+	
+	/**
+	 * Checks the input email and token to be logged in
 	 *
 	 * @param email The email address of the user
-	 * @param toekn The token for the user
+	 * @param token The token for the user
 	 * @return {@code boolean} returns {@code true} if the email and token are a match
 	 */
 	public boolean login(String email, String token) {
-		OUser user = CUser.findBy(email);
+		OUser user = CUser.findByEmail(email, true);
 		if (user.id == 0 || user.email == "" || user.token == "" || user.tokenExpiryDate.before(new Date()) || user.token.length() < 2) return false;
 		if (!user.token.equals(token)) return false;
+		
+		// Successful login. Timestamp & log it.
+		user.lastSignIn = new Timestamp(new Date().getTime());
+		CUser.update(user);
+		
 		return true;
 	}
 	

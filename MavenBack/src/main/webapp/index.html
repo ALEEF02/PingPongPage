@@ -50,6 +50,26 @@
 		
 		<script>
 			window.addEventListener('load', function() {
+				
+				var login = new XMLHttpRequest();
+				login.onreadystatechange = function(){
+					if (login.readyState == 4) {
+						if (login.status == 200) {
+							// User is already logged in
+							var user = JSON.parse(login.responseText);
+							var userButton = document.getElementById("userButton");
+							userButton.innerHTML = "Hi, " + user.username + " :)";
+						} else {
+							// User is not logged in
+							var userButton = document.getElementById("userButton");
+							userButton.innerHTML = "Login";
+
+						}
+					}
+				}
+				login.open('GET', '/api/users');
+				login.send();
+			
 				var gamesTable = document.getElementById("gamesTable");
 				var gamesReq = new XMLHttpRequest();
 				
@@ -77,8 +97,29 @@
 						}
 					}
 				}
-				gamesReq.open('GET', '/games?status=ACCEPTED');
+				gamesReq.open('GET', '/api/games?status=ACCEPTED');
 				gamesReq.send();
+				
+				var playerTable = document.getElementById("playerTable");
+				var usersReq = new XMLHttpRequest();
+				
+				usersReq.onreadystatechange = function(){
+					if(usersReq.readyState == 4 && usersReq.status == 200){
+						var users = JSON.parse(usersReq.responseText);
+						for (var i = 0; i < users.length; i++) {
+							var newRow = document.createElement('tr');
+							var user = document.createElement('td');
+							var elo = document.createElement('td');
+							user.innerHTML = users[i].username;
+							elo.innerHTML = users[i].elo;
+							newRow.appendChild(user);
+							newRow.appendChild(elo);
+							playerTable.appendChild(newRow);
+						}
+					}
+				}
+				usersReq.open('GET', '/api/users?ranks=10');
+				usersReq.send();
 			});
 		</script>
 		
@@ -115,30 +156,14 @@
 		</div>-->
 	<div class = "navBar">
 		<a href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" class = "left">Welcome to the UCC Ping Pong Page!</a>
-		<a href = "/user">View Profile</a> <!--Leads to user page to display user name, stats, etc.-->
+		<a id="userButton" href="/login">...</a> <!--Leads to user page to display user name, stats, etc.-->
 		<a href = "/game">Register A Game Here</a> <!--Leads to seprate page for ppl to register their games-->
 	</div>
 	<div class = "tablesContainer">
 		<table id="playerTable" class = "leaderboard">
 			<tr>
-				<th>First Name</th>
-				<th>Last Name</th>
+				<th>Username</th>
 				<th>Rating</th>
-			</tr>
-			<tr>
-				<td>Jonathan</td>
-				<td>Memoli</td>
-				<td>2800</td>
-			</tr>
-			<tr>
-				<td>Stephanie</td>
-				<td>McDonough</td>
-				<td>2200</td>
-			</tr>
-			<tr>
-				<td>Anthony</td>
-				<td>Ford</td>
-				<td>1900</td>
 			</tr>
 		</table>
 		<table id="gamesTable" class = "recent">
