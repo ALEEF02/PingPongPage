@@ -37,7 +37,7 @@
 							// Successfully accepted the game
 							document.getElementById(id.target.id).parentElement.parentElement.remove();
 						} else {
-							console.warn(JSON.parse(gamesReq.responseText).error);
+							console.warn(JSON.parse(ajaxRequest.responseText).error);
 						}
 					}
 				}
@@ -56,9 +56,62 @@
 					if (ajaxRequest.readyState == 4) {
 						if (ajaxRequest.status == 200) {
 							// Successfully accepted the game
-							document.getElementById(id.target.id).parentElement.parentElement.remove();
+							var temp = document.getElementById(id.target.id);
+							temp.parentElement.parentElement.remove();
 						} else {
-							console.warn(JSON.parse(gamesReq.responseText).error);
+							console.warn(JSON.parse(ajaxRequest.responseText).error);
+						}
+					}
+				}
+			}
+			
+			function cancelGame(id) {
+				var idNum = id.target.id.substring(id.target.id.indexOf("cancel") + 6)
+				var postData = 'cancelGame=1&id=' + idNum;
+				document.getElementById(id.target.id).disabled = true;
+				var ajaxRequest = new XMLHttpRequest();
+				ajaxRequest.open('POST', 'http://localhost:8080/api/games');
+				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				ajaxRequest.send(postData);
+				ajaxRequest.onreadystatechange = function(){
+					if (ajaxRequest.readyState == 4) {
+						if (ajaxRequest.status == 200) {
+							// Successfully accepted the game
+							var temp = document.getElementById(id.target.id);
+							temp.parentElement.parentElement.remove();
+						} else {
+							console.warn(JSON.parse(ajaxRequest.responseText).error);
+						}
+					}
+				}
+			}
+			
+			function submitGame() {
+				var toUser = document.getElementById('toUser').value;
+				var myScore = document.getElementById('myScore').value;
+				var theirScore = document.getElementById('theirScore').value;
+				var postData = 'newGame=1&to=' + toUser + '&myScore=' + myScore + '&theirScore=' + theirScore;
+				document.getElementById("submitButton").disabled = true;
+				var ajaxRequest = new XMLHttpRequest();
+				ajaxRequest.open('POST', 'http://localhost:8080/api/games');
+				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				ajaxRequest.send(postData);
+				ajaxRequest.onreadystatechange = function(){
+					if (ajaxRequest.readyState == 4) {
+						if (ajaxRequest.status == 200) {
+							// Successfully created the game
+							gamesTable.childNodes[5].innerHTML = "";
+							getGames();
+							var errorText = document.getElementById('errorMessage');
+							errorText.innerHTML = "";
+							document.getElementById('toUser').value = "";
+							document.getElementById('myScore').value = "";
+							document.getElementById('theirScore').value = "";
+						} else {
+							console.warn(JSON.parse(ajaxRequest.responseText).error);
+							var errorText = document.getElementById('errorMessage');
+							errorText.innerHTML = "Error: " + JSON.parse(ajaxRequest.responseText).error;
+							document.getElementById("submitButton").disabled = false;
 						}
 					}
 				}
@@ -83,8 +136,8 @@
 							var action = document.createElement('td');
 							
 							date.innerHTML = new Date(games[i].date);
-							winner.innerHTML = games[i].winner;
-							loser.innerHTML = games[i].winner == games[i].sender ? games[i].receiver : games[i].sender;
+							winner.innerHTML = games[i].winner == games[i].sender ? games[i].senderName : games[i].receiverName;
+							loser.innerHTML = games[i].winner == games[i].sender ? games[i].receiverName : games[i].senderName;
 							winnerScore.innerHTML = games[i].winnerScore;
 							loserScore.innerHTML = games[i].loserScore;
 							
@@ -99,7 +152,13 @@
 								decline.onclick = function(bruh = games[i].id){declineGame(bruh)};
 								action.appendChild(accept);
 								action.appendChild(decline);
-							} // TODO: Need else statement here to handle us being the sender and canceling games. As of 10/23/22 5 PM, no API for game cancelation exists
+							} else {
+								var cancel = document.createElement('button');
+								cancel.innerHTML = "X";
+								cancel.id = "cancel" + games[i].id;
+								cancel.onclick = function(bruh = games[i].id){cancelGame(bruh)};
+								action.appendChild(cancel);
+							}
 							
 							newRow.appendChild(date);
 							newRow.appendChild(winner);
@@ -107,7 +166,7 @@
 							newRow.appendChild(winnerScore);
 							newRow.appendChild(loserScore);
 							newRow.appendChild(action);
-							gamesTable.appendChild(newRow);
+							gamesTable.childNodes[5].appendChild(newRow);
 							
 						}
 					}
@@ -119,15 +178,32 @@
 	</head>
 	<body>
 		<p>Your Pending Games:</p>
-		<table id="gamesTable" class="leaderboard">
-			<tr>
-				<th>Date</th>
-				<th>Winner</th>
-				<th>Loser</th>
-				<th>Winner's Score</th>
-				<th>Loser's Score</th>
-				<th>Action</th>
-			</tr>
+		<table id="gamesTable" class="leaderboard"> <!-- Using this class as a temporary to look decent while I work on the backend & functionality -->
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th>Winner</th>
+					<th>Loser</th>
+					<th>Winner's Score</th>
+					<th>Loser's Score</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
 		</table>
+		<div class="recent"> <!-- Using this class as a temporary to look decent while I work on the backend & functionality -->
+			<h1>Create new game:</h1>
+			<p id="errorMessage" style="color: red;"></p>
+			<p>Opponent Username:</p>
+			<input type="text" id="toUser" placeholder="aford1">
+			<p>My Score:</p>
+			<input type="number" id="myScore" placeholder="1">
+			<p>Their Score:</p>
+			<input type="number" id="theirScore" placeholder="21">
+			<p>
+				<button type="button" id="submitButton" onclick="submitGame()">Submit Game</button>
+			</p>
+		</div>
 	</body>
 </html>

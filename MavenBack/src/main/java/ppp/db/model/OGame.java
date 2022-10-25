@@ -1,6 +1,7 @@
 package ppp.db.model;
 
 import ppp.db.AbstractModel;
+import ppp.db.controllers.CUser;
 import ppp.meta.StatusEnum;
 import ppp.meta.StatusEnum.Status;
 
@@ -16,12 +17,19 @@ public class OGame extends AbstractModel {
     public int winnerScore = 0;
     public int loserScore = 0;
     
+    private OUser senderUser = new OUser();
+    private OUser receiverUser = new OUser();
+    
     public String toJSON() {
+    	senderUser = CUser.findById(sender, false);
+    	receiverUser = CUser.findById(receiver, false);
     	return "{\"id\":\"" + id + 
     			"\",\"date\":\"" + date.toString() + 
     			"\",\"status\":\"" + status + 
     			"\",\"sender\":\"" + sender + 
     			"\",\"receiver\":\"" + receiver + 
+    			"\",\"senderName\":\"" + senderUser.username + 
+    			"\",\"receiverName\":\"" + receiverUser.username + 
     			"\",\"winner\":\"" + winner + 
     			"\",\"winnerScore\":\"" + winnerScore + 
     			"\",\"loserScore\":\"" + loserScore +

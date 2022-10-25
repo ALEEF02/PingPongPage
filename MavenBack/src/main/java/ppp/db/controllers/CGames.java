@@ -221,7 +221,7 @@ public class CGames {
         	try (ResultSet rs = WebDb.get().select(
 	                "SELECT * " +
 	                        "FROM games " +
-	                        "WHERE status = ? AND ((receiver = ? AND sender = ?) OR (receiver = ? AND sender = ?))", userId1, userId2, userId2, userId1, status.getNum())) {
+	                        "WHERE status = ? AND ((receiver = ? AND sender = ?) OR (receiver = ? AND sender = ?))", status.getNum(), userId1, userId2, userId2, userId1)) {
 	            while (rs.next()) {
 	                ret.add(fillRecord(rs));
 	            }

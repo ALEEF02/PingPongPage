@@ -166,7 +166,9 @@ public class GetGames extends HttpServlet {
 	 * 		acceptGame:
 	 * 			id: id of the game to accept
 	 * 		declineGame:
-	 * 			id: id of the game to accept
+	 * 			id: id of the game to decline
+	 * 		cancelGame:
+	 * 			id: id of the game to cancel
 	 */
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -186,6 +188,7 @@ public class GetGames extends HttpServlet {
 		if (me.id == 0) {
 			response.setStatus(500);
 		    response.getWriter().print(createError("User is both logged in and not logged in??"));
+		    return;
 		}
 		
 		try {
@@ -258,7 +261,7 @@ public class GetGames extends HttpServlet {
 				response.setStatus(200);
 				return;
 				
-			} else if (parameters.containsKey("acceptGame") || parameters.containsKey("declineGame")) {
+			} else if (parameters.containsKey("acceptGame") || parameters.containsKey("declineGame") || parameters.containsKey("cancelGame")) {
 				
 				if (!parameters.containsKey("id")) {
 					response.setStatus(400);
@@ -282,7 +285,7 @@ public class GetGames extends HttpServlet {
 				    return;
 				}
 				
-				if (existingGame.receiver != me.id) {
+				if (((parameters.containsKey("acceptGame") || parameters.containsKey("declineGame")) && existingGame.receiver != me.id) || (parameters.containsKey("cancelGame") && existingGame.sender != me.id)) {
 					response.setStatus(401);
 					response.getWriter().println(createError("Not your game!"));
 				    return;
@@ -299,8 +302,15 @@ public class GetGames extends HttpServlet {
 					
 					// TODO: Epic elo things here :D
 					
+				} else if (parameters.containsKey("declineGame")) {
+					existingGame.status = StatusEnum.Status.REJECTED;
+					
+					// TODO: Anti-spam & over-rejection things here D:
 				} else {
-					existingGame.status = StatusEnum.Status.REJECTED;					
+					// Do we actually want to keep the game on record?
+					CGames.delete(existingGame);
+					response.setStatus(200);
+					return;
 				}
 				
 				CGames.update(existingGame);

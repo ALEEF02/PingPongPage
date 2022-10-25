@@ -84,8 +84,8 @@
 							var winnerScore = document.createElement('td');
 							var loserScore = document.createElement('td');
 							date.innerHTML = new Date(games[i].date);
-							winner.innerHTML = games[i].winner;
-							loser.innerHTML = games[i].winner == games[i].sender ? games[i].receiver : games[i].sender;
+							winner.innerHTML = games[i].winner == games[i].sender ? games[i].senderName : games[i].receiverName;
+							loser.innerHTML = games[i].winner == games[i].sender ? games[i].receiverName : games[i].senderName;
 							winnerScore.innerHTML = games[i].winnerScore;
 							loserScore.innerHTML = games[i].loserScore;
 							newRow.appendChild(date);
@@ -157,7 +157,7 @@
 	<div class = "navBar">
 		<a href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" class = "left">Welcome to the UCC Ping Pong Page!</a>
 		<a id="userButton" href="/login">...</a> <!--Leads to user page to display user name, stats, etc.-->
-		<a href = "/game">Register A Game Here</a> <!--Leads to seprate page for ppl to register their games-->
+		<a href = "/games">Manage Your Games</a> <!--Leads to seprate page for ppl to register their games-->
 	</div>
 	<div class = "tablesContainer">
 		<table id="playerTable" class = "leaderboard">
