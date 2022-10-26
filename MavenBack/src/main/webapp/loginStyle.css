@@ -1,0 +1,75 @@
+@font-face {
+	font-family: 'Source Sans Pro';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("https://fonts.gstatic.com/s/sourcesanspro/v13/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7lujVj9w.woff2") format("woff2");
+} /* Change font if wanted */
+
+:root {
+    --blue:#007bff;--indigo:#6610f2;--purple:#6f42c1;--pink:#e83e8c;--red:#dc3545;--orange:#fd7e14;--yellow:#ffc107;--green:#28a745;--teal:#20c997;--cyan:#17a2b8;--white:#fff;--gray:#6c757d;--gray-dark:#343a40;--primary:#007bff;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--breakpoint-xs:0;--breakpoint-sm:576px;--breakpoint-md:768px;--breakpoint-lg:992px;--breakpoint-xl:1200px;--font-family-sans-serif:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";--font-family-monospace:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;user-select: none;scrollbar-color: dark;-webkit-tap-highlight-color: transparent;
+}
+
+*,::after,::before {
+    box-sizing: border-box
+}
+
+html, body {
+	height: auto;
+}
+
+body {
+	font: normal 20px 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+	margin: 0 auto;
+	background-color: #322e2b;
+}
+
+.inputContainer{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 500px;
+	height: 600px;
+	background: #262521;
+	border-radius: 25px;
+	border: 2px solid white;
+	color: white;
+}
+.loginHeading{
+	color: white;
+	text-align: center;
+}
+input[type=text]{
+  width: 100%;
+  padding: 12px 20px;
+  margin: 16px 16px 0px, 16px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-sizing: border-box;
+  background-color: #393939;
+  
+  color: white;
+}
+
+.emailBtn{
+	background-color: #7fa751;
+	text-align: center;
+	color: white;
+	display: block;
+	border-radius: 8px;
+	width: 400px;
+	height: 60px;
+	font-size: 24px;
+	
+	position: relative;
+	left: 50px;
+	top: 30px;
+	
+	cursor: pointer;
+}
+.emailBtn:hover{
+	background-color: white;
+	color: #7fa751;
+}

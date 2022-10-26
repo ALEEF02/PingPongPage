@@ -22,7 +22,8 @@
 				if (auth != "") {
 					postData += '&authCode=' + auth;
 				} else {
-					document.getElementById('auth').hidden=false;
+					document.getElementById('auth').style.display="inline-block";
+					document.getElementById('authHeader').style.display="block";
 					document.getElementById('submitButton').innerHTML = "Submit One-Time Password";
 				}
 				var ajaxRequest = new XMLHttpRequest();
@@ -37,15 +38,22 @@
 				}
 			}
 		</script>
+		<link rel="stylesheet" type="text/css" href="loginStyle.css">
 	</head>
 	<body>
-			<p>Login Here. You must use a @stevens.edu email to login. This page also acts as a sign up if it's your first time :D</p>
-			<p>Email:</p>
-			<input type="text" id="email">
-			<p>Auth Code:</p>
-			<input type="text" id="auth" hidden=true>
-			<p>
-				<button type="button" id="submitButton" onclick="sendEmail()">Send Email</button>
-			</p>
+			<div class = "inputContainer">
+				<div class = "loginHeading">
+					<h1>Login</h1>
+					<p>You must use a @stevens.edu email to login. The email <em>WILL</em> go to your junk folder in Outlook. This also acts as a sign up if its your first time here :D</p>
+				</div>
+					
+				<p>Email:</p>
+				<input type="text" id="email">
+				<p id="authHeader" style="display: none;">Auth Code:</p>
+				<input type="text" id="auth" style="display: none;">
+				<p>
+					<button type="button" id="submitButton" onclick="sendEmail()" class = "emailBtn">Send Email</button>
+				</p>
+			</div>
 	</body>
 </html>
