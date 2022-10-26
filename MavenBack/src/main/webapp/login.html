@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Login</title>
 		<script>
 			var login = new XMLHttpRequest();
@@ -22,7 +24,7 @@
 				if (auth != "") {
 					postData += '&authCode=' + auth;
 				} else {
-					document.getElementById('auth').style.display="inline-block";
+					document.getElementById('auth').style.display="inherit";
 					document.getElementById('authHeader').style.display="block";
 					document.getElementById('submitButton').innerHTML = "Submit One-Time Password";
 				}
@@ -51,9 +53,7 @@
 				<input type="text" id="email">
 				<p id="authHeader" style="display: none;">Auth Code:</p>
 				<input type="text" id="auth" style="display: none;">
-				<p>
 					<button type="button" id="submitButton" onclick="sendEmail()" class = "emailBtn">Send Email</button>
-				</p>
 			</div>
 	</body>
 </html>

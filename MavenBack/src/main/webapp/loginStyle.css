@@ -36,15 +36,21 @@ body {
 	border: 2px solid white;
 	color: white;
 }
+
 .loginHeading{
 	color: white;
 	text-align: center;
 }
+
+.loginHeading p {
+	margin: 0 2.5%;
+}
+
 input[type=text]{
-  width: 100%;
+  width: 95%;
   padding: 12px 20px;
-  margin: 16px 16px 0px, 16px;
-  display: inline-block;
+  margin: auto;	
+  display: inherit;
   border: 1px solid #ccc;
   border-radius: 10px;
   box-sizing: border-box;
@@ -69,7 +75,25 @@ input[type=text]{
 	
 	cursor: pointer;
 }
+
 .emailBtn:hover{
 	background-color: white;
 	color: #7fa751;
+}
+
+p {
+	margin-left: 2.5%;
+}
+
+@media (max-width: 800px) {
+	.inputContainer{
+		width: 95vw;
+		align-items: center;
+	}
+	
+	.emailBtn{
+		width: 70vw;
+		margin: auto;
+		left: 0px;
+	}
 }
