@@ -22,6 +22,7 @@ import ppp.db.model.OUser;
  * GET:
  * 	Parameters, highest priority first:
  * 		None: The logged in user. Useful for determining if the user is logged in
+ * 		withRank: Specify to also get the user's rank. Will add some processing time
  * 		ranks [exc]: Return the top ranking players, limited to parameter. Valid 1-50. Default 10.
  * 		user [exc]:
  * 			name: Return the user by the name
@@ -75,6 +76,9 @@ public class GetUsers extends HttpServlet {
 				    return;
 				}
 				
+				if (parameters.containsKey("withRank")) {
+					user.getRank();
+				}
 				response.getWriter().print(user.toPublicJSON());
 				return;
 				

@@ -331,7 +331,13 @@ public class GetGames extends HttpServlet {
 		}
 	}
 	
-	private String createError(String error) {
+	/**
+	 * Creates a JSON string with an error
+	 *
+	 * @param error the error
+	 * @return String JSON to be set to a client
+	 */
+	public static String createError(String error) {
 		return "{\"error\":\"" + error + "\"}";
 	}
 }

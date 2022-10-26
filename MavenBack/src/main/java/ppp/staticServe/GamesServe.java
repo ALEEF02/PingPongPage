@@ -37,6 +37,9 @@ public class GamesServe extends HttpServlet {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			response.setStatus(500);
+		    response.getWriter().print("{\"error\":\"" + e + "\"}");
+		    return;
 		}
 	}
 }

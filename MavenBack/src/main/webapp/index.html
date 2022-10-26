@@ -59,6 +59,7 @@
 							var user = JSON.parse(login.responseText);
 							var userButton = document.getElementById("userButton");
 							userButton.innerHTML = "Hi, " + user.username + " :)";
+							userButton.href = "/logout";
 						} else {
 							// User is not logged in
 							var userButton = document.getElementById("userButton");

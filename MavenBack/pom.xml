@@ -74,18 +74,12 @@
 		<version>7.5.0</version>
 	</dependency>
 	
-	<!-- 
+	<!-- JSP Support -->
 	<dependency>
 		<groupId>org.eclipse.jetty</groupId>
 		<artifactId>apache-jsp</artifactId>
-		<version>9.2.15.v20160210</version>
+		<version>${jetty.version}</version>
 	</dependency>
-	      
-	<dependency>
-		<groupId>gtjstl</groupId>
-		<artifactId>jstl</artifactId>
-		<version>1.2</version>
-	</dependency> -->
 	
   </dependencies>
 

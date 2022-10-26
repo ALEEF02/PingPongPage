@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>User</title>
+		<script>
+			window.addEventListener('DOMContentLoaded', function() {
+				console.log(window.location.href);
+				var userReq = new XMLHttpRequest();
+			
+				userReq.onreadystatechange = function(){
+					if (userReq.readyState == 4){
+						if (userReq.status == 200) {
+							var userInfo = JSON.parse(userReq.responseText);
+							document.getElementById("elo").innerHTML = userInfo.elo;
+							document.getElementById("jd").innerHTML = userInfo.signUpDate;
+							document.getElementById("ld").innerHTML = userInfo.lastSignIn;
+							document.getElementById("uname").innerHTML = userInfo.username;
+							document.getElementById("rank").innerHTML = userInfo.rank;
+							document.title = userInfo.username;
+						} else {
+							console.warn(JSON.parse(userReq.responseText).error);
+						}
+					}
+				}
+				userReq.open('GET', '/api/users?withRank=1&user=' + window.location.href.substring(window.location.href.indexOf('/user/') + 6));
+				userReq.send();
+			});
+		</script>
+	</head>
+	<body>
+		<h1 id="uname">...</h1>
+		<h2>Elo:</h2>
+		<p id="elo"></p>
+		<h2>Overall Rank:</h2>
+		<p id="rank"></p>
+		<h2>Join Date:</h2>
+		<p id="jd"></p>
+		<h2>Last Login:</h2>
+		<p id="ld"></p>
+	</body>
+</html>

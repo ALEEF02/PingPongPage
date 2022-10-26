@@ -1,6 +1,7 @@
 package ppp.db.model;
 
 import ppp.db.AbstractModel;
+import ppp.db.controllers.CUser;
 
 import java.sql.Timestamp;
 
@@ -30,5 +31,12 @@ public class OUser extends AbstractModel {
     			"\",\"banned\":\"" + banned + 
     			"\",\"rank\":\"" + rank + 
     			"\"}";
+    }
+    
+    /**
+	 * Retrieves the user's rank. Sets it as the variable {@value rank} of this object.
+	 */
+    public void getRank() {
+    	rank = CUser.getUserRank(id);
     }
 }

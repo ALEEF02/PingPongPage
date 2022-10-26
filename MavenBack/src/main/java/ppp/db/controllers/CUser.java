@@ -12,7 +12,7 @@ import ppp.db.model.OUser;
 public class CUser {
 	
 	/**
-	 * Find a user by their email. This does NOT check to see if they are logged in.
+	 * Find a user by their username. This does NOT check to see if they are logged in.
 	 * DOES NOT serve token info
 	 *
 	 * @param username the username to lookup
@@ -144,20 +144,26 @@ public class CUser {
         return list;
     }
     
-    public static OUser getUserRank(int userId) {
-        OUser s = new OUser();
+    /**
+	 * Returns the elo ranking of the specified user.
+	 *
+	 * @param userId the internal user ID
+	 * @return int the rank, -1 if it wasn't found (most likely {@code userId} doesn't exist)
+	 */
+    public static int getUserRank(int userId) {
+        int rank = -1;
         try (ResultSet rs = WebDb.get().select(
                 "WITH Ranks AS " +
-                "(SELECT *, RANK() OVER(ORDER BY elo DESC) AS rank FROM users WHERE id > 1) " +
+                "(SELECT *, RANK() OVER(ORDER BY elo DESC) AS rank FROM users) " +
                 "SELECT * FROM Ranks WHERE id = ? ", userId)) {
             if (rs.next()) {
-                s = fillRecordRanking(rs);
+            	rank = rs.getInt("rank");
             }
             rs.getStatement().close();
         } catch (Exception e) {
             System.out.println(e);
         }
-        return s;
+        return rank;
     }
     
     public static List<OUser> getTopRanks(int numPlayers) {
@@ -165,7 +171,7 @@ public class CUser {
         List<OUser> ret = new ArrayList<>();
         try (ResultSet rs = WebDb.get().select(
                 "WITH Ranks AS " +
-                "(SELECT *, RANK() OVER(ORDER BY elo DESC) AS rank FROM users WHERE id > 0) " +
+                "(SELECT *, RANK() OVER(ORDER BY elo DESC) AS rank FROM users) " +
                 "SELECT * FROM Ranks LIMIT ? ", numPlayers)) {
         	while (rs.next()) {
                 ret.add(fillRecordRanking(rs));
