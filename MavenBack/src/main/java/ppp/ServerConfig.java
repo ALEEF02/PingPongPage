@@ -37,11 +37,11 @@ public class ServerConfig {
     @ConfigurationOption
     public static String EMAIL_HOST = "";
     
-    //Emailer host
+    //Emailer user
     @ConfigurationOption
     public static String EMAIL_USER = "";
     
-    //Emailer host
+    //Emailer password
     @ConfigurationOption
     public static String EMAIL_PASSWORD = "";
 }

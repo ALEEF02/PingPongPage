@@ -14,6 +14,8 @@
 						if (userReq.status == 200) {
 							var userInfo = JSON.parse(userReq.responseText);
 							document.getElementById("elo").innerHTML = userInfo.elo;
+							document.getElementById("rd").innerHTML = userInfo.rd;
+							document.getElementById("vol").innerHTML = userInfo.vol;
 							document.getElementById("jd").innerHTML = userInfo.signUpDate;
 							document.getElementById("ld").innerHTML = userInfo.lastSignIn;
 							document.getElementById("uname").innerHTML = userInfo.username;
@@ -31,8 +33,12 @@
 	</head>
 	<body>
 		<h1 id="uname">...</h1>
-		<h2>Elo:</h2>
+		<h2>Rating:</h2>
 		<p id="elo"></p>
+		<h2>Rating Deviation:</h2>
+		<p id="rd"></p>
+		<h2>Volatility:</h2>
+		<p id="vol"></p>
 		<h2>Overall Rank:</h2>
 		<p id="rank"></p>
 		<h2>Join Date:</h2>

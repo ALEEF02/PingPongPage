@@ -6,7 +6,9 @@ public final class StatusEnum {
 		REJECTED(0),
 	    PENDING(1),
 	    ACCEPTED(2),
-	    ANY(-1);
+	    CALCULATED(3),
+	    ANY(-1),
+	    FILED(-2); // Accepted or Calculated AKA cannot be changed by the user
 	
 	    private final int type;
 		

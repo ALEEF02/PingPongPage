@@ -82,13 +82,19 @@
 							var date = document.createElement('td');
 							var winner = document.createElement('td');
 							var loser = document.createElement('td');
+							var winnerLink = document.createElement('a');
+							var loserLink = document.createElement('a');
 							var winnerScore = document.createElement('td');
 							var loserScore = document.createElement('td');
 							date.innerHTML = new Date(games[i].date);
-							winner.innerHTML = games[i].winner == games[i].sender ? games[i].senderName : games[i].receiverName;
-							loser.innerHTML = games[i].winner == games[i].sender ? games[i].receiverName : games[i].senderName;
+							winnerLink.innerHTML = games[i].winner == games[i].sender ? games[i].senderName : games[i].receiverName;
+							loserLink.innerHTML = games[i].winner == games[i].sender ? games[i].receiverName : games[i].senderName;
+							winnerLink.href = "/user/" + winnerLink.innerHTML;
+							loserLink.href = "/user/" + loserLink.innerHTML;
 							winnerScore.innerHTML = games[i].winnerScore;
 							loserScore.innerHTML = games[i].loserScore;
+							winner.appendChild(winnerLink);
+							loser.appendChild(loserLink);
 							newRow.appendChild(date);
 							newRow.appendChild(winner);
 							newRow.appendChild(loser);
@@ -110,9 +116,12 @@
 						for (var i = 0; i < users.length; i++) {
 							var newRow = document.createElement('tr');
 							var user = document.createElement('td');
+							var userLink = document.createElement('a');
 							var elo = document.createElement('td');
-							user.innerHTML = users[i].username;
+							userLink.innerHTML = users[i].username;
+							userLink.href = "/user/" + userLink.innerHTML;
 							elo.innerHTML = users[i].elo;
+							user.appendChild(userLink);
 							newRow.appendChild(user);
 							newRow.appendChild(elo);
 							playerTable.appendChild(newRow);

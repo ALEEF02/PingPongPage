@@ -25,6 +25,23 @@ public class CGames {
         return bank;
     }
     
+    public static int getNumOfAcceptedGamesForUser(int userId) {
+    	int games = 0;
+        
+		try (ResultSet rs = WebDb.get().select(
+	            "SELECT * " +
+	                    "FROM games " +
+	                    "WHERE status = ? AND (receiver = ? OR sender = ?)", StatusEnum.Status.ACCEPTED.getNum(), userId, userId)) {
+	        while (rs.next()) {
+	            games++;
+	        }
+	        rs.getStatement().close();
+	    } catch (Exception e) {
+	        System.out.println(e);
+	    }
+	    return games;
+    }
+    
     public static OGame getGameById(int id) {
         OGame ret = new OGame();
         try (ResultSet rs = WebDb.get().select(
@@ -69,6 +86,22 @@ public class CGames {
     public static List<OGame> getLatestGamesByStatus(StatusEnum.Status status, int limit) {
     	if (limit < 1 || limit > 200) limit = 20;
     	if (status == StatusEnum.Status.ANY) return getLatestGames(limit);
+    	if (status == StatusEnum.Status.FILED) {
+    		List<OGame> ret = new ArrayList<>();
+            try (ResultSet rs = WebDb.get().select(
+                    "SELECT * " +
+                            "FROM games " +
+                    		"WHERE status > 1 " +
+                            "ORDER BY id DESC LIMIT ?", limit)) {
+                while (rs.next()) {
+                    ret.add(fillRecord(rs));
+                }
+                rs.getStatement().close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+            return ret;
+    	}
     	
         List<OGame> ret = new ArrayList<>();
         try (ResultSet rs = WebDb.get().select(
@@ -117,7 +150,21 @@ public class CGames {
 	            System.out.println(e);
 	        }
 	        return ret;
-        } else {
+        } else if (status == StatusEnum.Status.FILED) {
+            try (ResultSet rs = WebDb.get().select(
+                    "SELECT * " +
+                            "FROM games " +
+                    		"WHERE status > 1 AND sender = ?" +
+                            "ORDER BY id DESC LIMIT ?", userId)) {
+                while (rs.next()) {
+                    ret.add(fillRecord(rs));
+                }
+                rs.getStatement().close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+            return ret;
+    	} else {
         	try (ResultSet rs = WebDb.get().select(
 	                "SELECT * " +
 	                        "FROM games " +
@@ -148,7 +195,21 @@ public class CGames {
 	            System.out.println(e);
 	        }
 	        return ret;
-        } else {
+        } else if (status == StatusEnum.Status.FILED) {
+            try (ResultSet rs = WebDb.get().select(
+                    "SELECT * " +
+                            "FROM games " +
+                    		"WHERE status > 1 AND receiver = ?" +
+                            "ORDER BY id DESC LIMIT ?", userId)) {
+                while (rs.next()) {
+                    ret.add(fillRecord(rs));
+                }
+                rs.getStatement().close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+            return ret;
+    	} else {
         	try (ResultSet rs = WebDb.get().select(
 	                "SELECT * " +
 	                        "FROM games " +
@@ -170,10 +231,27 @@ public class CGames {
         	return getGamesForUser(userId);
         }
         
+        if (status == StatusEnum.Status.FILED) {
+            try (ResultSet rs = WebDb.get().select(
+            		"SELECT * " +
+    	                    "FROM games " + 
+    	                    "WHERE status > 1 AND (receiver = ? OR sender = ?) " +
+    	            		"ORDER BY id DESC ", userId, userId)) {
+                while (rs.next()) {
+                    ret.add(fillRecord(rs));
+                }
+                rs.getStatement().close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+            return ret;
+    	}
+        
 		try (ResultSet rs = WebDb.get().select(
 	            "SELECT * " +
 	                    "FROM games " +
-	                    "WHERE status = ?", status.getNum())) {
+	                    "WHERE status = ? AND (receiver = ? OR sender = ?) " + 
+	            		"ORDER BY id DESC", status.getNum(), userId, userId)) {
 	        while (rs.next()) {
 	            ret.add(fillRecord(rs));
 	        }
@@ -217,7 +295,20 @@ public class CGames {
 	        } catch (Exception e) {
 	            System.out.println(e);
 	        }
-        } else {
+        } else if (status == StatusEnum.Status.FILED) {
+            try (ResultSet rs = WebDb.get().select(
+            		"SELECT * " +
+	                        "FROM games " +
+	                        "WHERE status > 1 AND ((receiver = ? AND sender = ?) OR (receiver = ? AND sender = ?))", userId1, userId2, userId2, userId1)) {
+                while (rs.next()) {
+                    ret.add(fillRecord(rs));
+                }
+                rs.getStatement().close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+            return ret;
+    	} else {
         	try (ResultSet rs = WebDb.get().select(
 	                "SELECT * " +
 	                        "FROM games " +

@@ -2,6 +2,7 @@ package ppp.api;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import ppp.db.controllers.CGames;
 import ppp.db.controllers.CUser;
 import ppp.db.model.OGame;
 import ppp.db.model.OUser;
+import ppp.meta.GlickoTwo;
 import ppp.meta.StatusEnum;
 import ppp.meta.StatusEnum.Status;
 
@@ -245,6 +247,13 @@ public class GetGames extends HttpServlet {
 					return;
 				}
 				
+				if ((myScore > theirScore && myScore != 11 && myScore != 21 && myScore - theirScore != 2) || 
+						(myScore < theirScore && theirScore != 11 && theirScore != 21 && theirScore - myScore != 2)) {
+					response.setStatus(400);
+					response.getWriter().println(createError("A non-11/21 score should win by exactly 2"));
+					return;
+				}
+				
 				// Everything looks good with this submission. Let's chuck it into the database.
 				
 				if (myScore > theirScore) {
@@ -299,11 +308,86 @@ public class GetGames extends HttpServlet {
 				
 				if (parameters.containsKey("acceptGame")) {
 					existingGame.status = StatusEnum.Status.ACCEPTED;
+					CGames.update(existingGame);
 					
 					// TODO: Epic elo things here :D
+					int acceptedGames = CGames.getLatestGamesByStatus(StatusEnum.Status.ACCEPTED).size();
+					System.out.println(acceptedGames + " of " + GlickoTwo.RATING_PERIOD + " games until Glicko");
+					if (acceptedGames >= GlickoTwo.RATING_PERIOD) {
+						
+						GlickoTwo.run();
+						
+						/*
+						List<OGame> gamesPlayed = CGames.getGamesForUserByStatus(me.id, StatusEnum.Status.ACCEPTED);
+						List<OUser> opponents = new ArrayList<>();
+						for (int i = 0; i < GlickoTwo.RATING_PERIOD; i++) {
+							int opponentID = gamesPlayed.get(i).sender == me.id ? gamesPlayed.get(i).receiver : gamesPlayed.get(i).sender;
+							opponents.add(CUser.findById(opponentID, false));
+						}
+						int m = GlickoTwo.RATING_PERIOD;
+						// Step 2 in Glicko2
+						double mu = me.getMu();
+						double phi = me.getPhi();
+						
+						// Step 3
+						double vSum = 0;
+						for (int j = 1; j <= m; j++) {
+							int oppInd = j-1;
+							vSum += ( Math.pow(GlickoTwo.g(opponents.get(oppInd).getPhi()), 2) * GlickoTwo.E(mu, opponents.get(oppInd).getMu(), opponents.get(oppInd).getPhi()) * (1 - GlickoTwo.E(mu, opponents.get(oppInd).getMu(), opponents.get(oppInd).getPhi())) );
+						}
+						double v = 1 / vSum;
+						
+						// Step 4
+						double deltaSum = 0;
+						for (int j = 1; j <= m; j++) {
+							int oppInd = j-1;
+							deltaSum += ( GlickoTwo.g(opponents.get(oppInd).getPhi()) * (gamesPlayed.get(oppInd).calcScore(me.id) - GlickoTwo.E(mu, opponents.get(oppInd).getMu(), opponents.get(oppInd).getPhi())) );
+						}
+						double delta = v * deltaSum;
+						
+						// Step 5
+						final double a = Math.log(Math.pow(me.volatility, 2));
+						double A = a;
+						double B = Math.log(Math.pow(delta, 2) - Math.pow(phi, 2) - v);
+						if (Math.pow(delta, 2) <= Math.pow(phi, 2) + v) {
+							double k = 1;
+							while (GlickoTwo.f((a - (k*GlickoTwo.TAU)), delta, phi, v, a) < 0) {
+								k += 1;
+							}
+							B = a - (k*GlickoTwo.TAU);
+						}
+						double fA = GlickoTwo.f(A, delta, phi, v, a);
+						double fB = GlickoTwo.f(B, delta, phi, v, a);
+						while (Math.abs(B - A) > GlickoTwo.EPSILON) {
+							double C = A + (((A - B) * fA) / (fB - fA));
+							double fC = GlickoTwo.f(C, delta, phi, v, a);
+							if (fC * fB <= 0) {
+								A = B;
+								fA = fB; 
+							} else {
+								fA /= 2;
+							}
+							B = C;
+							fB = fC;
+						}
+						double volatilityPrime = Math.exp(A/2);
+						
+						// Step 6
+						double phiAsterisk = Math.sqrt(Math.pow(phi, 2) + Math.pow(volatilityPrime, 2));
+						
+						// Step 7
+						double phiPrime = 1 / (Math.sqrt( (1 / Math.pow(phiAsterisk, 2)) + (1 / v) ));
+						double muPrime = mu + (Math.pow(phiPrime, 2) * deltaSum);
+						
+						// Step 8
+						double ratingPrime = (GlickoTwo.GLICKO2_CONV * muPrime) + GlickoTwo.BASE_RATING;
+						double rdPrime = GlickoTwo.GLICKO2_CONV * phiPrime;
+						*/
+					}
 					
 				} else if (parameters.containsKey("declineGame")) {
 					existingGame.status = StatusEnum.Status.REJECTED;
+					CGames.update(existingGame);
 					
 					// TODO: Anti-spam & over-rejection things here D:
 				} else {
@@ -313,7 +397,6 @@ public class GetGames extends HttpServlet {
 					return;
 				}
 				
-				CGames.update(existingGame);
 				response.setStatus(200);
 				return;
 			}

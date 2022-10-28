@@ -20,6 +20,27 @@ public class OGame extends AbstractModel {
     private OUser senderUser = new OUser();
     private OUser receiverUser = new OUser();
     
+    /**
+	 * Calculate the score against an opponent.
+	 * Where 0 is absolute loss, 0.5 is tie, 1 is absolute win
+	 * @see <a href="https://www.desmos.com/calculator/h2efschvsv">desmos visualization</a>
+	 * 
+	 * @param playerId the userId of the player, NOT the opponent
+	 * @return double Score From 0.0 - 0.5
+	 */
+    public double calcScore(int playerId) {
+		// lossRate is a function of diff, as defined, from 0 - 0.5. 0 represents a tie, 0.5 represents absolute loss
+		double diff = (winnerScore - loserScore) / (winnerScore + loserScore);
+		double lossRate = ( (1 / Math.log10(21)) * Math.log10((20 * diff) + 1) ) / 2;
+		double score = 0.5 - lossRate;
+		
+    	if (playerId == winner) {
+    		score = 1 - score;
+    	}
+    	
+    	return score;
+    }
+    
     public String toJSON() {
     	senderUser = CUser.findById(sender, false);
     	receiverUser = CUser.findById(receiver, false);

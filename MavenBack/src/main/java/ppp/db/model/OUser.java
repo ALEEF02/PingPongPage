@@ -2,6 +2,7 @@ package ppp.db.model;
 
 import ppp.db.AbstractModel;
 import ppp.db.controllers.CUser;
+import ppp.meta.GlickoTwo;
 
 import java.sql.Timestamp;
 
@@ -11,11 +12,21 @@ public class OUser extends AbstractModel {
     public String email = "";
     public String token = "";
     public Timestamp tokenExpiryDate = null;
-    public int elo = 1400;
+    public double rating = GlickoTwo.BASE_RATING; // TODO: Update this to double
+    public double rd = GlickoTwo.BASE_RD; // TODO: Update this to double
+    public double volatility = 0; // TODO: Update this to double
     public Timestamp signUpDate = null;
     public Timestamp lastSignIn = null;
     public boolean banned = false;
     public int rank = -1;
+    
+    public double getMu() {
+    	return (rating - GlickoTwo.BASE_RATING) / GlickoTwo.GLICKO2_CONV;
+    }
+    
+    public double getPhi() {
+    	return rd / GlickoTwo.GLICKO2_CONV;
+    }
     
 	/**
 	 * Returns a JSON Object as a String with insensitive info
@@ -25,7 +36,9 @@ public class OUser extends AbstractModel {
     public String toPublicJSON() {
     	return "{\"id\":\"" + id + 
     			"\",\"username\":\"" + username + 
-    			"\",\"elo\":\"" + elo + 
+    			"\",\"elo\":\"" + rating + 
+    			"\",\"rd\":\"" + rd + 
+    			"\",\"vol\":\"" + volatility + 
     			"\",\"signUpDate\":\"" + signUpDate + 
     			"\",\"lastSignIn\":\"" + lastSignIn + 
     			"\",\"banned\":\"" + banned + 

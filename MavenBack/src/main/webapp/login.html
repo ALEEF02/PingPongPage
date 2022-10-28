@@ -10,7 +10,7 @@
 			login.onreadystatechange = function(){
 				if (login.readyState == 4 && login.status == 200) {
 					// User is already logged in
-					window.location.replace("http://localhost:8080/");
+					window.location.replace("/");
 				}
 			}
 			login.open('GET', '/api/users');
@@ -29,13 +29,13 @@
 					document.getElementById('submitButton').innerHTML = "Submit One-Time Password";
 				}
 				var ajaxRequest = new XMLHttpRequest();
-				ajaxRequest.open('POST', 'http://localhost:8080/api/auth');
+				ajaxRequest.open('POST', '/api/auth');
 				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 				ajaxRequest.send(postData);
 				ajaxRequest.onreadystatechange = function(){
 					if (ajaxRequest.readyState == 4 && ajaxRequest.status == 200 && auth != "") {
 						// User has successfully logged in!
-						window.location.replace("http://localhost:8080/");
+						window.location.replace("/");
 					}
 				}
 			}

@@ -99,7 +99,9 @@ public class CUser {
         s.username = rs.getString("username");
         s.email = rs.getString("email");
         s.tokenExpiryDate = rs.getTimestamp("token_expiry_date");
-        s.elo = rs.getInt("elo");
+        s.rating = rs.getDouble("rating");
+        s.rd = rs.getDouble("rd");
+        s.volatility = rs.getDouble("volatility");
         s.signUpDate = rs.getTimestamp("join_date");
         s.lastSignIn = rs.getTimestamp("login_date");
         s.banned = rs.getBoolean("banned");
@@ -121,6 +123,19 @@ public class CUser {
     public static List<OUser> getBannedUsers() {
         List<OUser> list = new ArrayList<>();
         try (ResultSet rs = WebDb.get().select("SELECT * FROM users WHERE banned = 1")) {
+            while (rs.next()) {
+                list.add(fillRecord(rs));
+            }
+            rs.getStatement().close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    public static List<OUser> getAllNotBannedUsers() {
+        List<OUser> list = new ArrayList<>();
+        try (ResultSet rs = WebDb.get().select("SELECT * FROM users WHERE banned = 0")) {
             while (rs.next()) {
                 list.add(fillRecord(rs));
             }
@@ -154,7 +169,7 @@ public class CUser {
         int rank = -1;
         try (ResultSet rs = WebDb.get().select(
                 "WITH Ranks AS " +
-                "(SELECT *, RANK() OVER(ORDER BY elo DESC) AS rank FROM users) " +
+                "(SELECT *, RANK() OVER(ORDER BY rating DESC) AS rank FROM users) " +
                 "SELECT * FROM Ranks WHERE id = ? ", userId)) {
             if (rs.next()) {
             	rank = rs.getInt("rank");
@@ -171,7 +186,7 @@ public class CUser {
         List<OUser> ret = new ArrayList<>();
         try (ResultSet rs = WebDb.get().select(
                 "WITH Ranks AS " +
-                "(SELECT *, RANK() OVER(ORDER BY elo DESC) AS rank FROM users) " +
+                "(SELECT *, RANK() OVER(ORDER BY rating DESC) AS rank FROM users) " +
                 "SELECT * FROM Ranks LIMIT ? ", numPlayers)) {
         	while (rs.next()) {
                 ret.add(fillRecordRanking(rs));
@@ -206,9 +221,9 @@ public class CUser {
         if (updateToken) {
 	        try {
 	            WebDb.get().query(
-	                    "UPDATE users SET username = ?, email = ?, token = ?, token_expiry_date = ?, elo = ?, join_date = ? , login_date = ? , banned = ? " +
+	                    "UPDATE users SET username = ?, email = ?, token = ?, token_expiry_date = ?, rating = ?, rd = ?, volatility = ?, join_date = ? , login_date = ? , banned = ? " +
 	                            "WHERE id = ? ",
-	                    record.username, record.email, record.token, record.tokenExpiryDate, record.elo, record.signUpDate, record.lastSignIn, record.banned ? 1 : 0, record.id
+	                    record.username, record.email, record.token, record.tokenExpiryDate, record.rating, record.rd, record.volatility, record.signUpDate, record.lastSignIn, record.banned ? 1 : 0, record.id
 	            );
 	        } catch (Exception e) {
 	            e.printStackTrace();
@@ -216,9 +231,9 @@ public class CUser {
         } else {
         	try {
 	            WebDb.get().query(
-	                    "UPDATE users SET username = ?, email = ?, elo = ?, join_date = ? , login_date = ? , banned = ? " +
+	                    "UPDATE users SET username = ?, email = ?, rating = ?, rd = ?, volatility = ?, join_date = ? , login_date = ? , banned = ? " +
 	                            "WHERE id = ? ",
-	                    record.username, record.email, record.elo, record.signUpDate, record.lastSignIn, record.banned ? 1 : 0, record.id
+	                    record.username, record.email, record.rating, record.rd, record.volatility, record.signUpDate, record.lastSignIn, record.banned ? 1 : 0, record.id
 	            );
 	        } catch (Exception e) {
 	            e.printStackTrace();
@@ -229,9 +244,9 @@ public class CUser {
     public static void insert(OUser record) {
         try {
             record.id = WebDb.get().insert(
-                    "INSERT INTO users(username, email, token, token_expiry_date, elo, join_date, login_date, banned) " +
+                    "INSERT INTO users(username, email, token, token_expiry_date, rating, rd, volatility, join_date, login_date, banned) " +
                             "VALUES (?,?,?,?,?,?,?,?)",
-                            record.username, record.email, record.token, record.tokenExpiryDate, record.elo, record.signUpDate, record.lastSignIn, record.banned ? 1 : 0);
+                            record.username, record.email, record.token, record.tokenExpiryDate, record.rating, record.rd, record.volatility, record.signUpDate, record.signUpDate, record.lastSignIn, record.banned ? 1 : 0);
         } catch (Exception e) {
             e.printStackTrace();
         }

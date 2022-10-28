@@ -14,7 +14,7 @@
 						us = JSON.parse(login.responseText);
 						getGames();
 					} else {
-						window.location.replace("http://localhost:8080/login");
+						window.location.replace("/login");
 					}
 				}
 			}
@@ -28,7 +28,7 @@
 				document.getElementById(id.target.id).disabled = true;
 				document.getElementById('decline' + idNum).disabled = true;
 				var ajaxRequest = new XMLHttpRequest();
-				ajaxRequest.open('POST', 'http://localhost:8080/api/games');
+				ajaxRequest.open('POST', '/api/games');
 				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 				ajaxRequest.send(postData);
 				ajaxRequest.onreadystatechange = function(){
@@ -49,7 +49,7 @@
 				document.getElementById(id.target.id).disabled = true;
 				document.getElementById('accept' + idNum).disabled = true;
 				var ajaxRequest = new XMLHttpRequest();
-				ajaxRequest.open('POST', 'http://localhost:8080/api/games');
+				ajaxRequest.open('POST', '/api/games');
 				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 				ajaxRequest.send(postData);
 				ajaxRequest.onreadystatechange = function(){
@@ -70,7 +70,7 @@
 				var postData = 'cancelGame=1&id=' + idNum;
 				document.getElementById(id.target.id).disabled = true;
 				var ajaxRequest = new XMLHttpRequest();
-				ajaxRequest.open('POST', 'http://localhost:8080/api/games');
+				ajaxRequest.open('POST', '/api/games');
 				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 				ajaxRequest.send(postData);
 				ajaxRequest.onreadystatechange = function(){
@@ -93,7 +93,7 @@
 				var postData = 'newGame=1&to=' + toUser + '&myScore=' + myScore + '&theirScore=' + theirScore;
 				document.getElementById("submitButton").disabled = true;
 				var ajaxRequest = new XMLHttpRequest();
-				ajaxRequest.open('POST', 'http://localhost:8080/api/games');
+				ajaxRequest.open('POST', '/api/games');
 				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 				ajaxRequest.send(postData);
 				ajaxRequest.onreadystatechange = function(){
@@ -134,10 +134,15 @@
 							var winnerScore = document.createElement('td');
 							var loserScore = document.createElement('td');
 							var action = document.createElement('td');
+							var winnerLink = document.createElement('a');
+							var loserLink = document.createElement('a');
+							
+							winnerLink.innerHTML = games[i].winner == games[i].sender ? games[i].senderName : games[i].receiverName;
+							loserLink.innerHTML = games[i].winner == games[i].sender ? games[i].receiverName : games[i].senderName;
+							winnerLink.href = "/user/" + winnerLink.innerHTML;
+							loserLink.href = "/user/" + loserLink.innerHTML;
 							
 							date.innerHTML = new Date(games[i].date);
-							winner.innerHTML = games[i].winner == games[i].sender ? games[i].senderName : games[i].receiverName;
-							loser.innerHTML = games[i].winner == games[i].sender ? games[i].receiverName : games[i].senderName;
 							winnerScore.innerHTML = games[i].winnerScore;
 							loserScore.innerHTML = games[i].loserScore;
 							
@@ -160,6 +165,8 @@
 								action.appendChild(cancel);
 							}
 							
+							winner.appendChild(winnerLink);
+							loser.appendChild(loserLink);
 							newRow.appendChild(date);
 							newRow.appendChild(winner);
 							newRow.appendChild(loser);
