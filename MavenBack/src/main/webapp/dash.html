@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Admin Dash</title>
+		<script>			
+			function glicko() {
+				var postData = 'glicko=1';
+				var ajaxRequest = new XMLHttpRequest();
+				ajaxRequest.open('POST', '/dash');
+				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				ajaxRequest.send(postData);
+				ajaxRequest.onreadystatechange = function(){
+					if (ajaxRequest.readyState == 4) {
+						if (ajaxRequest.status == 200) {
+							// Successfully accepted the game
+							console.log(JSON.parse(ajaxRequest.responseText));
+						} else {
+							console.warn(JSON.parse(ajaxRequest.responseText).error);
+						}
+					}
+				}
+			}
+			
+		</script>
+	</head>
+	<body>
+		<h1>Dash</h1>
+		<h2>Run Glicko2</h2>
+		<p>
+			<button type="button" id="glickoButton" onclick="glicko()">Run Glicko2</button>
+		</p>
+	</body>
+</html>

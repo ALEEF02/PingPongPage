@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ppp.db.controllers.CGames;
+import ppp.db.controllers.CGlicko;
 import ppp.db.controllers.CUser;
 import ppp.db.model.OGame;
+import ppp.db.model.OGlicko;
 import ppp.db.model.OUser;
 
 public class GlickoTwo {
@@ -15,8 +17,8 @@ public class GlickoTwo {
 	public static final int BASE_RATING = 1400; // Paper recommends 1500
 	public static final int BASE_RD = 350; // Rating deviation
 	public static final double BASE_VOLATILITY = 0.055; // The degree of expected fluctuation in a player’s rating. Paper recommends 0.6
-	public static final int RATING_PERIOD = 10; // This is the number of TOTAL ACCEPTED GAMES that need to be played before we run Glicko2 Analysis. Paper recommends 10-15 games PER PLAYER!
-	public static final double TAU = 0.4; // Constraint of the change in volatility over time. Paper recommends 0.3-1.2
+	public static final int RATING_PERIOD = 15; // This is the number of TOTAL ACCEPTED GAMES that need to be played before we run Glicko2 Analysis. Paper recommends 10-15 games PER PLAYER!
+	public static final double TAU = 1.0; // Constraint of the change in volatility over time. Lower number is more constrained. Paper recommends 0.3-1.2
 	public static final double GLICKO2_CONV = 173.7178; // A value used in converting between standard and Glicko2 values
 	public static final double EPSILON = 0.000001; // Convergence Tolerance
 	
@@ -54,7 +56,7 @@ public class GlickoTwo {
 			double mu = me.getMu();
 			double phi = me.getPhi();
 			System.out.println("\tµ: " + mu + " φ: " + phi);
-			System.out.println("\tid\tµj\tφj\tg(φ)j\tE\tsj");
+			System.out.println("\tid\tµj\tφj\t\t\t\t\tg(φ)j\t\t\t\tE\tsj");
 			for (int i = 0; i < opponents.size(); i++) {
 				OUser opponent = opponents.get(i);
 				System.out.println("\t" + gamesPlayed.get(i).id + "\t" + opponent.getMu() + "\t" + opponent.getPhi() + "\t" + g(opponent.getPhi()) + "\t" + E(mu, opponent.getMu(), opponent.getPhi()) + "\t" + gamesPlayed.get(i).calcScore(me.id));
@@ -90,7 +92,7 @@ public class GlickoTwo {
 			}
 			double fA = GlickoTwo.f(A, delta, phi, v, a);
 			double fB = GlickoTwo.f(B, delta, phi, v, a);
-			System.out.println("\tA\tB\tf(A)\tf(B)\n\t");
+			System.out.println("\tA\t\t\t\t\tB\t\t\t\t\tf(A)\t\t\t\t\tf(B)");
 			System.out.println("\t" + A + "\t" + B + "\t" + fA + "\t" + fB);
 			while (Math.abs(B - A) > GlickoTwo.EPSILON) {
 				double C = A + (((A - B) * fA) / (fB - fA));
@@ -112,7 +114,7 @@ public class GlickoTwo {
 			System.out.println("\tσ': " + volatilityPrime + " φ*: " + phiAsterisk);
 			
 			// Step 7
-			double phiPrime = 1 / (Math.sqrt( (1 / Math.pow(phiAsterisk, 2)) + (1 / v) ));
+			double phiPrime = 1.0 / (Math.sqrt( (1.0 / Math.pow(phiAsterisk, 2)) + (1.0 / v) ));
 			double muPrime = mu + (Math.pow(phiPrime, 2) * deltaSum);
 			System.out.println("\tφ': " + phiPrime + " µ': " + muPrime);
 			
@@ -138,8 +140,16 @@ public class GlickoTwo {
 		
 		// Let's also record the new Glicko2 values to the db
 		for (OUser updatedPlayer : updatedPlayers) {
+			OGlicko glickoRecord = new OGlicko();
+			glickoRecord.userId = updatedPlayer.id;
+			glickoRecord.rating = updatedPlayer.rating;
+			glickoRecord.rd = updatedPlayer.rd;
+			glickoRecord.volatility = updatedPlayer.volatility;
+			CGlicko.insert(glickoRecord);
 			CUser.update(updatedPlayer);
 		}
+		
+		System.out.println("-------------DONE!---------------");
 	}
 	
 	/**
@@ -151,7 +161,7 @@ public class GlickoTwo {
 	 * @return double E value
 	 */
 	public static double E(double mu, double muj, double phij) {
-		return 1 / (1 + Math.exp(-1 * g(phij) * (mu - muj)));
+		return 1.0 / (1.0 + Math.exp(-1.0 * g(phij) * (mu - muj)));
 	}
 	
 	/**
@@ -161,7 +171,7 @@ public class GlickoTwo {
 	 * @return double g value
 	 */
 	public static double g(double phij) {
-		return 1 / Math.sqrt(1 + ((3 * Math.pow(phij, 2)) / Math.pow(Math.PI, 2)) );
+		return 1.0 / Math.sqrt(1.0 + ((3.0 * Math.pow(phij, 2)) / Math.pow(Math.PI, 2)) );
 	}
 	
 	/**

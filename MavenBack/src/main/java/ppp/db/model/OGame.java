@@ -26,12 +26,12 @@ public class OGame extends AbstractModel {
 	 * @see <a href="https://www.desmos.com/calculator/h2efschvsv">desmos visualization</a>
 	 * 
 	 * @param playerId the userId of the player, NOT the opponent
-	 * @return double Score From 0.0 - 0.5
+	 * @return double Score From 0.0 - 1.0
 	 */
     public double calcScore(int playerId) {
 		// lossRate is a function of diff, as defined, from 0 - 0.5. 0 represents a tie, 0.5 represents absolute loss
-		double diff = (winnerScore - loserScore) / (winnerScore + loserScore);
-		double lossRate = ( (1 / Math.log10(21)) * Math.log10((20 * diff) + 1) ) / 2;
+		double diff = (double)(winnerScore - loserScore) / (double)(winnerScore + loserScore);
+		double lossRate = ( (1.0 / Math.log10(21)) * Math.log10((20.0 * diff) + 1) ) / 2.0;
 		double score = 0.5 - lossRate;
 		
     	if (playerId == winner) {

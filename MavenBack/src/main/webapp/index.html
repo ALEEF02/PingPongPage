@@ -104,7 +104,7 @@
 						}
 					}
 				}
-				gamesReq.open('GET', '/api/games?status=ACCEPTED');
+				gamesReq.open('GET', '/api/games?status=FILED');
 				gamesReq.send();
 				
 				var playerTable = document.getElementById("playerTable");
@@ -120,7 +120,9 @@
 							var elo = document.createElement('td');
 							userLink.innerHTML = users[i].username;
 							userLink.href = "/user/" + userLink.innerHTML;
-							elo.innerHTML = users[i].elo;
+							var eLow = parseFloat(users[i].elo) - (2 * users[i].rd);
+							var eHigh = parseFloat(users[i].elo) + (2 * users[i].rd);
+							elo.innerHTML = parseFloat(users[i].elo).toFixed(1) + " (" + eLow.toFixed(0) + " - " + eHigh.toFixed(0) + ")";
 							user.appendChild(userLink);
 							newRow.appendChild(user);
 							newRow.appendChild(elo);

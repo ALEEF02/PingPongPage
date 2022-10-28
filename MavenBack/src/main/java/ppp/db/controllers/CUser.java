@@ -245,8 +245,8 @@ public class CUser {
         try {
             record.id = WebDb.get().insert(
                     "INSERT INTO users(username, email, token, token_expiry_date, rating, rd, volatility, join_date, login_date, banned) " +
-                            "VALUES (?,?,?,?,?,?,?,?)",
-                            record.username, record.email, record.token, record.tokenExpiryDate, record.rating, record.rd, record.volatility, record.signUpDate, record.signUpDate, record.lastSignIn, record.banned ? 1 : 0);
+                            "VALUES (?,?,?,?,?,?,?,?,?,?)",
+                            record.username, record.email, record.token, record.tokenExpiryDate, record.rating, record.rd, record.volatility, record.signUpDate, record.lastSignIn, record.banned ? 1 : 0);
         } catch (Exception e) {
             e.printStackTrace();
         }

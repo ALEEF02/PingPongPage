@@ -11,7 +11,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import ppp.db.controllers.CGlicko;
 import ppp.db.controllers.CUser;
+import ppp.db.model.OGlicko;
 import ppp.db.model.OUser;
 
 @WebServlet("/api/auth")
@@ -70,6 +72,10 @@ public class AuthServlet extends HttpServlet {
 				user.token = genNewToken();
 				request.getSession().setAttribute("token", user.token);
 				CUser.insert(user);
+				// Record their starting Glicko values
+				OGlicko glickoRecord = new OGlicko();
+				glickoRecord.userId = user.id;
+				CGlicko.insert(glickoRecord);
 				
 			} else { // This is not the user's first login. However, their previous auth is expired. Let's gen them a new one and store it. This will invalidate the old one, too.
 				

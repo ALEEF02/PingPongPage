@@ -23,7 +23,7 @@
 		
 		
 			function acceptGame(id) {
-				var idNum = id.target.id.substring(id.target.id.indexOf("accept") + 6)
+				var idNum = id.target.id.substring(id.target.id.indexOf("accept") + 6);
 				var postData = 'acceptGame=1&id=' + idNum;
 				document.getElementById(id.target.id).disabled = true;
 				document.getElementById('decline' + idNum).disabled = true;
@@ -44,7 +44,7 @@
 			}
 			
 			function declineGame(id) {
-				var idNum = id.target.id.substring(id.target.id.indexOf("decline") + 7)
+				var idNum = id.target.id.substring(id.target.id.indexOf("decline") + 7);
 				var postData = 'declineGame=1&id=' + idNum;
 				document.getElementById(id.target.id).disabled = true;
 				document.getElementById('accept' + idNum).disabled = true;
@@ -66,7 +66,7 @@
 			}
 			
 			function cancelGame(id) {
-				var idNum = id.target.id.substring(id.target.id.indexOf("cancel") + 6)
+				var idNum = id.target.id.substring(id.target.id.indexOf("cancel") + 6);
 				var postData = 'cancelGame=1&id=' + idNum;
 				document.getElementById(id.target.id).disabled = true;
 				var ajaxRequest = new XMLHttpRequest();

@@ -25,20 +25,51 @@ public class CGames {
         return bank;
     }
     
-    public static int getNumOfAcceptedGamesForUser(int userId) {
+    public static int getNumOfGamesForUser(int userId, StatusEnum.Status status) {
     	int games = 0;
-        
-		try (ResultSet rs = WebDb.get().select(
-	            "SELECT * " +
-	                    "FROM games " +
-	                    "WHERE status = ? AND (receiver = ? OR sender = ?)", StatusEnum.Status.ACCEPTED.getNum(), userId, userId)) {
-	        while (rs.next()) {
-	            games++;
-	        }
-	        rs.getStatement().close();
-	    } catch (Exception e) {
-	        System.out.println(e);
-	    }
+        if (status == StatusEnum.Status.ANY) {
+        	
+        	try (ResultSet rs = WebDb.get().select(
+    	            "SELECT * " +
+    	                    "FROM games " +
+    	                    "WHERE (receiver = ? OR sender = ?)", userId, userId)) {
+    	        while (rs.next()) {
+    	            games++;
+    	        }
+    	        rs.getStatement().close();
+    	    } catch (Exception e) {
+    	        System.out.println(e);
+    	    }
+        	
+        } else if (status == StatusEnum.Status.FILED) {
+        	
+        	try (ResultSet rs = WebDb.get().select(
+    	            "SELECT * " +
+    	                    "FROM games " +
+    	                    "WHERE status > 1 AND (receiver = ? OR sender = ?)", userId, userId)) {
+    	        while (rs.next()) {
+    	            games++;
+    	        }
+    	        rs.getStatement().close();
+    	    } catch (Exception e) {
+    	        System.out.println(e);
+    	    }
+        	
+        } else {
+    	
+			try (ResultSet rs = WebDb.get().select(
+		            "SELECT * " +
+		                    "FROM games " +
+		                    "WHERE status = ? AND (receiver = ? OR sender = ?)", status.getNum(), userId, userId)) {
+		        while (rs.next()) {
+		            games++;
+		        }
+		        rs.getStatement().close();
+		    } catch (Exception e) {
+		        System.out.println(e);
+		    }
+			
+        }
 	    return games;
     }
     

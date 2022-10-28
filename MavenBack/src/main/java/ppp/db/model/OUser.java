@@ -12,9 +12,9 @@ public class OUser extends AbstractModel {
     public String email = "";
     public String token = "";
     public Timestamp tokenExpiryDate = null;
-    public double rating = GlickoTwo.BASE_RATING; // TODO: Update this to double
-    public double rd = GlickoTwo.BASE_RD; // TODO: Update this to double
-    public double volatility = 0; // TODO: Update this to double
+    public double rating = GlickoTwo.BASE_RATING;
+    public double rd = GlickoTwo.BASE_RD;
+    public double volatility = GlickoTwo.BASE_VOLATILITY;
     public Timestamp signUpDate = null;
     public Timestamp lastSignIn = null;
     public boolean banned = false;

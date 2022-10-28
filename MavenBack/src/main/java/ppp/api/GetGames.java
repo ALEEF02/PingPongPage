@@ -224,9 +224,9 @@ public class GetGames extends HttpServlet {
 					return;
 				}
 				
-				if (CGames.getGamesBetweenUsers(me.id, toUser.id, status).size() > 0) {
+				if (CGames.getGamesBetweenUsers(me.id, toUser.id, status).size() >= 2) {
 					response.setStatus(429);
-					response.getWriter().println(createError("You already have a pending game with this user. Resolve that one first!"));
+					response.getWriter().println(createError("You already have 2 pending games with this user. Resolve those first!"));
 					return;
 				}
 
