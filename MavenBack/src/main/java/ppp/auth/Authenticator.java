@@ -98,7 +98,7 @@ public class Authenticator {
 		        .withSessionTimeout(10 * 1000)
 		        .withEmailValidator( // or not
 				  	JMail.strictValidator()
-				  		.withRule(email -> email.domain().equals("stevens.edu") || email.domain().equals("aleef.dev")))
+				  		.withRule(email -> email.domain().equals("stevens.edu") || email.domain().equals("sppp.pro")))
 		        .withDebugLogging(true)
 		        .async()
 		        .buildMailer();

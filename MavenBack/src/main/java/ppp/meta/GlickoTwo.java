@@ -16,11 +16,30 @@ public class GlickoTwo {
 	
 	public static final int BASE_RATING = 1400; // Paper recommends 1500
 	public static final int BASE_RD = 350; // Rating deviation
-	public static final double BASE_VOLATILITY = 0.055; // The degree of expected fluctuation in a player’s rating. Paper recommends 0.6
+	public static final double BASE_VOLATILITY = 0.06; // The degree of expected fluctuation in a player’s rating. Paper recommends 0.6
 	public static final int RATING_PERIOD = 15; // This is the number of TOTAL ACCEPTED GAMES that need to be played before we run Glicko2 Analysis. Paper recommends 10-15 games PER PLAYER!
 	public static final double TAU = 1.0; // Constraint of the change in volatility over time. Lower number is more constrained. Paper recommends 0.3-1.2
 	public static final double GLICKO2_CONV = 173.7178; // A value used in converting between standard and Glicko2 values
 	public static final double EPSILON = 0.000001; // Convergence Tolerance
+	
+	/*
+	 * User Explanation:
+	 * 
+	 * We use the Glicko2 system to rank players. It has been used in countless ranking applications and stands as one of the best ranking systems currently available
+	 * Each player has 3 values:
+	 * 		Rating: or your 'elo'. It's how skilled the system currently thinks you are. Every player starts at 1400.
+	 * 		Rating Deviation: The standard deviation or confidence of your rating. Lower numbers means that your rating is more accurate.
+	 * 		Volatility: How consistent your play is. If you have lots of on and off days, you'll have a higher volatility. If your gameplay is consistent, it will lower
+	 * Using these 3 values we can gather the skill of your gameplay.
+	 * 
+	 * From each game we can calculate a "score" against each opponent. Score varies from 0-1, where 0 is a loss, 0.5 is a draw, and 1 is a win. In games like chess, score would be purely one of these 3 possibilities. At PingPongPage, we've decided to use a spectrum instead.
+	 * 		We start by calculating the game "diff". Diff is (winner's score - loser's score) / total points played.
+	 * 		We then plug diff into 0.5 - ([ (1 / log(21)) * log((20 * diff) + 1) ] / 2), which is the "loss rate"
+	 * 			If the player won, simply subtract loss rate from 1 to reciprocate it 
+	 * 		This score value can be visualized here: https://www.desmos.com/calculator/h2efschvsv
+	 * 
+	 * Every "Rating Period", currently 15 games, we'll batch evaluate the games that have been played. This is why your values will not change after each game. Having a Rating Period prevents "racing" conditions where, if say 2 games are submitted but the second game is accepted first, the 3 values of the players in the first game would have changed, even though when the game was played they were different.
+	 */
 	
 	public static void run() {
 		List<OUser> players = CUser.getAllNotBannedUsers();

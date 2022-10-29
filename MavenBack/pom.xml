@@ -58,15 +58,6 @@
 		<version>0.4</version>
 	</dependency>
 	
-	<!-- Okta -->
-	<!--
-	<dependency>
-		<groupId>com.okta.idx.sdk</groupId>
-		<artifactId>okta-idx-java-api</artifactId>
-		<version>${okta.sdk.version}</version>
-	</dependency>
-	-->
-	
 	<!-- Simple Java Mail -->
 	<dependency>
 		<groupId>org.simplejavamail</groupId>
@@ -74,17 +65,26 @@
 		<version>7.5.0</version>
 	</dependency>
 	
-	<!-- JSP Support -->
+	<!-- Anti "; DROP TABLE *;" -->
+	<!--
 	<dependency>
-		<groupId>org.eclipse.jetty</groupId>
-		<artifactId>apache-jsp</artifactId>
-		<version>${jetty.version}</version>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-text</artifactId>
+		<version>1.10.0</version>
 	</dependency>
+	-->
 	
   </dependencies>
 
   <build>
     <plugins>
+      <!-- Enable building as a .war file with `mvn package` -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.3.2</version>
+      </plugin>
+    
       <!-- Copy static resources like html files into the output jar file. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -128,5 +128,8 @@
         </executions>
       </plugin>
     </plugins>
+    
+    <!-- The output .war file's name, which will be the name of the webapp. -->
+    <finalName>${project.artifactId}</finalName>
   </build>
 </project>
