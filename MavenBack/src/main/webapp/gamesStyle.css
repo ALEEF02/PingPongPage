@@ -23,30 +23,63 @@ body {
 	margin: 0 auto;
 	background-color: #322e2b;
 }
-
-.inputContainer{
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	width: 500px;
-	height: 600px;
-	background: #262521;
-	border-radius: 25px;
+table, td, th{
 	border: 2px solid white;
-	color: white;
-}
-
-.loginHeading{
-	color: white;
 	text-align: center;
 }
-
-.loginHeading p {
-	margin: 0 2.5%;
+table{width: 50%}
+tr:nth-child(even) {
+	background-color: #7fa751;
+	
 }
+.navBar{
+	overflow: hidden;
+	background-color: #5A5A5A;
+	width: 100%;
+}
+.navBar a{
+	display: block;
+	text-align: center;
+	padding: 14px 16px;
+	color: white;
+	float: right;
+	text-decoration: none;	
+}
+.navBar a.left{float:left;}
+.navBar a.right{float:right;}
+.navBar a:hover{background-color: #7fa751;}
+.leaderboard{float:left;}
+.recent{float: right;}
+p, h1, th, td{color: white;}
 
-input[type=text]{
+.pendingGames{
+	float: right;
+	margin-top: 20px;
+	margin-right: 20px;
+	margin-bottom: 20px;	
+	width: 75%;
+	/*background: #262521;*/
+}
+.recent{
+	float: left;
+	margin-top: 20px;
+	margin-left: 20px;
+	margin-bottom: 20px;
+	width: 20%;
+	/*background: #262521;*/
+	
+}
+.pendingGames p, .recent p{
+	margin: 10px;
+}
+.heading{
+	text-align: center;
+}
+table{
+	width: 100%;
+	}
+
+input[type=text], input[type=number]{
   width: 95%;
   padding: 12px 20px;
   margin: auto;	
@@ -58,42 +91,51 @@ input[type=text]{
   
   color: white;
 }
-
-.emailBtn{
+#submitButton{
 	background-color: #7fa751;
 	text-align: center;
 	color: white;
-	display: block; 	
+	display: block;
 	border-radius: 8px;
-	width: 400px;
+	width: 200px;
 	height: 60px;
 	font-size: 24px;
 	
 	position: relative;
 	left: 50px;
-	top: 30px;
+		
 	
 	cursor: pointer;
 }
-
-.emailBtn:hover{
+#submitButton:hover{
 	background-color: white;
 	color: #7fa751;
 }
 
-p {
-	margin-left: 2.5%;
-}
-
 @media (max-width: 800px) {
-	.inputContainer{
-		width: 95vw;
+	.pendingGames, .recent{
+		float:none;
+		width: 100%;
+		 
+	}
+	.navBar{
+		display: flex;
 		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+		
 	}
+	.navBar a{
+		float: none;
+		width: 100%;
+		padding: 6px;
 	
-	.emailBtn{
-		width: 70vw;
-		margin: auto;
-		left: 0px;
 	}
+	.right{ order: 4}
+	input[type=text], input[type=number]{
+	margin: 0px;	
+	}
+	#submitButton{left: 35%;}
+	
 }
+	

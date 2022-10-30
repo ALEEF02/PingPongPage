@@ -2,7 +2,8 @@
 <html>
 	<head>
 		<title>Games Manager</title>
-		<link rel="stylesheet" type="text/css" href="style.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="gamesStyle.css">
 		<script>
 			var login = new XMLHttpRequest();
 			var us;
@@ -12,6 +13,9 @@
 					if (login.status == 200) {
 						// User is logged in
 						us = JSON.parse(login.responseText);
+						var userButton = document.getElementById("userButton");
+						userButton.innerHTML = "Hi, " + us.username + " :)";
+						userButton.href = "/logout";
 						getGames();
 					} else {
 						window.location.replace("/login");
@@ -184,7 +188,27 @@
 		</script>
 	</head>
 	<body>
-		<p>Your Pending Games:</p>
+	<div class = "navBar">
+		<a href = "/index" class = "left">Home</a>
+		<a id="userButton" class = "right" href="/login" >...</a> <!--Leads to user page to display user name, stats, etc.-->
+		<a href = "/games">Manage Your Games</a> <!--Leads to seprate page for ppl to register their games-->
+		<a href = "/socials">Social Media</a> <!--Leads to separate page for ppl to check out our social media-->
+	</div>
+	<div class="recent"> <!-- Using this class as a temporary to look decent while I work on the backend & functionality -->
+			<h1 class = "heading"><u>Create new game:</u></h1>
+			<p id="errorMessage" style="color: red;"></p>
+			<p>Opponent Username:</p>
+			<input type="text" id="toUser" placeholder="aford1">
+			<p>My Score:</p>
+			<input type="number" id="myScore" placeholder="1">
+			<p>Their Score:</p>
+			<input type="number" id="theirScore" placeholder="21">
+			<p>
+				<button type="button" id="submitButton" onclick="submitGame()">Submit Game</button>
+			</p>
+		</div>
+		<div class ="pendingGames">
+		<h1 class = "heading"><u>Your Pending Games:</u></h1>
 		<table id="gamesTable" class="leaderboard"> <!-- Using this class as a temporary to look decent while I work on the backend & functionality -->
 			<thead>
 				<tr>
@@ -199,18 +223,7 @@
 			<tbody>
 			</tbody>
 		</table>
-		<div class="recent"> <!-- Using this class as a temporary to look decent while I work on the backend & functionality -->
-			<h1>Create new game:</h1>
-			<p id="errorMessage" style="color: red;"></p>
-			<p>Opponent Username:</p>
-			<input type="text" id="toUser" placeholder="aford1">
-			<p>My Score:</p>
-			<input type="number" id="myScore" placeholder="1">
-			<p>Their Score:</p>
-			<input type="number" id="theirScore" placeholder="21">
-			<p>
-				<button type="button" id="submitButton" onclick="submitGame()">Submit Game</button>
-			</p>
 		</div>
+		
 	</body>
 </html>
