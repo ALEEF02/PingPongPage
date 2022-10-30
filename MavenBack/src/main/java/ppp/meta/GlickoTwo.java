@@ -17,7 +17,7 @@ public class GlickoTwo {
 	public static final int BASE_RATING = 1400; // Paper recommends 1500
 	public static final int BASE_RD = 350; // Rating deviation
 	public static final double BASE_VOLATILITY = 0.06; // The degree of expected fluctuation in a player’s rating. Paper recommends 0.6
-	public static final int RATING_PERIOD = 15; // This is the number of TOTAL ACCEPTED GAMES that need to be played before we run Glicko2 Analysis. Paper recommends 10-15 games PER PLAYER!
+	public static final int RATING_PERIOD = 25; // This is the number of TOTAL ACCEPTED GAMES that need to be played before we run Glicko2 Analysis. Paper recommends 10-15 games PER PLAYER! Rating period = avg number of games per player * num of players / 2
 	public static final double TAU = 1.0; // Constraint of the change in volatility over time. Lower number is more constrained. Paper recommends 0.3-1.2
 	public static final double GLICKO2_CONV = 173.7178; // A value used in converting between standard and Glicko2 values
 	public static final double EPSILON = 0.000001; // Convergence Tolerance
@@ -169,6 +169,10 @@ public class GlickoTwo {
 		}
 		
 		System.out.println("-------------DONE!---------------");
+	}
+	
+	public static double chanceOfWinning(double mu, double muOp, double phi, double phiOp) {
+		return 1.0 / (1.0 + Math.exp(-1.0 * g( Math.sqrt(Math.pow(phi, 2) + Math.pow(phiOp, 2)) * (mu - muOp))));
 	}
 	
 	/**

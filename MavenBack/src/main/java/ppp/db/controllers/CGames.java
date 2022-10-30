@@ -2,6 +2,7 @@ package ppp.db.controllers;
 
 import ppp.db.WebDb;
 import ppp.db.model.OGame;
+import ppp.meta.GlickoTwo;
 import ppp.meta.StatusEnum;
 
 import java.sql.ResultSet;
@@ -25,17 +26,31 @@ public class CGames {
         return bank;
     }
     
+    public static int getNumOfGamesUntilRating() {
+    	int games = 0;
+    	try (ResultSet rs = WebDb.get().select(
+	            "SELECT COUNT(id) " +
+	                    "FROM games " +
+	                    "WHERE status > 1")) {
+    		rs.next();
+	        games = rs.getInt(1);
+	        rs.getStatement().close();
+	    } catch (Exception e) {
+	        System.out.println(e);
+	    }
+    	return GlickoTwo.RATING_PERIOD - games;
+    }
+    
     public static int getNumOfGamesForUser(int userId, StatusEnum.Status status) {
     	int games = 0;
         if (status == StatusEnum.Status.ANY) {
         	
         	try (ResultSet rs = WebDb.get().select(
-    	            "SELECT * " +
+    	            "SELECT COUNT(id) " +
     	                    "FROM games " +
     	                    "WHERE (receiver = ? OR sender = ?)", userId, userId)) {
-    	        while (rs.next()) {
-    	            games++;
-    	        }
+    	        rs.next();
+    	        games = rs.getInt(1);
     	        rs.getStatement().close();
     	    } catch (Exception e) {
     	        System.out.println(e);
@@ -44,12 +59,11 @@ public class CGames {
         } else if (status == StatusEnum.Status.FILED) {
         	
         	try (ResultSet rs = WebDb.get().select(
-    	            "SELECT * " +
+    	            "SELECT COUNT(id) " +
     	                    "FROM games " +
     	                    "WHERE status > 1 AND (receiver = ? OR sender = ?)", userId, userId)) {
-    	        while (rs.next()) {
-    	            games++;
-    	        }
+        		rs.next();
+    	        games = rs.getInt(1);
     	        rs.getStatement().close();
     	    } catch (Exception e) {
     	        System.out.println(e);
@@ -58,12 +72,11 @@ public class CGames {
         } else {
     	
 			try (ResultSet rs = WebDb.get().select(
-		            "SELECT * " +
+		            "SELECT COUNT(id) " +
 		                    "FROM games " +
 		                    "WHERE status = ? AND (receiver = ? OR sender = ?)", status.getNum(), userId, userId)) {
-		        while (rs.next()) {
-		            games++;
-		        }
+				rs.next();
+    	        games = rs.getInt(1);
 		        rs.getStatement().close();
 		    } catch (Exception e) {
 		        System.out.println(e);

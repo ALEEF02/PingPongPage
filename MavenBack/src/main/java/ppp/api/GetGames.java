@@ -28,6 +28,7 @@ import ppp.meta.StatusEnum.Status;
  * Parameters, highest priority first:
  * 	None: 20 latest games, regardless of status
  * 	status [ind]: The status of the game.
+ * 	ratingP [exc]: The number of games that still need to be played until the rating period ends
  * 	limit [ind]: The maximum number of games to return when NOT looking for a User's games. Valid 1-200. Default 20.
  * 	sender [exc]: games of the sender 
  * 	receiver [exc]: games being received
@@ -48,6 +49,16 @@ public class GetGames extends HttpServlet {
 		boolean loggedIn = auth.login(request);
 		
 		try {
+			if (parameters.containsKey("ratingP")) {
+				int gamesLeft = CGames.getNumOfGamesUntilRating();
+				response.setStatus(200);
+				response.setContentType("application/json;");
+				response.getWriter().print("{\"ratingPeriod:\":\"" + GlickoTwo.RATING_PERIOD +
+		    			"\",\"gamesLeft\":\"" + gamesLeft +
+		    			"\"}");
+				return;
+			}
+			
 			if (parameters.containsKey("status")) {
 				status = StatusEnum.Status.fromString(parameters.get("status")[0]);
 			}
@@ -136,7 +147,8 @@ public class GetGames extends HttpServlet {
 			} else {
 				games = CGames.getLatestGames(limit);
 			}
-			
+
+			response.setStatus(200);
 			response.setContentType("application/json;");
 		    response.getWriter().print("[");
 		    for (OGame game:games) {
