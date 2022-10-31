@@ -2,6 +2,7 @@ package ppp.db.model;
 
 import ppp.db.AbstractModel;
 import ppp.db.controllers.CUser;
+import ppp.meta.GlickoTwo;
 import ppp.meta.StatusEnum;
 import ppp.meta.StatusEnum.Status;
 
@@ -42,8 +43,14 @@ public class OGame extends AbstractModel {
     }
     
     public String toJSON() {
-    	senderUser = CUser.findById(sender, false);
-    	receiverUser = CUser.findById(receiver, false);
+    	senderUser = CUser.getCachedUser(sender);
+    	receiverUser = CUser.getCachedUser(receiver);
+    	double matchup = 0;
+    	if ((sender == winner && senderUser.rating > receiverUser.rating) || (receiver == winner && senderUser.rating < receiverUser.rating)) {
+    		matchup = GlickoTwo.chanceOfWinning(senderUser.getMu(), receiverUser.getMu(), senderUser.getPhi(), receiverUser.getPhi());
+    	} else {
+    		matchup = 1- GlickoTwo.chanceOfWinning(receiverUser.getMu(), senderUser.getMu(), receiverUser.getPhi(), senderUser.getPhi());    		
+    	}
     	return "{\"id\":\"" + id + 
     			"\",\"date\":\"" + date.toString() + 
     			"\",\"status\":\"" + status + 
@@ -54,6 +61,7 @@ public class OGame extends AbstractModel {
     			"\",\"winner\":\"" + winner + 
     			"\",\"winnerScore\":\"" + winnerScore + 
     			"\",\"loserScore\":\"" + loserScore +
+    			"\",\"matchup\":\"" + matchup +
     			"\"}";
     }
 }

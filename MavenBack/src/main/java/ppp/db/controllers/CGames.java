@@ -31,7 +31,7 @@ public class CGames {
     	try (ResultSet rs = WebDb.get().select(
 	            "SELECT COUNT(id) " +
 	                    "FROM games " +
-	                    "WHERE status > 1")) {
+	                    "WHERE status = 1")) {
     		rs.next();
 	        games = rs.getInt(1);
 	        rs.getStatement().close();

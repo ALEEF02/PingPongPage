@@ -85,6 +85,7 @@
 							var loserLink = document.createElement('a');
 							var winnerScore = document.createElement('td');
 							var loserScore = document.createElement('td');
+							var prob = document.createElement('td');
 							date.innerHTML = new Date(games[i].date);
 							winnerLink.innerHTML = games[i].winner == games[i].sender ? games[i].senderName : games[i].receiverName;
 							loserLink.innerHTML = games[i].winner == games[i].sender ? games[i].receiverName : games[i].senderName;
@@ -92,6 +93,7 @@
 							loserLink.href = "/user/" + loserLink.innerHTML;
 							winnerScore.innerHTML = games[i].winnerScore;
 							loserScore.innerHTML = games[i].loserScore;
+							prob.innerHTML = (parseFloat(games[i].matchup) * 100).toFixed(1) + "%";
 							winner.appendChild(winnerLink);
 							loser.appendChild(loserLink);
 							newRow.appendChild(date);
@@ -99,6 +101,7 @@
 							newRow.appendChild(loser);
 							newRow.appendChild(winnerScore);
 							newRow.appendChild(loserScore);
+							newRow.appendChild(prob);
 							gamesTable.appendChild(newRow);
 						}
 					}
@@ -117,14 +120,17 @@
 							var user = document.createElement('td');
 							var userLink = document.createElement('a');
 							var elo = document.createElement('td');
+							var gamesP = document.createElement('td');
 							userLink.innerHTML = users[i].username;
 							userLink.href = "/user/" + userLink.innerHTML;
 							var eLow = parseFloat(users[i].elo) - (2 * users[i].rd);
 							var eHigh = parseFloat(users[i].elo) + (2 * users[i].rd);
 							elo.innerHTML = parseFloat(users[i].elo).toFixed(1) + " (" + eLow.toFixed(0) + " - " + eHigh.toFixed(0) + ")";
+							gamesP.innerHTML = users[i].gamesPlayedInCycle;
 							user.appendChild(userLink);
 							newRow.appendChild(user);
 							newRow.appendChild(elo);
+							newRow.appendChild(gamesP);
 							playerTable.appendChild(newRow);
 						}
 					}
@@ -176,6 +182,7 @@
 			<tr>
 				<th>Username</th>
 				<th>Rating</th>
+				<th>Games in Period</th>
 			</tr>
 		</table>
 		<table id="gamesTable" class = "recent">
@@ -185,6 +192,7 @@
 				<th>Loser</th>
 				<th>Winner's Score</th>
 				<th>Loser's Score</th>
+				<th>Expected Win %</th>
 			</tr>
 		</table>
 	</div>

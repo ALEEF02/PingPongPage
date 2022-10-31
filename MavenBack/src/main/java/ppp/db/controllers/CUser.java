@@ -6,11 +6,29 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import ppp.db.model.OUser;
 
 public class CUser {
 	
+    private static Map<Integer, OUser> userCache = new ConcurrentHashMap<>();
+	
+    public static OUser getCachedUser(int internalId) {
+    	if (!userCache.containsKey(internalId)) {
+    		OUser toAdd = findById(internalId, false);
+    		userCache.put(internalId, toAdd);
+    	}
+    	return userCache.get(internalId);
+    }
+    
+    public static void updateCachedUser(OUser toAdd) {
+    	if (!userCache.containsKey(toAdd.id) && toAdd.id != 0) {
+    		userCache.put(toAdd.id, toAdd);
+    	}
+    }
+    
 	/**
 	 * Find a user by their username. This does NOT check to see if they are logged in.
 	 * DOES NOT serve token info

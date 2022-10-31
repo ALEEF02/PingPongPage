@@ -53,7 +53,7 @@ public class GetGames extends HttpServlet {
 				int gamesLeft = CGames.getNumOfGamesUntilRating();
 				response.setStatus(200);
 				response.setContentType("application/json;");
-				response.getWriter().print("{\"ratingPeriod:\":\"" + GlickoTwo.RATING_PERIOD +
+				response.getWriter().print("{\"ratingPeriod\":\"" + GlickoTwo.RATING_PERIOD +
 		    			"\",\"gamesLeft\":\"" + gamesLeft +
 		    			"\"}");
 				return;

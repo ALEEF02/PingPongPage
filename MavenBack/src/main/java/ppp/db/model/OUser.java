@@ -1,8 +1,10 @@
 package ppp.db.model;
 
 import ppp.db.AbstractModel;
+import ppp.db.controllers.CGames;
 import ppp.db.controllers.CUser;
 import ppp.meta.GlickoTwo;
+import ppp.meta.StatusEnum;
 
 import java.sql.Timestamp;
 
@@ -28,12 +30,36 @@ public class OUser extends AbstractModel {
     	return rd / GlickoTwo.GLICKO2_CONV;
     }
     
-	/**
+    /**
 	 * Returns a JSON Object as a String with insensitive info
 	 *
 	 * @return {@code String} JSON with insensitive info
 	 */
     public String toPublicJSON() {
+    	return toPublicJSON(false);
+    }
+    
+	/**
+	 * Returns a JSON Object as a String with insensitive info
+	 *
+	 * @param numGamesPlayedInCycle if true, get the number of games they've played in the cycle
+	 * @return {@code String} JSON with insensitive info
+	 */
+    public String toPublicJSON(boolean numGamesPlayedInCycle) {
+    	if (numGamesPlayedInCycle) {
+	    	return "{\"id\":\"" + id + 
+	    			"\",\"username\":\"" + username + 
+	    			"\",\"elo\":\"" + rating + 
+	    			"\",\"rd\":\"" + rd + 
+	    			"\",\"vol\":\"" + volatility + 
+	    			"\",\"signUpDate\":\"" + signUpDate + 
+	    			"\",\"lastSignIn\":\"" + lastSignIn + 
+	    			"\",\"banned\":\"" + banned + 
+	    			"\",\"rank\":\"" + rank + 
+	    			"\",\"gamesPlayedInCycle\":\"" + CGames.getNumOfGamesForUser(id, StatusEnum.Status.ACCEPTED) + 
+	    			"\"}";
+    	}
+    	
     	return "{\"id\":\"" + id + 
     			"\",\"username\":\"" + username + 
     			"\",\"elo\":\"" + rating + 
@@ -44,6 +70,7 @@ public class OUser extends AbstractModel {
     			"\",\"banned\":\"" + banned + 
     			"\",\"rank\":\"" + rank + 
     			"\"}";
+    	
     }
     
     /**

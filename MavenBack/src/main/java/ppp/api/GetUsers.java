@@ -99,7 +99,7 @@ public class GetUsers extends HttpServlet {
 			response.setContentType("application/json;");
 		    response.getWriter().print("[");
 		    for (OUser user:users) {
-				response.getWriter().print(user.toPublicJSON());
+				response.getWriter().print(user.toPublicJSON(true));
 		    	if (users.indexOf(user) != users.size() - 1) {
 		    		response.getWriter().print(",");
 		    	}
