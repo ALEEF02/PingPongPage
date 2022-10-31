@@ -171,8 +171,8 @@ public class GlickoTwo {
 		System.out.println("-------------DONE!---------------");
 	}
 	
-	public static double chanceOfWinning(double mu, double muOp, double phi, double phiOp) {
-		return 1.0 / (1.0 + Math.exp(-1.0 * g( Math.sqrt(Math.pow(phi, 2) + Math.pow(phiOp, 2)) * (mu - muOp))));
+	public static double chanceOfWinning(double winMu, double loseMu, double phi, double phiOp) {
+		return 1.0 / (1.0 + Math.exp(-1.0 * g( Math.sqrt(Math.pow(phi, 2) + Math.pow(phiOp, 2))) * (winMu - loseMu)));
 	}
 	
 	/**

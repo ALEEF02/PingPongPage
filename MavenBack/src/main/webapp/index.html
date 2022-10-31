@@ -86,7 +86,9 @@
 							var winnerScore = document.createElement('td');
 							var loserScore = document.createElement('td');
 							var prob = document.createElement('td');
-							date.innerHTML = new Date(games[i].date);
+							var dateDate = new Date(games[i].date);
+							dateDate.setMinutes(dateDate.getMinutes() - dateDate.getTimezoneOffset());
+							date.innerHTML = dateDate;
 							winnerLink.innerHTML = games[i].winner == games[i].sender ? games[i].senderName : games[i].receiverName;
 							loserLink.innerHTML = games[i].winner == games[i].sender ? games[i].receiverName : games[i].senderName;
 							winnerLink.href = "/user/" + winnerLink.innerHTML;

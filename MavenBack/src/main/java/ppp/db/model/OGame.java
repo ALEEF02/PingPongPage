@@ -46,10 +46,10 @@ public class OGame extends AbstractModel {
     	senderUser = CUser.getCachedUser(sender);
     	receiverUser = CUser.getCachedUser(receiver);
     	double matchup = 0;
-    	if ((sender == winner && senderUser.rating > receiverUser.rating) || (receiver == winner && senderUser.rating < receiverUser.rating)) {
+    	if (sender == winner) {
     		matchup = GlickoTwo.chanceOfWinning(senderUser.getMu(), receiverUser.getMu(), senderUser.getPhi(), receiverUser.getPhi());
     	} else {
-    		matchup = 1- GlickoTwo.chanceOfWinning(receiverUser.getMu(), senderUser.getMu(), receiverUser.getPhi(), senderUser.getPhi());    		
+    		matchup = GlickoTwo.chanceOfWinning(receiverUser.getMu(), senderUser.getMu(), receiverUser.getPhi(), senderUser.getPhi());    		
     	}
     	return "{\"id\":\"" + id + 
     			"\",\"date\":\"" + date.toString() + 
