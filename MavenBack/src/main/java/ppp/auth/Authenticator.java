@@ -83,6 +83,7 @@ public class Authenticator {
 		OUser user = CUser.findByEmail(email, true);
 		if (user.id == 0 || user.email == "" || user.token == "" || user.tokenExpiryDate.before(new Date()) || user.token.length() < 2) return false;
 		if (!user.token.equals(token)) return false;
+		if (user.banned) return false; // Banned users cannot login
 		
 		// Successful login. Timestamp & log it.
 		user.lastSignIn = new Timestamp(new Date().getTime());

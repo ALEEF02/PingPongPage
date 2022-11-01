@@ -23,8 +23,8 @@ public class CUser {
     	return userCache.get(internalId);
     }
     
-    public static void updateCachedUser(OUser toAdd) {
-    	if (!userCache.containsKey(toAdd.id) && toAdd.id != 0) {
+    private static void updateCachedUser(OUser toAdd) {
+    	if (toAdd.id != 0) {
     		userCache.put(toAdd.id, toAdd);
     	}
     }
@@ -236,6 +236,7 @@ public class CUser {
             insert(record);
             return;
         }
+        updateCachedUser(record);
         if (updateToken) {
 	        try {
 	            WebDb.get().query(
