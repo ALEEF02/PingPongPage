@@ -15,7 +15,6 @@
 		<meta property="og:image" content="images/favicon-192.png">
 		
 		<link rel="image_src" href="images/favicon-192.png">
-		<link rel="stylesheet" type="text/css" href="style.css">
 		<link rel="manifest" href="manifest.json">
 		<link rel="shortcut icon" href="images/favicon.ico"/>
 		<link rel="icon" sizes="16x16 32x32" href="images/favicon.ico">
@@ -27,6 +26,9 @@
 		<link rel="preconnect" href="https://fonts.gstatic.com">
 		<link rel="apple-touch-icon" href="apple-touch-icon.png">
 		<link rel="apple-touch-startup-image" href="apple-touch-icon.png">
+		
+		<link rel="stylesheet" type="text/css" href="baseStyle.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
 		
 		<title>PingPongPage</title>
 		
@@ -170,46 +172,45 @@
 	</head>
 	<body>
 	
-	<!--<div class = "header">
-		<h1>Welcome to the UCC PingPongPage</h1> 
-		</div>-->
 	<div class = "navBar">
 		<a href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" class = "left">Welcome to the UCC Ping Pong Page!</a>
 		<a id="userButton" href="/login">...</a> <!--Leads to user page to display user name, stats, etc.-->
 		<a href = "/games">Manage Your Games</a> <!--Leads to seprate page for ppl to register their games-->
 	</div>
 	<div class = "tablesContainer">
-	<div class = "topPlayers">
-	
-		<h1 class ="heading"><u>Top Players</u></h1>
+		<div class = "topPlayers">
 		
-		<div style="overflow-x:auto;">
-		<table id="playerTable" class = "leaderboard">
-			<tr>
-				<th>Username</th>
-				<th>Rating</th>
-				<th>Games in Period</th>
-			</tr>
-		</table>
-		</div>
+			<h1 class ="heading"><u>Top Players</u></h1>
+			
+			<div style="overflow-x:auto;">
+				<table id="playerTable" class = "leaderboard">
+					<tr>
+						<th>Username</th>
+						<th>Rating</th>
+						<th>Games in Period</th>
+					</tr>
+				</table>
+			</div>
+			
 		</div>
 		<div class = "recentGames">
-		
-		<h1 class = "heading"><u>Recent Games</u></h1>
-		
-		<div style="overflow-x:auto;">
-		<table id="gamesTable" class = "recent">
-			<tr>
-				<th>Date</th>
-				<th>Winner</th>
-				<th>Loser</th>
-				<th>Winner's Score</th>
-				<th>Loser's Score</th>
-				<th>Expected Win %</th>
-			</tr>
-		</table>
-	</div>
-	</div>
+			
+			<h1 class = "heading"><u>Recent Games</u></h1>
+			
+			<div id="gamesTableWrap" style="overflow-x:auto;">
+				<table id="gamesTable" class = "recent">
+					<tr>
+						<th>Date</th>
+						<th>Winner</th>
+						<th>Loser</th>
+						<th>Winner's Score</th>
+						<th>Loser's Score</th>
+						<th>Expected Win %</th>
+					</tr>
+				</table>
+			</div>
+			
+		</div>
 	</div>
 		
 	</body>
