@@ -16,12 +16,14 @@
 
 html, body {
 	height: auto;
+	margin: 0px;
+	padding: 0px;
 }
 
 body {
 	font: normal 20px/1.4 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 	margin: 0 auto;
-	/*color: #fff;*/
+	background-color: #322e2b;
 }
 /*
 
@@ -55,22 +57,75 @@ done :D
 }
 .navBar a.left{float:left;}
 .navBar a:hover{background-color: #7fa751;}
-
+p, th, td, h1{color: white;}
+.heading{
+	text-align: center;
+}
 th, td{
 	text-align: left;
 	padding: 8px;
-	color: black;
+	color: white;
 	user-select: text;
 }
-.tablesContainer{margin: 30px;}
+.tablesContainer{
+	display:flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+}
+.topPlayers{
+	float: left;
+	margin: 10px;
+	width: 30%;
+	/*background-color: blue;*/
+}
+.recentGames{
+	float: right;
+	margin: 10px;
+	width: 65%;
+	/*background-color: red;*/
+}
+/*.tablesContainer{margin: 30px;}*/
 table, td, th{
-	border: 2px solid #000000;
+	border: 2px solid white;
 	text-align: center;
 }
-table{width: 50%}
-tr:nth-child(even) {background-color: #A9A9A9;}
+table{width: 100%}
+tr:nth-child(even) {background-color: #7fa751;}
 .leaderboard{float:left;}
-.recent{float: right;}
+/*.recent{float: right;}*/
+
+@media (max-width: 800px) {
+	.navBar{
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+		margin-right: 0px;
+		
+	}
+	.navBar a{
+		float: none;
+		width: 100%;
+		padding: 6px;
+	
+	}
+	table{width: 100%}
+	.recentGames, .topPlayers{
+		float: none;
+		width: 100%;
+		margin: 6px;
+	}
+	.tablesContainer{
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+	#userButton{
+		order: 4;
+	}
+	
+}
 
 
 
