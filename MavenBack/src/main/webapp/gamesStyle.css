@@ -70,6 +70,10 @@ input[type=text], input[type=number]{
 	color: #8c463d;
 }
 
+#submitButton:disabled {
+	background-color: #57403d;
+}
+
 @media (max-width: 800px) {
 	.pendingGames, .recent{
 		float:none;

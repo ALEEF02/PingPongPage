@@ -130,6 +130,7 @@
 				ajaxRequest.send(postData);
 				ajaxRequest.onreadystatechange = function(){
 					if (ajaxRequest.readyState == 4) {
+						document.getElementById("submitButton").disabled = false;
 						if (ajaxRequest.status == 200) {
 							// Successfully created the game
 							gamesTable.childNodes[5].innerHTML = "";
@@ -143,7 +144,6 @@
 							console.warn(JSON.parse(ajaxRequest.responseText).error);
 							var errorText = document.getElementById('errorMessage');
 							errorText.innerHTML = "Error: " + JSON.parse(ajaxRequest.responseText).error;
-							document.getElementById("submitButton").disabled = false;
 						}
 					}
 				}
