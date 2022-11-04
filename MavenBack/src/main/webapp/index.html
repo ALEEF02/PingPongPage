@@ -87,9 +87,27 @@
 							var loserLink = document.createElement('a');
 							var score = document.createElement('td');
 							var prob = document.createElement('td');
+							var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+							var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 							var dateDate = new Date(games[i].date);
-							dateDate.setMinutes(dateDate.getMinutes() - dateDate.getTimezoneOffset());
-							date.innerHTML = dateDate;
+							dateDate.setHours(dateDate.getHours() - 4);
+							var day = days[dateDate.getDay()];
+							var hr = dateDate.getHours();
+							var min = dateDate.getMinutes();
+							if (min < 10){
+								min = "0" + min;
+							}
+							var ampm = "am";
+							if(hr >= 12){
+								ampm = "pm";
+							}
+							if(hr >= 13){
+								hr -= 12;
+							}
+							var d = dateDate.getDate();
+							var month = months[dateDate.getMonth()];
+							var year = dateDate.getFullYear();
+							date.innerHTML = day + " " + hr + ":" + min + ampm + " " + month + " " + d + ", " + year;
 							winnerLink.innerHTML = games[i].winner == games[i].sender ? games[i].senderName : games[i].receiverName;
 							loserLink.innerHTML = games[i].winner == games[i].sender ? games[i].receiverName : games[i].senderName;
 							winnerLink.href = "/user/" + winnerLink.innerHTML;
