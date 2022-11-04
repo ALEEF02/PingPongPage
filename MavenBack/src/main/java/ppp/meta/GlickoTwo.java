@@ -43,7 +43,7 @@ public class GlickoTwo {
 	
 	public static void run() {
 		List<OUser> players = CUser.getAllNotBannedUsers();
-		List<OGame> games = CGames.getLatestGamesByStatus(StatusEnum.Status.ACCEPTED);
+		List<OGame> games = CGames.getLatestGamesByStatus(StatusEnum.Status.ACCEPTED, RATING_PERIOD + 1);
 		List<OUser> updatedPlayers = new ArrayList<>();
 		System.out.println("Running Glicko2 Period...");
 		
