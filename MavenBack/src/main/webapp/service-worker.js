@@ -1,10 +1,10 @@
-const PRECACHE = 'precache-v0.1';
-const RUNTIME = 'runtime-v0.1';
+const PRECACHE = 'precache-v0.2';
+const RUNTIME = 'runtime-v0.2';
 
 // A list of local resources we always want to be cached.
 const PRECACHE_URLS = [
   '/',
-  '/404.html'
+  '/login'
 ];
 
 // The install handler takes care of precaching the resources we always need.

@@ -32,6 +32,7 @@ public class GamesServe extends HttpServlet {
 				return;
 			}
 			RequestDispatcher view = request.getRequestDispatcher("games.html");
+			response.setHeader("Cache-Control", "max-age=86400, public"); // 1 day
 			System.out.println(view.toString());
 			view.forward(request, response);
 		} catch (Exception e) {

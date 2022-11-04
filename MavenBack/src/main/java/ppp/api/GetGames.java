@@ -321,11 +321,12 @@ public class GetGames extends HttpServlet {
 				if (parameters.containsKey("acceptGame")) {
 					existingGame.status = StatusEnum.Status.ACCEPTED;
 					CGames.update(existingGame);
+					response.setStatus(200);
 					
 					// TODO: Epic elo things here :D
-					int acceptedGames = CGames.getLatestGamesByStatus(StatusEnum.Status.ACCEPTED, GlickoTwo.RATING_PERIOD).size();
-					System.out.println(acceptedGames + " of " + GlickoTwo.RATING_PERIOD + " games until Glicko");
-					if (acceptedGames >= GlickoTwo.RATING_PERIOD) {
+					int numGamesUntilRating = CGames.getNumOfGamesUntilRating();
+					System.out.println(numGamesUntilRating + " of " + GlickoTwo.RATING_PERIOD + " games until Glicko");
+					if (numGamesUntilRating <= 0) {
 						
 						GlickoTwo.run();
 						

@@ -13,7 +13,14 @@ import ppp.db.model.OUser;
 
 public class CUser {
 	
-    private static Map<Integer, OUser> userCache = new ConcurrentHashMap<>();
+    private static Map<Integer, OUser> userCache = new ConcurrentHashMap<>(); // Our cached users will be tokenless.
+    
+    public static void init() {
+    	List<OUser> users = getALLUsers();
+    	for (OUser user : users) {
+    		userCache.put(user.id, user);
+    	}
+    }
 	
     public static OUser getCachedUser(int internalId) {
     	if (!userCache.containsKey(internalId)) {
@@ -269,5 +276,6 @@ public class CUser {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        updateCachedUser(record);
     }
 }

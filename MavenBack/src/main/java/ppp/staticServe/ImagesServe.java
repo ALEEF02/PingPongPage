@@ -8,16 +8,16 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/socials") // The forward-facing link
-public class SocialServe extends HttpServlet {
+//@WebServlet("/images/*") // The forward-facing link // Disable until future need
+public class ImagesServe extends HttpServlet {
 	
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		
 		try {
-			
-			RequestDispatcher view = request.getRequestDispatcher("/socials.html"); // The static HTML file to serve.
-			System.out.println(view.toString());
+			// this shit broken lmao. We should be able to delete this servlet altogether bc of serviceworker
+			RequestDispatcher view = request.getRequestDispatcher(request.getRequestURI()); // The static HTML file to serve.
+			response.setHeader("Cache-Control", "max-age=31536000, public"); // 365 days for cache
 			view.forward(request, response);
 			return;
 			

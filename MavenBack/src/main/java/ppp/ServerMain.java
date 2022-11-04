@@ -3,12 +3,16 @@ package ppp;
 import java.io.File;
 import java.net.URL;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.kaaz.configuration.ConfigurationBuilder;
 
 //import ppp.ServerConfig;
 import ppp.db.WebDb;
+import ppp.db.controllers.CGames;
+import ppp.db.controllers.CUser;
 
 /**
  * Starts up a server that serves static files and annotated servlets.
@@ -27,6 +31,9 @@ public class ServerMain {
 		URL webAppDir =
 			ServerMain.class.getClassLoader().getResource("META-INF/resources");
 		webAppContext.setResourceBase(webAppDir.toURI().toString());
+		/*ServletHolder holderDef = new ServletHolder("default", DefaultServlet.class);
+		holderDef.setInitParameter("welcomeServlets","true");
+		webAppContext.addServlet(holderDef, "/");*/
 
 		// Look for annotations in the classes directory (dev server) and in the
 		// jar file (live server).
@@ -39,6 +46,11 @@ public class ServerMain {
 		
 		// Connect to the DB
 		WebDb.init();
+		System.out.println("DB Connected");
+		
+		// Initialize out DB caches
+		CUser.init();
+		CGames.init();
 		
 		// Start the server! 🚀
 		server.start();

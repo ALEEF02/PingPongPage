@@ -10,8 +10,26 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CGames {
+	
+	// Since our client runs on a single machine at once, it is viable to use a local cache to speed up API times.
+    private static Map<Integer, OGame> gamesCache = new ConcurrentHashMap<>();
+    
+    public static void init() {
+    	List<OGame> games = getALLGames();
+    	for (OGame game : games) {
+    		gamesCache.put(game.id, game);
+    	}
+    }
+    
+    private static void updateCachedgame(OGame toAdd) {
+    	if (toAdd.id != 0) {
+    		gamesCache.put(toAdd.id, toAdd);
+    	}
+    }
 
     private static OGame fillRecord(ResultSet resultset) throws SQLException {
         OGame bank = new OGame();
@@ -24,6 +42,22 @@ public class CGames {
         bank.winnerScore = resultset.getInt("winner_score");
         bank.loserScore = resultset.getInt("loser_score");
         return bank;
+    }
+    
+    public static List<OGame> getALLGames() {
+        List<OGame> ret = new ArrayList<>();
+        try (ResultSet rs = WebDb.get().select(
+                "SELECT * " +
+                        "FROM games " +
+                        "ORDER BY id DESC")) {
+            while (rs.next()) {
+                ret.add(fillRecord(rs));
+            }
+            rs.getStatement().close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return ret;
     }
     
     public static int getNumOfGamesUntilRating() {
@@ -391,6 +425,7 @@ public class CGames {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        updateCachedgame(rec);
     }
     
     public static void update(OGame record) {
@@ -401,9 +436,11 @@ public class CGames {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        updateCachedgame(record);
     }
     
 	public static void delete(OGame record) {
+		if (record.id == 0) return;
         try {
             WebDb.get().query(
                     "DELETE FROM games WHERE id = ? ",
@@ -412,5 +449,6 @@ public class CGames {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        gamesCache.remove(record.id);
     }
 }

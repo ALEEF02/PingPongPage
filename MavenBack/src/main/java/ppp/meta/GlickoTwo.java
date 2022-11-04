@@ -38,7 +38,7 @@ public class GlickoTwo {
 	 * 			If the player won, simply subtract loss rate from 1 to reciprocate it 
 	 * 		This score value can be visualized here: https://www.desmos.com/calculator/h2efschvsv
 	 * 
-	 * Every "Rating Period", currently 15 games, we'll batch evaluate the games that have been played. This is why your values will not change after each game. Having a Rating Period prevents "racing" conditions where, if say 2 games are submitted but the second game is accepted first, the 3 values of the players in the first game would have changed, even though when the game was played they were different.
+	 * Every "Rating Period", currently 25 games, we'll batch evaluate the games that have been played. This is why your values will not change after each game. Having a Rating Period prevents "racing" conditions where, if say 2 games are submitted but the second game is accepted first, the 3 values of the players in the first game would have changed, even though when the game was played they were different.
 	 */
 	
 	public static void run() {
@@ -75,7 +75,7 @@ public class GlickoTwo {
 			double mu = me.getMu();
 			double phi = me.getPhi();
 			System.out.println("\tµ: " + mu + " φ: " + phi);
-			System.out.println("\tid\tµj\tφj\t\t\t\t\tg(φ)j\t\t\t\tE\tsj");
+			System.out.println("\tid\tµj\t\t\t\t\tφj\t\t\t\t\tg(φ)j\t\t\t\tE\t\t\t\t\tsj");
 			for (int i = 0; i < opponents.size(); i++) {
 				OUser opponent = opponents.get(i);
 				System.out.println("\t" + gamesPlayed.get(i).id + "\t" + opponent.getMu() + "\t" + opponent.getPhi() + "\t" + g(opponent.getPhi()) + "\t" + E(mu, opponent.getMu(), opponent.getPhi()) + "\t" + gamesPlayed.get(i).calcScore(me.id));

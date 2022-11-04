@@ -13,15 +13,9 @@ import ppp.auth.Authenticator;
 
 @WebServlet("/login")
 public class LoginServe extends HttpServlet {
-
-	/*public void init(ServletConfig config) throws ServletException {
-		getServletContext();
-		super.init(config);
-	}*/
 	
 	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
-	throws IOException {
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		Authenticator auth = new Authenticator();
 		boolean loggedIn = auth.login(request);
@@ -32,6 +26,8 @@ public class LoginServe extends HttpServlet {
 				return;
 			}
 			RequestDispatcher view = request.getRequestDispatcher("login.html");
+			//response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // This is a way to HEAVILY recommend a browser not to cache a page
+			response.setHeader("Cache-Control", "max-age=86400, public"); // 1 day cache while changing colors. Make this 7-14 days later.
 			System.out.println(view.toString());
 			view.forward(request, response);
 		} catch (Exception e) {
