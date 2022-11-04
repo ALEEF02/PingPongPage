@@ -230,12 +230,15 @@
 			<input type="number" id="myScore" placeholder="1">
 			<p>Their Score:</p>
 			<input type="number" id="theirScore" placeholder="21">
+			<div class = "buttonContainer">
 			<p>
 				<button type="button" id="submitButton" onclick="submitGame()">Submit Game</button>
 			</p>
+			</div> 
 		</div>
 		<div class ="pendingGames">
 		<h1 class = "heading"><u>Your Pending Games:</u></h1>
+		<div style="overflow-x:auto;">
 		<table id="gamesTable" class="leaderboard"> <!-- Using this class as a temporary to look decent while I work on the backend & functionality -->
 			<thead>
 				<tr>
@@ -250,6 +253,7 @@
 			<tbody>
 			</tbody>
 		</table>
+		</div>
 		</div>
 		
 	</body>
