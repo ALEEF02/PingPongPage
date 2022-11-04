@@ -51,6 +51,7 @@ public class OGame extends AbstractModel {
     	} else {
     		matchup = GlickoTwo.chanceOfWinning(receiverUser.getMu(), senderUser.getMu(), receiverUser.getPhi(), senderUser.getPhi());    		
     	}
+    	Integer[] expected = GlickoTwo.expectedScore(matchup);
     	return "{\"id\":\"" + id + 
     			"\",\"date\":\"" + date.toString() + 
     			"\",\"status\":\"" + status + 
@@ -62,6 +63,7 @@ public class OGame extends AbstractModel {
     			"\",\"winnerScore\":\"" + winnerScore + 
     			"\",\"loserScore\":\"" + loserScore +
     			"\",\"matchup\":\"" + matchup +
-    			"\"}";
+    			"\",\"pred\":[" + expected[0] + ", " + expected[1] + "]" +
+    			"}";
     }
 }

@@ -85,8 +85,7 @@
 							var loser = document.createElement('td');
 							var winnerLink = document.createElement('a');
 							var loserLink = document.createElement('a');
-							var winnerScore = document.createElement('td');
-							var loserScore = document.createElement('td');
+							var score = document.createElement('td');
 							var prob = document.createElement('td');
 							var dateDate = new Date(games[i].date);
 							dateDate.setMinutes(dateDate.getMinutes() - dateDate.getTimezoneOffset());
@@ -95,16 +94,22 @@
 							loserLink.innerHTML = games[i].winner == games[i].sender ? games[i].receiverName : games[i].senderName;
 							winnerLink.href = "/user/" + winnerLink.innerHTML;
 							loserLink.href = "/user/" + loserLink.innerHTML;
-							winnerScore.innerHTML = games[i].winnerScore;
-							loserScore.innerHTML = games[i].loserScore;
-							prob.innerHTML = (parseFloat(games[i].matchup) * 100).toFixed(1) + "%";
+							score.innerHTML = "<div class=\"tableG\">" + games[i].winnerScore + "</div> — <div class=\"tableR\">" + games[i].loserScore + "</div>";
+							//prob.innerHTML = (parseFloat(games[i].matchup) * 100).toFixed(1) + "%";
+							if (games[i].pred[0] == games[i].pred[1]) {
+								prob.innerHTML = "<div class=\"tableY\">Toss-up</div>";
+							} else if (parseFloat(games[i].matchup) < 0.5) {
+								prob.innerHTML = "<div class=\"tableR\">" + games[i].pred[1] + "</div> — <div class=\"tableG\">" + games[i].pred[0] + "</div>";
+							} else {
+								prob.innerHTML = "<div class=\"tableG\">" + games[i].pred[0] + "</div> — <div class=\"tableR\">" + games[i].pred[1] + "</div>";
+							}
+							prob.innerHTML += "<div class=\"tableC\">(" + parseFloat(games[i].matchup).toFixed(3) + ")</div>"
 							winner.appendChild(winnerLink);
 							loser.appendChild(loserLink);
 							newRow.appendChild(date);
 							newRow.appendChild(winner);
 							newRow.appendChild(loser);
-							newRow.appendChild(winnerScore);
-							newRow.appendChild(loserScore);
+							newRow.appendChild(score);
 							newRow.appendChild(prob);
 							gamesTable.appendChild(newRow);
 						}
@@ -139,7 +144,7 @@
 						}
 					}
 				}
-				usersReq.open('GET', '/api/users?ranks=10');
+				usersReq.open('GET', '/api/users?ranks=10&mRD=300');
 				usersReq.send();
 			});
 		</script>
@@ -203,9 +208,8 @@
 						<th>Date</th>
 						<th>Winner</th>
 						<th>Loser</th>
-						<th>Winner's Score</th>
-						<th>Loser's Score</th>
-						<th>Expected Win %</th>
+						<th>Outcome</th>
+						<th>Expected Outcome</th>
 					</tr>
 				</table>
 			</div>

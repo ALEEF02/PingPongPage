@@ -171,8 +171,46 @@ public class GlickoTwo {
 		System.out.println("-------------DONE!---------------");
 	}
 	
+	/**
+	 * Calculate the chance of winning / expected score.
+	 *
+	 * @param winMu Winner's mu (rating)
+	 * @param loseMu Loser's mu (rating)
+	 * @param phi Player phi (rating deviation)
+	 * @param phiOp Opponent phi (rating deviation)
+	 * @return double Expected score, 0.0 - 1.0
+	 */
 	public static double chanceOfWinning(double winMu, double loseMu, double phi, double phiOp) {
 		return 1.0 / (1.0 + Math.exp(-1.0 * g( Math.sqrt(Math.pow(phi, 2) + Math.pow(phiOp, 2))) * (winMu - loseMu)));
+	}
+	
+	/**
+	 * Calculate the 2 player's expected scores.
+	 * Ex: score = 0.653 -> [21, 18]
+	 *
+	 * @param score from {@link #chanceOfWinning() chanceOfWinning()}
+	 * @return Integer[] with [winner, loser] scores
+	 */
+	public static Integer[] expectedScore(double score) {
+		if (score == 0.5) {
+			Integer ret[] = {21, 21};
+			return ret;
+		}
+		if (score > 0.5) {
+			score = 1-score; // Our score is now always 0.0-0.5
+		}
+		int winnerScore = 21; // We'll first start by calculating for a 21 win
+		double loserScore = ((winnerScore * 21) * (Math.pow(441.0, score) - 1)) / ((19 * Math.pow(441.0, score)) + 21); //https://www.desmos.com/calculator/layst0l1pm  // https://www.wolframalpha.com/input?i2d=true&i=y%3D0.5-Divide%5BDivide%5B1%2Clog%5C%2840%2921%5C%2841%29%5D*log%5C%2840%29%5C%2840%2920*Divide%5B26-t%2C26%2Bt%5D%5C%2841%29%2B1%5C%2841%29%2C2%5D%5C%2844%29+solve+for+t
+		while (winnerScore - loserScore <= 1.0 && winnerScore < 30) { // While the winner is not predicted to win by at least 2 points
+			winnerScore++;
+			loserScore = ((winnerScore * 21) * (Math.pow(441.0, score) - 1)) / ((19 * Math.pow(441.0, score)) + 21);
+		}
+		if (winnerScore - loserScore <= 1.0) { // These players are essentially a toss-up
+			Integer ret[] = {21, 21};
+			return ret;
+		}
+		Integer ret[] = {Integer.valueOf(winnerScore), Integer.valueOf((int)loserScore)}; // loserScore cast to int ensures that it's a 2-point win
+		return ret;
 	}
 	
 	/**

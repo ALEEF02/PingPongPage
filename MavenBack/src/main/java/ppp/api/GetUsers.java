@@ -24,6 +24,7 @@ import ppp.db.model.OUser;
  * 		None: The logged in user. Useful for determining if the user is logged in
  * 		withRank: Specify to also get the user's rank. Will add some processing time
  * 		ranks [exc]: Return the top ranking players, limited to parameter. Valid 1-50. Default 10.
+ * 			mRD: The maximum RD to get
  * 		user [exc]:
  * 			name: Return the user by the name
  * 
@@ -52,7 +53,20 @@ public class GetUsers extends HttpServlet {
 				    response.getWriter().print("[]");
 				    return;
 			    }
-				users = CUser.getTopRanks(limit);
+				
+				if (parameters.containsKey("mRD")) {
+					int minRD = 350;
+					try {
+						minRD = Integer.parseInt(parameters.get("mRD")[0]);
+					} catch (Exception e) {
+						response.setStatus(400);
+					    response.getWriter().print("[]");
+					    return;
+				    }
+					users = CUser.getTopRanks(limit, minRD);
+				} else {
+					users = CUser.getTopRanks(limit);
+				}
 				
 			} else if (parameters.containsKey("user")) {
 				

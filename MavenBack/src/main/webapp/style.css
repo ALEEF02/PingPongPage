@@ -48,6 +48,28 @@ table{width: 100%}
 	transform: rotateX(180deg);
 }
 
+.tableR, .tableG, .tableY {
+    display: inline;
+	font-weight: bold;
+}
+
+.tableR {
+	color: #FF0000;
+}
+
+.tableG {
+	color: #00DD00;
+}
+
+.tableY {
+	color: #DDDD00;
+}
+
+.tableC {
+	font-style: italic;
+    font-size: 16px;
+}
+
 @media (max-width: 847px) {
 	.navBar{
 		display: flex;

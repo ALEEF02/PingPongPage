@@ -223,6 +223,25 @@ public class CUser {
         return ret;
     }
     
+    public static List<OUser> getTopRanks(int numPlayers, int maxRD) {
+    	if (numPlayers < 1 || numPlayers > 50) numPlayers = 10;
+        List<OUser> ret = new ArrayList<>();
+        try (ResultSet rs = WebDb.get().select(
+                "WITH Ranks AS " +
+                "(SELECT *, RANK() OVER(ORDER BY rating DESC) AS rank FROM users) " +
+                "SELECT * FROM Ranks " + 
+                "WHERE rd < ? " + 
+                "LIMIT ? ", maxRD, numPlayers)) {
+        	while (rs.next()) {
+                ret.add(fillRecordRanking(rs));
+            }
+            rs.getStatement().close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return ret;
+    }
+    
     /**
 	 * Updates the database record to the one provided. Will NOT modify the token.
 	 *
