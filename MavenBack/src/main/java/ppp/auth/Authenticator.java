@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import ppp.ServerConfig;
 import ppp.db.controllers.CUser;
 import ppp.db.model.OUser;
+import ppp.meta.LoginEnum;
 
 public class Authenticator {
 	
@@ -34,27 +35,29 @@ public class Authenticator {
 	 * @param inputAuthCode The submitted auth code
 	 * @return {@code boolean} returns {@code true} if the auth code submitted is timely and accurate
 	 */
-	public boolean compareAuthCode(String email, int inputAuthCode) {
+	public LoginEnum.Status compareAuthCode(String email, int inputAuthCode) {
 		
 		// TODO: Sanatize email input
+		email = email.toLowerCase();
 		
-		if (!emailsSent.containsKey(email)) return false;
+		if (!emailsSent.containsKey(email)) return LoginEnum.Status.EMAIL_INVALID;
 		
 		int timeSent = emailsSent.get(email)[0];
-		if ((System.currentTimeMillis() / 1000D) - timeSent > 60 * 5) return false;
+		if ((System.currentTimeMillis() / 1000D) - timeSent > 60 * 5) return LoginEnum.Status.AUTH_TOO_LATE;
 		
 		int attempts = emailsSent.get(email)[2];
-		if (attempts > 2) return false;
+		if (attempts > 2) return LoginEnum.Status.TOO_MANY_ATTEMPTS;
 		
 		int sentAuthCode = emailsSent.get(email)[1];
 		if (sentAuthCode != inputAuthCode) {
 			Integer[] update = emailsSent.get(email);
 			update[2]++;
 			emailsSent.replace(email, update);
+			return LoginEnum.Status.AUTH_INVALID;
 		} else {
 			emailsSent.remove(email);
+			return LoginEnum.Status.SUCCESS;
 		}
-		return sentAuthCode == inputAuthCode;
 	}
 	
 	/**
@@ -63,12 +66,11 @@ public class Authenticator {
 	 * @param request The HTTP Request to be checked
 	 * @return {@code boolean} returns {@code true} if the session's email and token are a match
 	 */
-	public boolean login(HttpServletRequest request) {
+	public LoginEnum.Status login(HttpServletRequest request) {
 		String email = (String)request.getSession().getAttribute("email");
 		String token = (String)request.getSession().getAttribute("token");
-		if (email == null || !email.endsWith("@stevens.edu") || token == null || token.length() < 2) {
-			return false;
-		}
+		if (email == null || !email.endsWith("@stevens.edu")) return LoginEnum.Status.EMAIL_INVALID;
+		if (token == null || token.length() < 2) return LoginEnum.Status.TOKEN_INVALID;
 		return login(email, token);
 	}
 	
@@ -79,17 +81,20 @@ public class Authenticator {
 	 * @param token The token for the user
 	 * @return {@code boolean} returns {@code true} if the email and token are a match
 	 */
-	public boolean login(String email, String token) {
+	public LoginEnum.Status login(String email, String token) {
+		email = email.toLowerCase();
 		OUser user = CUser.findByEmail(email, true);
-		if (user.id == 0 || user.email == "" || user.token == "" || user.tokenExpiryDate.before(new Date()) || user.token.length() < 2) return false;
-		if (!user.token.equals(token)) return false;
-		if (user.banned) return false; // Banned users cannot login
+		if (user.id == 0) return LoginEnum.Status.USER_INVALID;
+		if (user.email == "") return LoginEnum.Status.EMAIL_INVALID;
+		if (user.token == "" || user.tokenExpiryDate.before(new Date()) || user.token.length() < 2) return LoginEnum.Status.TOKEN_EXPIRED;
+		if (!user.token.equals(token)) return LoginEnum.Status.TOKEN_INVALID;
+		if (user.banned) return LoginEnum.Status.BANNED; // Banned users cannot login
 		
 		// Successful login. Timestamp & log it.
 		user.lastSignIn = new Timestamp(new Date().getTime());
 		CUser.update(user);
 		
-		return true;
+		return LoginEnum.Status.SUCCESS;
 	}
 	
 	private Mailer getMailer() {
@@ -113,6 +118,7 @@ public class Authenticator {
 	 * @return {@code boolean} true if the email was valid and and auth code was sent
 	 */
 	public boolean sendAuthEmail(String toEmailAddress) {
+		toEmailAddress = toEmailAddress.toLowerCase();
 		// TODO: Sanatize email input
 		double now = (System.currentTimeMillis() / 1000D);
         if (emailsSent.containsKey(toEmailAddress)) {

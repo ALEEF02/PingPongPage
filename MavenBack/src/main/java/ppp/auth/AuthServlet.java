@@ -11,10 +11,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import ppp.api.GetGames;
 import ppp.db.controllers.CGlicko;
 import ppp.db.controllers.CUser;
 import ppp.db.model.OGlicko;
 import ppp.db.model.OUser;
+import ppp.meta.LoginEnum;
+import ppp.meta.StatusEnum;
 
 @WebServlet("/api/auth")
 public class AuthServlet extends HttpServlet {
@@ -43,10 +46,10 @@ public class AuthServlet extends HttpServlet {
 				response.setStatus(400);
 				return;
 			}
-			boolean successfulAuth = emailer.compareAuthCode(email, inputAuthCode);
-			if (!successfulAuth) {
+			LoginEnum.Status successfulAuth = emailer.compareAuthCode(email, inputAuthCode);
+			if (successfulAuth != LoginEnum.Status.SUCCESS) {
 				response.setStatus(401);
-				response.getWriter().println("https://www.youtube.com/watch?v=GPXkjtpGCFI&t=7s");
+				response.getWriter().println(GetGames.createError(successfulAuth.getMsg()));
 				return;
 			}
 
@@ -99,10 +102,10 @@ public class AuthServlet extends HttpServlet {
 			
 			System.out.print("Someone is trying to log in - ");
 			System.out.println(email);
-			
-			if (!emailer.login(request)) {
+			LoginEnum.Status loginTry = emailer.login(request);
+			if (loginTry != LoginEnum.Status.SUCCESS) {
 				response.setStatus(401);
-				response.getWriter().println("https://www.youtube.com/watch?v=GPXkjtpGCFI&t=7s");
+				response.getWriter().println(GetGames.createError(loginTry.getMsg()));
 				return;
 			}
 			
@@ -111,14 +114,17 @@ public class AuthServlet extends HttpServlet {
 			// This user has a valid email & token pair. Serve them the things they want & have access to.
 			response.setStatus(200);
 			response.getWriter().println("hey," + user.username + ", that's the right token :D Here are the things you want...");
+			return;
 			
 		} else if (request.getParameterMap().containsKey("email")) {
-			String email = request.getParameter("email");
+			String email = request.getParameter("email").toLowerCase();
 			if (!email.endsWith("@stevens.edu")) {
 				response.setStatus(400);
+				response.getWriter().println(GetGames.createError(LoginEnum.Status.EMAIL_INVALID.getMsg()));
 				return;
 			}
 			emailer.sendAuthEmail(email);
+			return;
 		}
 	}
 }

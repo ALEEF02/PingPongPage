@@ -1,9 +1,8 @@
-const PRECACHE = 'precache-v0.2';
-const RUNTIME = 'runtime-v0.2';
+const PRECACHE = 'precache-v1.5.0';
+const RUNTIME = 'runtime-v1.5.0';
 
 // A list of local resources we always want to be cached.
 const PRECACHE_URLS = [
-  '/',
   '/login'
 ];
 
@@ -57,7 +56,7 @@ self.addEventListener('activate', event => {
 });*/
 
 self.addEventListener('fetch', function(event) {
-	if (event.request.cache === 'only-if-cached' && event.request.mode !== 'same-origin') {
+	if ((event.request.cache === 'only-if-cached' && event.request.mode !== 'same-origin') || event.request.method !== 'GET' || event.request.url.includes("api")) { // only get requests, non-api
 		return;
 	}
 	if (event.request.url.startsWith(self.location.origin)) {

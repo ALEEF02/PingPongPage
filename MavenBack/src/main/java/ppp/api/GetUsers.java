@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import ppp.auth.Authenticator;
 import ppp.db.controllers.CUser;
 import ppp.db.model.OUser;
+import ppp.meta.LoginEnum;
 
 /*
  * API REF:
@@ -40,7 +41,7 @@ public class GetUsers extends HttpServlet {
 		Map<String, String[]> parameters = request.getParameterMap();
 		List<OUser> users = null;
 		Authenticator auth = new Authenticator();
-		boolean loggedIn = auth.login(request);
+		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
 		int limit = 10;
 		try {			
 			

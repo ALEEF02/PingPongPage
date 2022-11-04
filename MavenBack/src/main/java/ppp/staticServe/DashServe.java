@@ -15,6 +15,7 @@ import ppp.auth.Authenticator;
 import ppp.db.controllers.CUser;
 import ppp.db.model.OUser;
 import ppp.meta.GlickoTwo;
+import ppp.meta.LoginEnum;
 
 @WebServlet("/dash")
 public class DashServe extends HttpServlet {
@@ -23,7 +24,7 @@ public class DashServe extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		Authenticator auth = new Authenticator();
-		boolean loggedIn = auth.login(request);
+		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
 		OUser user = new OUser();
 		if (loggedIn) user = CUser.findByEmail((String)request.getSession().getAttribute("email"));
 
@@ -52,7 +53,7 @@ public class DashServe extends HttpServlet {
 		Map<String, String[]> parameters = request.getParameterMap();
 		
 		Authenticator auth = new Authenticator();
-		boolean loggedIn = auth.login(request);
+		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
 		if (!loggedIn) {
 			response.setStatus(401);
 			response.getWriter().println(GetGames.createError("https://www.youtube.com/watch?v=GPXkjtpGCFI&t=7s"));

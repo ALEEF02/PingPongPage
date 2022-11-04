@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ppp.auth.Authenticator;
+import ppp.meta.LoginEnum;
 
 @WebServlet("/games")
 public class GamesServe extends HttpServlet {
@@ -24,7 +25,7 @@ public class GamesServe extends HttpServlet {
 	throws IOException {
 
 		Authenticator auth = new Authenticator();
-		boolean loggedIn = auth.login(request);
+		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
 
 		try {
 			if (!loggedIn) {

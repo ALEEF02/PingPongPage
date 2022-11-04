@@ -52,18 +52,28 @@
 				if (auth != "") {
 					postData += '&authCode=' + auth;
 				} else {
-					document.getElementById('auth').style.display="inherit";
-					document.getElementById('authHeader').style.display="block";
-					document.getElementById('submitButton').innerHTML = "Submit One-Time Password";
+					document.getElementById('submitButton').disabled = true;
 				}
 				var ajaxRequest = new XMLHttpRequest();
 				ajaxRequest.open('POST', '/api/auth');
 				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 				ajaxRequest.send(postData);
 				ajaxRequest.onreadystatechange = function(){
-					if (ajaxRequest.readyState == 4 && ajaxRequest.status == 200 && auth != "") {
-						// User has successfully logged in!
-						window.location.replace("/");
+					if (ajaxRequest.readyState == 4) {
+						if (ajaxRequest.status == 200 && auth != "") {
+							// User has successfully logged in!
+							window.location.replace("/");
+						} else if (ajaxRequest.status == 200) {
+							errorText.innerHTML = "";
+							document.getElementById('auth').style.display="inherit";
+							document.getElementById('authHeader').style.display="block";
+							document.getElementById('submitButton').innerHTML = "Submit One-Time Password";
+						} else {
+							console.warn(JSON.parse(ajaxRequest.responseText).error);
+							var errorText = document.getElementById('errorMessage');
+							errorText.innerHTML = "Error: " + JSON.parse(ajaxRequest.responseText).error;
+						}
+						document.getElementById('submitButton').disabled = false;
 					}
 				}
 			}
@@ -74,6 +84,7 @@
 				<div class = "loginHeading">
 					<h1>Login</h1>
 					<p>You must use a @stevens.edu email to login. The email <em>WILL</em> go to your junk folder in Outlook. This also acts as a sign up if its your first time here :D</p>
+					<p id="errorMessage" style="color: red;"></p>
 				</div>
 					
 				<p>Email:</p>

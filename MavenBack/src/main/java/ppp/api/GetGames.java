@@ -19,6 +19,7 @@ import ppp.db.controllers.CUser;
 import ppp.db.model.OGame;
 import ppp.db.model.OUser;
 import ppp.meta.GlickoTwo;
+import ppp.meta.LoginEnum;
 import ppp.meta.StatusEnum;
 import ppp.meta.StatusEnum.Status;
 
@@ -46,7 +47,7 @@ public class GetGames extends HttpServlet {
 		int limit = 20;
 
 		Authenticator auth = new Authenticator();
-		boolean loggedIn = auth.login(request);
+		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
 		
 		try {
 			if (parameters.containsKey("ratingP")) {
@@ -191,7 +192,7 @@ public class GetGames extends HttpServlet {
 		StatusEnum.Status status = Status.ANY;
 		
 		Authenticator auth = new Authenticator();
-		boolean loggedIn = auth.login(request);
+		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
 		if (!loggedIn) {
 			response.setStatus(401);
 			response.getWriter().println("https://www.youtube.com/watch?v=GPXkjtpGCFI&t=7s");
