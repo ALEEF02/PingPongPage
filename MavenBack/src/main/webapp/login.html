@@ -49,10 +49,9 @@
 				var email = document.getElementById('email').value;
 				var auth = document.getElementById('auth').value;
 				var postData = 'email=' + email;
+				document.getElementById('submitButton').disabled = true;
 				if (auth != "") {
 					postData += '&authCode=' + auth;
-				} else {
-					document.getElementById('submitButton').disabled = true;
 				}
 				var ajaxRequest = new XMLHttpRequest();
 				ajaxRequest.open('POST', '/api/auth');
@@ -69,10 +68,20 @@
 							document.getElementById('auth').style.display="inherit";
 							document.getElementById('authHeader').style.display="block";
 							document.getElementById('submitButton').innerHTML = "Submit One-Time Password";
-						} else {
-							console.warn(JSON.parse(ajaxRequest.responseText).error);
+						} else if (ajaxRequest.status == 429 && auth == "") {
 							var errorText = document.getElementById('errorMessage');
 							errorText.innerHTML = "Error: " + JSON.parse(ajaxRequest.responseText).error;
+							console.warn(JSON.parse(ajaxRequest.responseText).error);
+							document.getElementById('auth').style.display="inherit";
+							document.getElementById('authHeader').style.display="block";
+							document.getElementById('submitButton').innerHTML = "Submit One-Time Password";
+						} else {
+							var errorText = document.getElementById('errorMessage');
+							try {
+								errorText.innerHTML = "Error: ";
+								errorText.innerHTML += JSON.parse(ajaxRequest.responseText).error;
+								console.warn(JSON.parse(ajaxRequest.responseText).error);
+							} catch (e) {}
 						}
 						document.getElementById('submitButton').disabled = false;
 					}

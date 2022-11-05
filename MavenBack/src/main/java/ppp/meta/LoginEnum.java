@@ -6,21 +6,22 @@ public final class LoginEnum {
 	
 	public static enum Status {
 		
-		AUTH_NOT_SENT(-21),
-		AUTH_TOO_LATE(-22, "Wait a few minutes..."),
-		TOO_MANY_ATTEMPTS(-23, "Wait a few minutes..."),
-		AUTH_ALREADY_SENT(-24, "Check your email!"),
-		AUTH_INVALID(-25, "Double-check your code"),
+		AUTH_NOT_SENT(400),
+		AUTH_TOO_LATE(401, "Wait a few minutes..."),
+		TOO_MANY_ATTEMPTS(429, "Wait a few minutes until you can get a new code"),
+		AUTH_ALREADY_SENT(429, "Check your email! If you're recieving this after 'TOO_MANY_ATTEMPTS' or 'AUTH_TOO_LATE', you need to wait 10 minutes before you can get a new code."),
+		AUTH_INVALID(401, "Double-check your code"),
 		
-		EMAIL_INVALID(-1),
-	    TOKEN_INVALID(-2),
-	    TOKEN_EXPIRED(-3),
-	    USER_INVALID(-2),
-	    BANNED(-10),
+		EMAIL_INVALID(400, "Double-check the spelling of your Steven's email"),
+	    TOKEN_INVALID(500, "Huh"),
+	    TOKEN_EXPIRED(401, "It's been 7 days. Re-login."),
+	    USER_INVALID(500, "Trying to login w/ email & token, but such a user doesn't exist to even have a token yet!"),
+	    BANNED(401, "omegalol"),
 	    
-	    UNKNOWN_ERROR(-99),
+	    UNKNOWN_ERROR(500),
 	    
-	    SUCCESS(1);
+	    EMAIL_SENT(200),
+	    SUCCESS(200);
 	
 	    private final int type;
 	    private final String extra;
@@ -36,7 +37,7 @@ public final class LoginEnum {
 			this.extra = extra;
 		}
 	    
-	    public int getNum()
+	    public int getCode()
 	    {
 	        return type;
 	    }
@@ -44,7 +45,7 @@ public final class LoginEnum {
 	    public String getMsg()
 	    {
 	    	if (extra.equalsIgnoreCase("")) return this.toString();
-	        return extra;
+	        return this.toString() + " - " + extra;
 	    }
 	
 	    public static Status fromNum(int type)

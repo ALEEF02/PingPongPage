@@ -35,8 +35,8 @@ public class AuthServlet extends HttpServlet {
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		
-		// TODO: Sanitize email input
-	
+		// The user is trying to submit their auth code.
+		// TODO: Convert auth code to long?
 		if (request.getParameterMap().containsKey("email") && request.getParameterMap().containsKey("authCode")) {
 			int inputAuthCode;
 			String email = request.getParameter("email");
@@ -44,11 +44,12 @@ public class AuthServlet extends HttpServlet {
 				inputAuthCode = Integer.parseInt(request.getParameter("authCode"));
 			} catch (Exception e) {
 				response.setStatus(400);
+				response.getWriter().println(GetGames.createError(LoginEnum.Status.AUTH_INVALID.getMsg()));
 				return;
 			}
 			LoginEnum.Status successfulAuth = emailer.compareAuthCode(email, inputAuthCode);
 			if (successfulAuth != LoginEnum.Status.SUCCESS) {
-				response.setStatus(401);
+				response.setStatus(successfulAuth.getCode());
 				response.getWriter().println(GetGames.createError(successfulAuth.getMsg()));
 				return;
 			}
@@ -116,14 +117,20 @@ public class AuthServlet extends HttpServlet {
 			response.getWriter().println("hey," + user.username + ", that's the right token :D Here are the things you want...");
 			return;
 			
-		} else if (request.getParameterMap().containsKey("email")) {
+		} else if (request.getParameterMap().containsKey("email")) { // The user is requesting an auth code be sent to them
 			String email = request.getParameter("email").toLowerCase();
 			if (!email.endsWith("@stevens.edu")) {
 				response.setStatus(400);
 				response.getWriter().println(GetGames.createError(LoginEnum.Status.EMAIL_INVALID.getMsg()));
 				return;
 			}
-			emailer.sendAuthEmail(email);
+			LoginEnum.Status emailStatus = emailer.sendAuthEmail(email);
+			if (emailStatus != LoginEnum.Status.EMAIL_SENT) {
+				response.setStatus(429);
+				response.getWriter().println(GetGames.createError(emailStatus.getMsg()));
+			} else {
+				response.setStatus(200);
+			}
 			return;
 		}
 	}

@@ -117,14 +117,14 @@ public class Authenticator {
 	 * @param toEmailAddress The email address of the user
 	 * @return {@code boolean} true if the email was valid and and auth code was sent
 	 */
-	public boolean sendAuthEmail(String toEmailAddress) {
+	public LoginEnum.Status sendAuthEmail(String toEmailAddress) {
 		toEmailAddress = toEmailAddress.toLowerCase();
 		// TODO: Sanatize email input
 		double now = (System.currentTimeMillis() / 1000D);
         if (emailsSent.containsKey(toEmailAddress)) {
 	        double time = now - emailsSent.get(toEmailAddress)[0];
 	        if (time < 60 * 10) { // 10 minutes, but will expire after 5 minutes. This extra 5 minute delay is anti-brute force
-	            return false;
+	            return LoginEnum.Status.AUTH_ALREADY_SENT;
 	        }
         }
 		final int authCode = (int)(Math.random() * Math.pow(10, ServerConfig.AUTH_NUM_DIGITS));
@@ -138,6 +138,6 @@ public class Authenticator {
 		getMailer().sendMail(email);
 		Integer mapVal[] = {Integer.valueOf((int)now), Integer.valueOf(authCode), 0};
         emailsSent.put(toEmailAddress, mapVal);
-		return true;
+		return LoginEnum.Status.EMAIL_SENT;
 	}
 }
