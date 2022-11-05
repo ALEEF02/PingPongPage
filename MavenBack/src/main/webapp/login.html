@@ -64,6 +64,7 @@
 							// User has successfully logged in!
 							window.location.replace("/");
 						} else if (ajaxRequest.status == 200) {
+							var errorText = document.getElementById('errorMessage');
 							errorText.innerHTML = "";
 							document.getElementById('auth').style.display="inherit";
 							document.getElementById('authHeader').style.display="block";
