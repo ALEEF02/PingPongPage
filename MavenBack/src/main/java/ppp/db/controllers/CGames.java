@@ -25,10 +25,15 @@ public class CGames {
     	}
     }
     
-    private static void updateCachedgame(OGame toAdd) {
+    private static void updateCachedGame(OGame toAdd) {
     	if (toAdd.id != 0) {
     		gamesCache.put(toAdd.id, toAdd);
     	}
+    }
+    
+    private static List<OGame> getAllCachedGames() {
+    	List<OGame> ret = new ArrayList<>(gamesCache.values());
+    	return ret;
     }
 
     private static OGame fillRecord(ResultSet resultset) throws SQLException {
@@ -76,47 +81,81 @@ public class CGames {
     }
     
     public static int getNumOfGamesForUser(int userId, StatusEnum.Status status) {
+    	return getNumOfGamesForUser(userId, status, false);
+    }
+    
+    public static int getNumOfGamesForUser(int userId, StatusEnum.Status status, boolean useCache) {
     	int games = 0;
-        if (status == StatusEnum.Status.ANY) {
-        	
-        	try (ResultSet rs = WebDb.get().select(
-    	            "SELECT COUNT(id) " +
-    	                    "FROM games " +
-    	                    "WHERE (receiver = ? OR sender = ?)", userId, userId)) {
-    	        rs.next();
-    	        games = rs.getInt(1);
-    	        rs.getStatement().close();
-    	    } catch (Exception e) {
-    	        System.out.println(e);
-    	    }
-        	
-        } else if (status == StatusEnum.Status.FILED) {
-        	
-        	try (ResultSet rs = WebDb.get().select(
-    	            "SELECT COUNT(id) " +
-    	                    "FROM games " +
-    	                    "WHERE status > 1 AND (receiver = ? OR sender = ?)", userId, userId)) {
-        		rs.next();
-    	        games = rs.getInt(1);
-    	        rs.getStatement().close();
-    	    } catch (Exception e) {
-    	        System.out.println(e);
-    	    }
-        	
-        } else {
-    	
-			try (ResultSet rs = WebDb.get().select(
-		            "SELECT COUNT(id) " +
-		                    "FROM games " +
-		                    "WHERE status = ? AND (receiver = ? OR sender = ?)", status.getNum(), userId, userId)) {
-				rs.next();
-    	        games = rs.getInt(1);
-		        rs.getStatement().close();
-		    } catch (Exception e) {
-		        System.out.println(e);
-		    }
-			
-        }
+    	if (!useCache) {
+    		
+	        if (status == StatusEnum.Status.ANY) {
+	        	
+	        	try (ResultSet rs = WebDb.get().select(
+	    	            "SELECT COUNT(id) " +
+	    	                    "FROM games " +
+	    	                    "WHERE (receiver = ? OR sender = ?)", userId, userId)) {
+	    	        rs.next();
+	    	        games = rs.getInt(1);
+	    	        rs.getStatement().close();
+	    	    } catch (Exception e) {
+	    	        System.out.println(e);
+	    	    }
+	        	
+	        } else if (status == StatusEnum.Status.FILED) {
+	        	
+	        	try (ResultSet rs = WebDb.get().select(
+	    	            "SELECT COUNT(id) " +
+	    	                    "FROM games " +
+	    	                    "WHERE status > 1 AND (receiver = ? OR sender = ?)", userId, userId)) {
+	        		rs.next();
+	    	        games = rs.getInt(1);
+	    	        rs.getStatement().close();
+	    	    } catch (Exception e) {
+	    	        System.out.println(e);
+	    	    }
+	        	
+	        } else {
+	    	
+				try (ResultSet rs = WebDb.get().select(
+			            "SELECT COUNT(id) " +
+			                    "FROM games " +
+			                    "WHERE status = ? AND (receiver = ? OR sender = ?)", status.getNum(), userId, userId)) {
+					rs.next();
+	    	        games = rs.getInt(1);
+			        rs.getStatement().close();
+			    } catch (Exception e) {
+			        System.out.println(e);
+			    }
+				
+	        }
+	        
+    	} else {
+    		
+    		List<OGame> allGames = getAllCachedGames();
+    		if (status == StatusEnum.Status.ANY) {
+	        	
+    			for (int i = 0; i < allGames.size(); i++) {
+    				OGame game = allGames.get(i);
+    				if (game.receiver == userId || game.sender == userId) games++;
+    			}
+	        	
+	        } else if (status == StatusEnum.Status.FILED) {
+	        	
+	        	for (int i = 0; i < allGames.size(); i++) {
+    				OGame game = allGames.get(i);
+    				if (game.status.getNum() > 1 && (game.receiver == userId || game.sender == userId)) games++;
+    			}
+	        	
+	        } else {
+	    	
+	        	for (int i = 0; i < allGames.size(); i++) {
+    				OGame game = allGames.get(i);
+    				if (game.status.getNum() == status.getNum() && (game.receiver == userId || game.sender == userId)) games++;
+    			}
+				
+	        }
+    		
+    	}
 	    return games;
     }
     
@@ -425,7 +464,7 @@ public class CGames {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        updateCachedgame(rec);
+        updateCachedGame(rec);
     }
     
     public static void update(OGame record) {
@@ -436,7 +475,7 @@ public class CGames {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        updateCachedgame(record);
+        updateCachedGame(record);
     }
     
 	public static void delete(OGame record) {

@@ -56,7 +56,7 @@ public class OUser extends AbstractModel {
 	    			"\",\"lastSignIn\":\"" + lastSignIn + 
 	    			"\",\"banned\":\"" + banned + 
 	    			"\",\"rank\":\"" + rank + 
-	    			"\",\"gamesPlayedInCycle\":\"" + CGames.getNumOfGamesForUser(id, StatusEnum.Status.ACCEPTED) + 
+	    			"\",\"gamesPlayedInCycle\":\"" + CGames.getNumOfGamesForUser(id, StatusEnum.Status.ACCEPTED, true) + 
 	    			"\"}";
     	}
     	

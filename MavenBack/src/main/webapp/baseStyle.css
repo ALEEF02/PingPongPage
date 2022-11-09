@@ -44,6 +44,8 @@ body {
 	background-color: #121113;
 }
 
+p, h1, th, td {color: white;}
+
 .navBar{
 	overflow: hidden;
 	background-color: #5A5A5A;

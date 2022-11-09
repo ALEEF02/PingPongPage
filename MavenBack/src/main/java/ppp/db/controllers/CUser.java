@@ -5,11 +5,15 @@ import ppp.db.WebDb;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import ppp.db.model.OUser;
+import ppp.meta.GlickoTwo;
 
 public class CUser {
 	
@@ -158,6 +162,16 @@ public class CUser {
         return list;
     }
     
+    public static List<OUser> getCachedAllNotBannedUsers() {
+    	List<OUser> users = new ArrayList<>(userCache.values());
+    	users.forEach(user -> {
+    		if (user.banned) {
+    			users.remove(user);
+    		}
+    	});
+    	return users;
+    }
+    
     public static List<OUser> getAllNotBannedUsers() {
         List<OUser> list = new ArrayList<>();
         try (ResultSet rs = WebDb.get().select("SELECT * FROM users WHERE banned = 0")) {
@@ -207,38 +221,69 @@ public class CUser {
     }
     
     public static List<OUser> getTopRanks(int numPlayers) {
-    	if (numPlayers < 1 || numPlayers > 50) numPlayers = 10;
-        List<OUser> ret = new ArrayList<>();
-        try (ResultSet rs = WebDb.get().select(
-                "WITH Ranks AS " +
-                "(SELECT *, RANK() OVER(ORDER BY rating DESC) AS rank FROM users) " +
-                "SELECT * FROM Ranks LIMIT ? ", numPlayers)) {
-        	while (rs.next()) {
-                ret.add(fillRecordRanking(rs));
-            }
-            rs.getStatement().close();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        return ret;
+    	return getTopRanks(numPlayers, 400);
     }
     
+    public static List<OUser> getTopRanks(int numPlayers, boolean useCache) {
+    	return getTopRanks(numPlayers, 400, useCache);
+    }
+
     public static List<OUser> getTopRanks(int numPlayers, int maxRD) {
+    	return getTopRanks(numPlayers, maxRD, false);
+    }
+    
+    public static List<OUser> getTopRanks(int numPlayers, int maxRD, boolean useCache) {
     	if (numPlayers < 1 || numPlayers > 50) numPlayers = 10;
         List<OUser> ret = new ArrayList<>();
-        try (ResultSet rs = WebDb.get().select(
-                "WITH Ranks AS " +
-                "(SELECT *, RANK() OVER(ORDER BY rating DESC) AS rank FROM users) " +
-                "SELECT * FROM Ranks " + 
-                "WHERE rd < ? " + 
-                "LIMIT ? ", maxRD, numPlayers)) {
-        	while (rs.next()) {
-                ret.add(fillRecordRanking(rs));
+        
+        if (!useCache) {
+	    	if (maxRD < GlickoTwo.BASE_RD) {
+	    		
+		        try (ResultSet rs = WebDb.get().select(
+		                "WITH Ranks AS " +
+		                "(SELECT *, RANK() OVER(ORDER BY rating DESC) AS rank FROM users) " +
+		                "SELECT * FROM Ranks " + 
+		                "WHERE rd < ? " + 
+		                "LIMIT ? ", maxRD, numPlayers)) {
+		        	while (rs.next()) {
+		                ret.add(fillRecordRanking(rs));
+		            }
+		            rs.getStatement().close();
+		        } catch (Exception e) {
+		            System.out.println(e);
+		        }
+		        
+	    	} else {
+	    		
+	            try (ResultSet rs = WebDb.get().select(
+	                    "WITH Ranks AS " +
+	                    "(SELECT *, RANK() OVER(ORDER BY rating DESC) AS rank FROM users) " +
+	                    "SELECT * FROM Ranks LIMIT ? ", numPlayers)) {
+	            	while (rs.next()) {
+	                    ret.add(fillRecordRanking(rs));
+	                }
+	                rs.getStatement().close();
+	            } catch (Exception e) {
+	                System.out.println(e);
+	            }
+	            
+	    	}
+        } else {
+        	long start = System.currentTimeMillis();
+        	List<OUser> startRet = getCachedAllNotBannedUsers();
+            Collections.sort(startRet, new SortRating());
+            for (int i = 0; i < startRet.size(); i++) {
+            	if (startRet.get(i).rd <= maxRD) ret.add(startRet.get(i));
             }
-            rs.getStatement().close();
-        } catch (Exception e) {
-            System.out.println(e);
+            for (int i = 0; i < ret.size(); i++) {
+            	OUser user = ret.get(i);
+            	user.rank = i + 1;
+            	ret.set(i, user);
+            }
+            System.out.println("Cached processing time: " + (System.currentTimeMillis() - start));
+        	
         }
+    	
         return ret;
     }
     
@@ -297,4 +342,13 @@ public class CUser {
         }
         updateCachedUser(record);
     }
+}
+
+class SortRating implements Comparator<OUser> {  
+	// Used for sorting in ascending order of ID  
+	public int compare(OUser a, OUser b) {  
+		if (a.rating - b.rating < 0) return 1;
+		if (a.rating - b.rating == 0) return 0;
+		return -1;
+    }  
 }

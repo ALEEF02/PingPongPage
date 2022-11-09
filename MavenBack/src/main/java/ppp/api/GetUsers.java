@@ -28,7 +28,7 @@ import ppp.meta.LoginEnum;
  * 			mRD: The maximum RD to get
  * 		user [exc]:
  * 			name: Return the user by the name
- * 
+ * 		cached: Specify whether to use the cached users
  * POST:
  */
 
@@ -47,6 +47,8 @@ public class GetUsers extends HttpServlet {
 			
 			if (parameters.containsKey("ranks")) {
 				
+				boolean cache = false;
+				
 				try {
 					limit = Integer.parseInt(parameters.get("ranks")[0]);
 				} catch (Exception e) {
@@ -54,6 +56,10 @@ public class GetUsers extends HttpServlet {
 				    response.getWriter().print("[]");
 				    return;
 			    }
+				
+				if (parameters.containsKey("cached")) {
+					cache = true;
+				}
 				
 				if (parameters.containsKey("mRD")) {
 					int minRD = 350;
@@ -64,9 +70,9 @@ public class GetUsers extends HttpServlet {
 					    response.getWriter().print("[]");
 					    return;
 				    }
-					users = CUser.getTopRanks(limit, minRD);
+					users = CUser.getTopRanks(limit, minRD, cache);
 				} else {
-					users = CUser.getTopRanks(limit);
+					users = CUser.getTopRanks(limit, cache);
 				}
 				
 			} else if (parameters.containsKey("user")) {

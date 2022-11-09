@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!-- Fill the following sections with appropriate info -->
+		<meta name="theme-color" content="#0e0e16"/>
+		<meta name="author" content="Anthony Ford, Jonothan Memoli, Stephanie McDonough">
+		<meta name="Description" content="Ping pong x Glicko">
+		<meta name="keywords" content="Stevens Institue of Technology, Stevens, Ping Pong, PingPongPage">
+		<meta name="apple-mobile-web-app-capable" content="yes"/>
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta property="og:title" content="PingPongPage">
+		<meta property="og:description" content="Ping Pong x Glicko">
+		<meta property="og:image" content="images/favicon-192.png">
+		
+		<link rel="image_src" href="images/favicon-192.png">
+		<link rel="manifest" href="/manifest.json">
+		<link rel="shortcut icon" href="images/favicon.ico"/>
+		<link rel="icon" sizes="16x16 32x32" href="images/favicon.ico">
+		<link rel="canonical" href="https://sppp.pro">
+		<!--
+		<link rel="preconnect" href="https://www.googletagmanager.com">
+		<link rel="preconnect" href="https://www.google-analytics.com">
+		-->
+		<link rel="preconnect" href="https://fonts.gstatic.com">
+		<link rel="apple-touch-icon" href="apple-touch-icon.png">
+		<link rel="apple-touch-startup-image" href="apple-touch-icon.png">
+		
+		<link rel="stylesheet" type="text/css" href="/baseStyle.css">
+		
+		<title>Q&A </title>
+		
+		<script>
+			
+			window.addEventListener('load', function() {
+				
+				var login = new XMLHttpRequest();
+				login.onreadystatechange = function(){
+					if (login.readyState == 4) {
+						if (login.status == 200) {
+							// User is already logged in
+							var user = JSON.parse(login.responseText);
+							var userButton = document.getElementById("userButton");
+							userButton.innerHTML = "Hi, " + user.username + " :)";
+							userButton.href = "/logout";
+						} else {
+							// User is not logged in
+							var userButton = document.getElementById("userButton");
+							userButton.innerHTML = "Login";
+						}
+					}
+				}
+				login.open('GET', '/api/users');
+				login.send();
+			
+			});
+			
+			window.addEventListener('DOMContentLoaded', function() {
+				var gamesReq = new XMLHttpRequest();
+			
+				gamesReq.onreadystatechange = function(){
+					if (gamesReq.readyState == 4){
+						if (gamesReq.status == 200) {
+							document.getElementById("numGames").innerHTML = JSON.parse(gamesReq.responseText).ratingPeriod;
+						} else {
+							console.warn(gamesReq.responseText);
+						}
+					}
+				}
+				gamesReq.open('GET', '/api/games?ratingP=1');
+				gamesReq.send();
+			});
+			
+		</script>
+		<style>
+			h1 {
+				margin: 10px;
+			}
+			
+			p {
+				display: inline;
+			}
+			
+			#numGames {
+				margin: none;
+				display: inline;
+			}
+			
+			div a {
+				color: #57e5ff;
+			}
+			
+			code {
+				color: black;
+				background-color: whitesmoke;
+				padding: 1px 3px;
+				border-radius: 5px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class = "navBar">
+			<a href = "/" class = "left">Home</a>
+			<a id="userButton" href="/login">...</a> <!--Leads to user page to display user name, stats, etc.-->
+			<a href = "/games">Manage Your Games</a> <!--Leads to seprate page for ppl to register their games-->
+		</div>
+	
+		<h1>What are the rules to play games?</h1>
+		<div style="margin: 10px;">
+			<p>Games are typically played as first to 21 points. A rally is played to determine the server. The serve switches every 5 total points. The winner must win <em>by 2 points</em>.
+			</p>
+		</div>
+		
+		<h1>How do ratings work?</h1>
+		<div style="margin: 10px;">
+			<p>We use the Glicko2 system to rank players. It has been used in countless ranking applications and stands as one of the best ranking systems currently available.<br>
+				Each player has 3 values:<br>&emsp;
+					<b>Rating</b> or your 'elo'. It's how skilled the system currently thinks you are. Every player starts at 1400.<br>&emsp;
+					<b>Rating Deviation:</b> The standard deviation or confidence of your rating. Lower numbers means that your rating is more accurate.<br>&emsp;
+					<b>Volatility:</b> How consistent your play is. If you have lots of on and off days, you'll have a higher volatility. If your gameplay is consistent, it will lower.<br>
+				Using these 3 values we can gather the skill of your gameplay.<br><br>
+
+				From each game we can calculate a "score" against each opponent. Score varies from 0-1, where 0 is a loss, 0.5 is a draw, and 1 is a win. In games like chess, score would be purely one of these 3 possibilities. At PingPongPage, we've decided to use a spectrum instead.<br>&emsp;
+					We start by calculating the game "diff". Diff is <code>(winner's score - loser's score) / total points played</code>.<br>&emsp;
+					We then plug diff into <code>0.5 - ([ (1 / log(21)) * log((20 * diff) + 1) ] / 2)</code>, which is the "loss rate".<br>&emsp;&emsp;
+						If the player won, simply subtract loss rate from 1 to reciprocate it.<br>&emsp;
+					This score value can be visualized here: <a href="https://www.desmos.com/calculator/h2efschvsv">https://www.desmos.com/calculator/h2efschvsv</a><br><br>
+
+				Every "Rating Period", currently </p><p id="numGames"></p><p> games, we'll batch evaluate the games that have been played. This is why your values will not change after each game. Having a Rating Period prevents "racing" conditions where, if say 2 games are submitted but the second game is accepted first, the 3 values of the players in the first game would have changed, even though when the game was played they were different.
+			</p>
+		</div>
+	</body>
+</html>

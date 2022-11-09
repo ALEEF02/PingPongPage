@@ -1,9 +1,5 @@
-
-table{width: 50%}
-
 .leaderboard{float:left;}
 .recent{float: right;}
-p, h1, th, td{color: white;}
 
 .pendingGames{
 	float: right;
