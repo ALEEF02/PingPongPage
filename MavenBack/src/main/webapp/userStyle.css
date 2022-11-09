@@ -1,0 +1,48 @@
+h1, h2, p, th, td{
+	color: white;
+}
+.heading{
+	text-align: center;
+}
+.userStats{
+	padding: 10px;
+	width: 30%;
+	float: left;
+}
+
+.tableContainer{
+	width: 70%;
+	padding: 10px;
+	float: right;
+}
+table{width: 100%;}
+
+.tableR, .tableG, .tableY {
+    display: inline;
+	font-weight: bold;
+}
+
+.tableR {
+	color: #FF0000;
+}
+
+.tableG {
+	color: #00DD00;
+}
+
+.tableY {
+	color: #DDDD00;
+}
+
+.tableC {
+	font-style: italic;
+    font-size: 16px;
+}
+
+@media (max-width: 800px) {
+	.userStats, .tableContainer{
+		float: none;
+		width: 100%
+	}
+}
+

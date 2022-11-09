@@ -15,8 +15,7 @@
 		<meta property="og:image" content="images/favicon-192.png">
 		
 		<link rel="image_src" href="images/favicon-192.png">
-		<link rel="stylesheet" type="text/css" href="style.css">
-		<link rel="manifest" href="manifest.json">
+		<link rel="manifest" href="../manifest.json">
 		<link rel="shortcut icon" href="images/favicon.ico"/>
 		<link rel="icon" sizes="16x16 32x32" href="images/favicon.ico">
 		<link rel="canonical" href="https://sppp.pro">
@@ -28,9 +27,16 @@
 		<link rel="apple-touch-icon" href="apple-touch-icon.png">
 		<link rel="apple-touch-startup-image" href="apple-touch-icon.png">
 		
+		<link rel="stylesheet" type="text/css" href="../baseStyle.css">
+		<link rel="stylesheet" type="text/css" href="../userStyle.css">
+		
 		<title>User</title>
 		
 		<script>
+			var id = 0;
+			var hasRunGames = false;
+			var isLoggedIn = false;
+		
 			window.addEventListener('DOMContentLoaded', function() {
 				console.log(window.location.href);
 				var userReq = new XMLHttpRequest();
@@ -39,15 +45,19 @@
 					if (userReq.readyState == 4){
 						if (userReq.status == 200) {
 							var userInfo = JSON.parse(userReq.responseText);
-							document.getElementById("elo").innerHTML = userInfo.elo;
-							document.getElementById("rd").innerHTML = userInfo.rd;
-							document.getElementById("vol").innerHTML = userInfo.vol;
+							id = userInfo.id;
+							document.getElementById("elo").innerHTML = parseFloat(userInfo.elo).toFixed(2);
+							document.getElementById("rd").innerHTML = parseFloat(userInfo.rd).toFixed(2);
+							document.getElementById("vol").innerHTML = parseFloat(userInfo.vol).toFixed(7);
 							document.getElementById("jd").innerHTML = userInfo.signUpDate;
 							document.getElementById("ld").innerHTML = userInfo.lastSignIn;
 							document.getElementById("uname").innerHTML = userInfo.username;
 							document.getElementById("rank").innerHTML = userInfo.rank;
 							document.title = userInfo.username;
-						} else {
+							getGames();
+							
+						} 
+						else {
 							console.warn(JSON.parse(userReq.responseText).error);
 						}
 					}
@@ -55,21 +65,139 @@
 				userReq.open('GET', '/api/users?withRank=1&user=' + window.location.href.substring(window.location.href.indexOf('/user/') + 6));
 				userReq.send();
 			});
+			
+			window.addEventListener('load', function() {
+				
+				var login = new XMLHttpRequest();
+				login.onreadystatechange = function(){
+					if (login.readyState == 4) {
+						if (login.status == 200) {
+							// User is already logged in
+							var user = JSON.parse(login.responseText);
+							var userButton = document.getElementById("userButton");
+							userButton.innerHTML = "Hi, " + user.username + " :)";
+							userButton.href = "/logout";
+							isLoggedIn = true;
+							getGames();
+							
+						} else {
+							// User is not logged in
+							var userButton = document.getElementById("userButton");
+							userButton.innerHTML = "Login";
+
+						}
+					}
+				}
+				login.open('GET', '/api/users');
+				login.send();
+			
+			});
+			
+			function getGames() {
+				if (id == 0 || hasRunGames || !isLoggedIn) return;
+				hasRunGames = true;
+				var gamesTable = document.getElementById("gamesTable");
+				var gamesReq = new XMLHttpRequest();
+				
+				gamesReq.onreadystatechange = function(){
+					if(gamesReq.readyState == 4 && gamesReq.status == 200){
+						var games = JSON.parse(gamesReq.responseText);
+						for (var i = games.length-1; i > 0; i--) {
+							var newRow = document.createElement('tr');
+							var date = document.createElement('td');
+							var winner = document.createElement('td');
+							var loser = document.createElement('td');
+							var winnerLink = document.createElement('a');
+							var loserLink = document.createElement('a');
+							var score = document.createElement('td');
+							var prob = document.createElement('td');
+							var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+							var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+							var dateDate = new Date(games[i].date);
+							dateDate.setHours(dateDate.getHours() - 5);
+							var day = days[dateDate.getDay()];
+							var hr = dateDate.getHours();
+							var min = dateDate.getMinutes();
+							if (min < 10){
+								min = "0" + min;
+							}
+							var ampm = "am";
+							if(hr >= 12){
+								ampm = "pm";
+							}
+							if(hr >= 13){
+								hr -= 12;
+							}
+							var d = dateDate.getDate();
+							var month = months[dateDate.getMonth()];
+							var year = dateDate.getFullYear();
+							date.innerHTML = day + " " + hr + ":" + min + ampm + " " + month + " " + d + ", " + year;
+							winnerLink.innerHTML = games[i].winner == games[i].sender ? games[i].senderName : games[i].receiverName;
+							loserLink.innerHTML = games[i].winner == games[i].sender ? games[i].receiverName : games[i].senderName;
+							winnerLink.href = "/user/" + winnerLink.innerHTML;
+							loserLink.href = "/user/" + loserLink.innerHTML;
+							score.innerHTML = "<div class=\"tableG\">" + games[i].winnerScore + "</div> — <div class=\"tableR\">" + games[i].loserScore + "</div>";
+							//prob.innerHTML = (parseFloat(games[i].matchup) * 100).toFixed(1) + "%";
+							if (games[i].pred[0] == games[i].pred[1]) {
+								prob.innerHTML = "<div class=\"tableY\">Toss-up</div>";
+							} else if (parseFloat(games[i].matchup) < 0.5) {
+								prob.innerHTML = "<div class=\"tableR\">" + games[i].pred[1] + "</div> — <div class=\"tableG\">" + games[i].pred[0] + "</div>";
+							} else {
+								prob.innerHTML = "<div class=\"tableG\">" + games[i].pred[0] + "</div> — <div class=\"tableR\">" + games[i].pred[1] + "</div>";
+							}
+							prob.innerHTML += "<div class=\"tableC\">(" + parseFloat(games[i].matchup).toFixed(3) + ")</div>"
+							winner.appendChild(winnerLink);
+							loser.appendChild(loserLink);
+							newRow.appendChild(date);
+							newRow.appendChild(winner);
+							newRow.appendChild(loser);
+							newRow.appendChild(score);
+							newRow.appendChild(prob);
+							gamesTable.appendChild(newRow);
+						}
+					}
+				}
+				gamesReq.open('GET', '/api/games?user=' + id);
+				gamesReq.send();
+			}
 		</script>
 	</head>
 	<body>
-		<h1 id="uname">...</h1>
-		<h2>Rating:</h2>
-		<p id="elo"></p>
-		<h2>Rating Deviation:</h2>
-		<p id="rd"></p>
-		<h2>Volatility:</h2>
-		<p id="vol"></p>
-		<h2>Overall Rank:</h2>
-		<p id="rank"></p>
-		<h2>Join Date:</h2>
-		<p id="jd"></p>
-		<h2>Last Login:</h2>
-		<p id="ld"></p>
+		<div class = "navBar">
+			<a href = "/" class = "left">Home</a>
+			<a id="userButton" href="/login">...</a> <!--Leads to user page to display user name, stats, etc.-->
+			<a href = "/games">Manage Your Games</a> <!--Leads to seprate page for ppl to register their games-->
+		</div>
+		
+		<div class = "userStats">
+			<h1 id="uname" class = "heading"><u>...</u></h1>
+			<h2>Rating:</h2>
+			<p id="elo"></p>
+			<h2>Rating Deviation:</h2>
+			<p id="rd"></p>
+			<h2>Volatility:</h2>
+			<p id="vol"></p>
+			<h2>Overall Rank:</h2>
+			<p id="rank"></p>
+			<h2>Join Date:</h2>
+			<p id="jd"></p>
+			<h2>Last Login:</h2>
+			<p id="ld"></p>
+		</div>
+		
+		<div class = "tableContainer">
+			<h1 class = "heading"><u>Recent Games</u></h1>
+			<div style="overflow-x:auto;">
+				<table id = "gamesTable">
+					<tr>
+						<th>Date</th>
+						<th>Winner</th>
+						<th>Loser</th>
+						<th>Outcome</th>
+						<th>Expected Outcome</th>
+					</tr>
+				</table>
+			</div>
+		</div>
 	</body>
 </html>
