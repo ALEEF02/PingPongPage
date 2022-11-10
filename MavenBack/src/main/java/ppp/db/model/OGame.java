@@ -1,6 +1,7 @@
 package ppp.db.model;
 
 import ppp.db.AbstractModel;
+import ppp.db.controllers.CGlicko;
 import ppp.db.controllers.CUser;
 import ppp.meta.GlickoTwo;
 import ppp.meta.StatusEnum;
@@ -45,11 +46,22 @@ public class OGame extends AbstractModel {
     public String toJSON() {
     	senderUser = CUser.getCachedUser(sender);
     	receiverUser = CUser.getCachedUser(receiver);
+    	OGlicko senderGlicko = CGlicko.getAtTime(sender, date);
+    	OGlicko receiverGlicko = CGlicko.getAtTime(receiver, date);
     	double matchup = 0;
-    	if (sender == winner) {
-    		matchup = GlickoTwo.chanceOfWinning(senderUser.getMu(), receiverUser.getMu(), senderUser.getPhi(), receiverUser.getPhi());
+    	if (senderGlicko.id == 0 || receiverGlicko.id == 0) { // Not getting anything valid from the cache, really weird. Log this.
+    		System.out.println("Issue in OGame.toJSON()\n\tsender: " + sender + "\n\trec: " + receiver + "\n\tdate: " + date + "\n\tsGlick: " + senderGlicko.id + "\n\trGlick: " + receiverGlicko.id);
+	    	if (sender == winner) {
+	    		matchup = GlickoTwo.chanceOfWinning(senderUser.getMu(), receiverUser.getMu(), senderUser.getPhi(), receiverUser.getPhi());
+	    	} else {
+	    		matchup = GlickoTwo.chanceOfWinning(receiverUser.getMu(), senderUser.getMu(), receiverUser.getPhi(), senderUser.getPhi());    		
+	    	}
     	} else {
-    		matchup = GlickoTwo.chanceOfWinning(receiverUser.getMu(), senderUser.getMu(), receiverUser.getPhi(), senderUser.getPhi());    		
+    		if (sender == winner) {
+	    		matchup = GlickoTwo.chanceOfWinning(senderGlicko.getMu(), receiverGlicko.getMu(), senderGlicko.getPhi(), receiverGlicko.getPhi());
+	    	} else {
+	    		matchup = GlickoTwo.chanceOfWinning(receiverGlicko.getMu(), senderGlicko.getMu(), receiverGlicko.getPhi(), senderGlicko.getPhi());    		
+	    	}
     	}
     	Integer[] expected = GlickoTwo.expectedScore(matchup);
     	return "{\"id\":\"" + id + 

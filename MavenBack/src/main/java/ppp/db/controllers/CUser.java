@@ -269,7 +269,6 @@ public class CUser {
 	            
 	    	}
         } else {
-        	long start = System.currentTimeMillis();
         	List<OUser> startRet = getCachedAllNotBannedUsers();
             Collections.sort(startRet, new SortRating());
             for (int i = 0; i < startRet.size(); i++) {
@@ -280,8 +279,6 @@ public class CUser {
             	user.rank = i + 1;
             	ret.set(i, user);
             }
-            System.out.println("Cached processing time: " + (System.currentTimeMillis() - start));
-        	
         }
     	
         return ret;

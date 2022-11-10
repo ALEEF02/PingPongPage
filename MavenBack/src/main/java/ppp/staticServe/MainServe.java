@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-//@WebServlet("/") // Disable until future need
+@WebServlet("") // Disable until future need
 public class MainServe extends HttpServlet {
 	
 	@Override

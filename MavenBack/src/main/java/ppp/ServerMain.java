@@ -12,6 +12,7 @@ import com.kaaz.configuration.ConfigurationBuilder;
 //import ppp.ServerConfig;
 import ppp.db.WebDb;
 import ppp.db.controllers.CGames;
+import ppp.db.controllers.CGlicko;
 import ppp.db.controllers.CUser;
 
 /**
@@ -45,12 +46,16 @@ public class ServerMain {
         new ConfigurationBuilder(ServerConfig.class, new File("application.cfg")).build(true);
 		
 		// Connect to the DB
+		System.out.print("DB connecting...\n\t");
 		WebDb.init();
-		System.out.println("DB Connected");
+		System.out.println("DB connected.");
 		
 		// Initialize out DB caches
+		System.out.print("Initializing caches... ");
 		CUser.init();
 		CGames.init();
+		CGlicko.init();
+		System.out.println("done.");
 		
 		// Start the server! 🚀
 		server.start();
