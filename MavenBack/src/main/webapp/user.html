@@ -102,7 +102,7 @@
 				gamesReq.onreadystatechange = function(){
 					if(gamesReq.readyState == 4 && gamesReq.status == 200){
 						var games = JSON.parse(gamesReq.responseText);
-						for (var i = games.length-1; i >= 0; i--) {
+						for (var i = 0; i < games.length; i++) {
 							var newRow = document.createElement('tr');
 							var date = document.createElement('td');
 							var winner = document.createElement('td');
