@@ -55,10 +55,10 @@ public class AuthServlet extends HttpServlet {
 			}
 
 			// At this point we know that this person is that of the email provided. Setup account if it doesn't exist now.
-			response.setStatus(200);
 			response.getWriter().println("huh. That worked. now what?");
 			request.getSession().setAttribute("email", email);
 			request.getSession().setMaxInactiveInterval(-1);
+			response.setStatus(200);
 			OUser user = CUser.findByEmail(email);
 			Date now = new Date();
 			

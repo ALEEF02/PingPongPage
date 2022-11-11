@@ -30,11 +30,37 @@
 		<link rel="stylesheet" type="text/css" href="baseStyle.css">
 		<link rel="stylesheet" type="text/css" href="homeStyle.css">
 		<title>PingPongPage</title>
+		
+		<script>
+		
+			window.addEventListener('load', function() {
+				
+				var login = new XMLHttpRequest();
+				login.onreadystatechange = function(){
+					if (login.readyState == 4) {
+						if (login.status == 200) {
+							// User is already logged in
+							var user = JSON.parse(login.responseText);
+							var userButton = document.getElementById("userButton");
+							userButton.innerHTML = "Hi, " + user.username + " :)";
+							userButton.href = "/logout";
+						} else {
+							// User is not logged in
+							var userButton = document.getElementById("userButton");
+							userButton.innerHTML = "Login";
+
+						}
+					}
+				}
+				login.open('GET', '/api/users');
+				login.send();
+			});
+		</script>
 	</head>
 	<body>
 		<div class = "navBar" role="navigation" aria-label="Main">
 			<a href = "#" class = "left" style="color: #f95a42;">The Ping Pong Page</a>
-			<a id="userButton" href="/login">Login</a> <!--Leads to user page to display user name, stats, etc.-->
+			<a id="userButton" href="/login">...</a> <!--Leads to user page to display user name, stats, etc.-->
 			<a href = "/games">Manage Your Games</a> <!--Leads to seprate page for ppl to register their games-->
 		</div>
 		<div class = "welcomeContainer">
