@@ -18,7 +18,10 @@ public class CGames {
 	// Since our client runs on a single machine at once, it is viable to use a local cache to speed up API times.
     private static Map<Integer, OGame> gamesCache = new ConcurrentHashMap<>();
     
-    public static void init() { // Dump (if there's games already) and fill the cache
+    /**
+     * Dump (if there's games already) and fill the cache
+     */
+    public static void init() { 
     	gamesCache = new ConcurrentHashMap<>();
     	List<OGame> games = getALLGames();
     	for (OGame game : games) {
@@ -50,6 +53,11 @@ public class CGames {
         return bank;
     }
     
+    /**
+     * Get every game, regardless of status, from the DB
+     * 
+     * @returns Every game
+     */
     public static List<OGame> getALLGames() {
         List<OGame> ret = new ArrayList<>();
         try (ResultSet rs = WebDb.get().select(
@@ -66,6 +74,11 @@ public class CGames {
         return ret;
     }
     
+    /**
+     * Get the number of games that need to be Accepted until Glicko2 is run
+     * 
+     * @returns int - the # of games
+     */
     public static int getNumOfGamesUntilRating() {
     	int games = 0;
     	try (ResultSet rs = WebDb.get().select(
@@ -81,6 +94,14 @@ public class CGames {
     	return GlickoTwo.RATING_PERIOD - games;
     }
     
+    /**
+     * Get the number of games that a user has played
+     * 
+     * @param userId the id of the user
+     * @param status the status of the games
+     * 
+     * @returns int - the # of games
+     */
     public static int getNumOfGamesForUser(int userId, StatusEnum.Status status) {
     	return getNumOfGamesForUser(userId, status, false);
     }
@@ -227,6 +248,47 @@ public class CGames {
                         "FROM games " +
                 		"WHERE status = ? " +
                         "ORDER BY id DESC LIMIT ?", status.getNum(), limit)) {
+            while (rs.next()) {
+                ret.add(fillRecord(rs));
+            }
+            rs.getStatement().close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return ret;
+    }
+    
+    /**
+     * Get every game from the DB that matches the status
+     * 
+     * @param status
+     * @return the games
+     */
+    public static List<OGame> getAllGamesByStatus(StatusEnum.Status status) {
+    	if (status == StatusEnum.Status.ANY) return getALLGames();
+    	if (status == StatusEnum.Status.FILED) {
+    		List<OGame> ret = new ArrayList<>();
+            try (ResultSet rs = WebDb.get().select(
+                    "SELECT * " +
+                            "FROM games " +
+                    		"WHERE status > 1 " +
+                            "ORDER BY id DESC")) {
+                while (rs.next()) {
+                    ret.add(fillRecord(rs));
+                }
+                rs.getStatement().close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+            return ret;
+    	}
+    	
+        List<OGame> ret = new ArrayList<>();
+        try (ResultSet rs = WebDb.get().select(
+                "SELECT * " +
+                        "FROM games " +
+                		"WHERE status = ? " +
+                        "ORDER BY id DESC", status.getNum())) {
             while (rs.next()) {
                 ret.add(fillRecord(rs));
             }

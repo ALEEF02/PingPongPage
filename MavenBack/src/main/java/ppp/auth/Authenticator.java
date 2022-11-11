@@ -6,12 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.simplejavamail.api.email.Email;
-import org.simplejavamail.api.mailer.Mailer;
-import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.simplejavamail.email.EmailBuilder;
-import org.simplejavamail.mailer.MailerBuilder;
-
-import com.sanctionco.jmail.JMail;
 
 import jakarta.servlet.http.HttpServletRequest;
 import ppp.ServerConfig;
@@ -97,19 +92,7 @@ public class Authenticator {
 		return LoginEnum.Status.SUCCESS;
 	}
 	
-	private Mailer getMailer() {
-		Mailer mailer = MailerBuilder
-				.withSMTPServer(ServerConfig.EMAIL_HOST, 587, ServerConfig.EMAIL_USER, ServerConfig.EMAIL_PASSWORD)
-				.withTransportStrategy(TransportStrategy.SMTP_TLS)
-		        .withSessionTimeout(10 * 1000)
-		        .withEmailValidator( // or not
-				  	JMail.strictValidator()
-				  		.withRule(email -> email.domain().equals("stevens.edu") || email.domain().equals("sppp.pro")))
-		        .withDebugLogging(true)
-		        .async()
-		        .buildMailer();
-		return mailer;
-	}
+	
 	
 	/**
 	 * Send an email to the user with an authentication code for login.
@@ -135,7 +118,7 @@ public class Authenticator {
 				.withPlainText("Hi! Your one-time password is: " + authCode + ". It'll expire in 5 minutes.\nThanks for using our service\n\t- Backend Software Engineer, Anthony Ford")
 				.buildEmail();
 		
-		getMailer().sendMail(email);
+		Emailer.getMailer(true).sendMail(email);
 		Integer mapVal[] = {Integer.valueOf((int)now), Integer.valueOf(authCode), 0};
         emailsSent.put(toEmailAddress, mapVal);
 		return LoginEnum.Status.EMAIL_SENT;

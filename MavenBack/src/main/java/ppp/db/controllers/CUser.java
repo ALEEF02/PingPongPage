@@ -26,6 +26,12 @@ public class CUser {
     	}
     }
 	
+    /**
+     * Get a user from the INTERNAL CACHE
+     * 
+     * @param internalId the id of the user
+     * @return OUser found from the cache, id = 0 if it doesn't exist
+     */
     public static OUser getCachedUser(int internalId) {
     	if (!userCache.containsKey(internalId)) {
     		OUser toAdd = findById(internalId, false);

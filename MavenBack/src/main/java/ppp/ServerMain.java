@@ -9,6 +9,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.kaaz.configuration.ConfigurationBuilder;
 
+import ppp.service.ServiceHandlerThread;
 //import ppp.ServerConfig;
 import ppp.db.WebDb;
 import ppp.db.controllers.CGames;
@@ -57,6 +58,12 @@ public class ServerMain {
 		CGlicko.init();
 		System.out.println("done.");
 		
+		// Initialize the services
+		System.out.print("Initializing services... ");
+		Thread serviceHandler = new ServiceHandlerThread();
+        serviceHandler.start();
+		System.out.println("done.");
+        
 		// Start the server! 🚀
 		server.start();
 		System.out.println("Server started!");
