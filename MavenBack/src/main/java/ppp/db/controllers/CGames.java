@@ -18,7 +18,8 @@ public class CGames {
 	// Since our client runs on a single machine at once, it is viable to use a local cache to speed up API times.
     private static Map<Integer, OGame> gamesCache = new ConcurrentHashMap<>();
     
-    public static void init() {
+    public static void init() { // Dump (if there's games already) and fill the cache
+    	gamesCache = new ConcurrentHashMap<>();
     	List<OGame> games = getALLGames();
     	for (OGame game : games) {
     		gamesCache.put(game.id, game);

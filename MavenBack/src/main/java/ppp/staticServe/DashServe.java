@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ppp.api.GetGames;
 import ppp.auth.Authenticator;
+import ppp.db.controllers.CGames;
 import ppp.db.controllers.CUser;
 import ppp.db.model.OUser;
 import ppp.meta.GlickoTwo;
@@ -69,6 +70,10 @@ public class DashServe extends HttpServlet {
 		try {
 			if (parameters.containsKey("glicko")) {
 				GlickoTwo.run();
+				response.setStatus(200);
+				return;
+			} else if (parameters.containsKey("reloadGames")) {
+				CGames.init();
 				response.setStatus(200);
 				return;
 			}
