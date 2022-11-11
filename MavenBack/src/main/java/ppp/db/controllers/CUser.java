@@ -69,6 +69,17 @@ public class CUser {
         return s;
     }
     
+    /**
+	 * Find a user by their email. This does NOT check to see if they are logged in.
+	 * Does NOT serve the token.
+	 *
+	 * @param email The email address to lookup
+	 * @return {@code OUser} filled if the user exists, no token
+	 */
+    public static OUser findByEmail(String email) {
+    	return findByEmail(email, false);
+    }
+    
 	/**
 	 * Find a user by their email. This does NOT check to see if they are logged in.
 	 * DO NOT serve this information to an unauthenticated user!
@@ -96,18 +107,14 @@ public class CUser {
         }
         return s;
     }
-    
-    /**
-	 * Find a user by their email. This does NOT check to see if they are logged in.
-	 * Does NOT serve the token.
-	 *
-	 * @param email The email address to lookup
-	 * @return {@code OUser} filled if the user exists, no token
-	 */
-    public static OUser findByEmail(String email) {
-    	return findByEmail(email, false);
-    }
 
+    /**
+	 * Find a user by their id. This does NOT check to see if they are logged in.
+	 *
+	 * @param internalId the user's id
+	 * @param withToken Whether to grab the token, too
+	 * @return {@link OUser} filled if the user exists, possibly with a token
+	 */
     public static OUser findById(int internalId, boolean withToken) {
         OUser s = new OUser();
         try (ResultSet rs = WebDb.get().select(
@@ -226,6 +233,11 @@ public class CUser {
         return rank;
     }
     
+    /**
+     * 
+     * @param numPlayers
+     * @return Top # users, from highest to lowest rank.
+     */
     public static List<OUser> getTopRanks(int numPlayers) {
     	return getTopRanks(numPlayers, 400);
     }
@@ -277,7 +289,7 @@ public class CUser {
         } else {
         	List<OUser> startRet = getCachedAllNotBannedUsers();
             Collections.sort(startRet, new SortRating());
-            for (int i = 0; i < startRet.size(); i++) {
+            for (int i = 0; i < Math.min(startRet.size(), numPlayers); i++) {
             	if (startRet.get(i).rd <= maxRD) ret.add(startRet.get(i));
             }
             for (int i = 0; i < ret.size(); i++) {

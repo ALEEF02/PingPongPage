@@ -8,6 +8,9 @@ import ppp.meta.StatusEnum;
 
 import java.sql.Timestamp;
 
+/**
+ * A User object
+ */
 public class OUser extends AbstractModel {
     public int id = 0;
     public String username = "";
