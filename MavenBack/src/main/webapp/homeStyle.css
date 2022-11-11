@@ -17,8 +17,13 @@ p{
 	justify-content: space-around;
 }
 
-.links div a p, .links a:visited p {
+.links a, .links a:visited {
 	color: #f95a42;
+	text-decoration: none;
+	background: transparent;
+}
+.links a:hover{
+	color: #FF9888;
 }
 
 .welcomeContainer{
