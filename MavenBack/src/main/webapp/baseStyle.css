@@ -48,7 +48,8 @@ p, h1, th, td {color: white;}
 
 .navBar{
 	overflow: hidden;
-	background-color: #5A5A5A;
+	/*background-color: #5A5A5A;*/
+	background-color: #333335;
 	width: 100%;
 }
 .navBar a{
@@ -61,7 +62,6 @@ p, h1, th, td {color: white;}
 }
 .navBar a.left{float:left;}
 .navBar a:hover{
-	/*background-color: #7fa751;*/
 	background-color: #8c463d;
 }
 

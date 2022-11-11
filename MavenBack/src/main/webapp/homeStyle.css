@@ -1,4 +1,3 @@
-
 h1{
 	text-align: center;	
 	font-size: 6.5vw;
@@ -8,9 +7,8 @@ h1{
 p{
 	text-align: center;
 	color: white;
-	
-
 }
+
 .links{
 	display: flex;
 	color: #f95a42;
@@ -18,15 +16,18 @@ p{
 	align-items:center;
 	justify-content: space-around;
 }
-.learn{
-	
+
+.links div a p, .links a:visited p {
+	color: #f95a42;
 }
+
 .welcomeContainer{
 	color: white;
 	margin-top: 8%;
 	margin-left: 25%;
 	margin-right: 25%;
 }
+
 body p{
 	color: inherit;
 }
@@ -36,6 +37,5 @@ body p{
 		/*margin-left: 20%;
 		margin-right: 20%;*/
 		flex-direction: column;
-		
 	}
 }

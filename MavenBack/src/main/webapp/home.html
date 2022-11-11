@@ -24,18 +24,17 @@
 		<link rel="preconnect" href="https://www.google-analytics.com">
 		-->
 		<link rel="preconnect" href="https://fonts.gstatic.com">
-		<link rel="apple-touch-icon" href="apple-touch-icon.png">
-		<link rel="apple-touch-startup-image" href="apple-touch-icon.png">
+		<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+		<link rel="apple-touch-startup-image" href="images/apple-touch-icon.png">
 		
 		<link rel="stylesheet" type="text/css" href="baseStyle.css">
 		<link rel="stylesheet" type="text/css" href="homeStyle.css">
 		<title>PingPongPage</title>
 	</head>
 	<body>
-	
-		<div class = "navBar" style="background-color: #232325;">
-			<a href = "#" class = "left" style="color: #f95a42;"> The Ping Pong Page</a>
-			<a id="userButton" href="/login">...</a> <!--Leads to user page to display user name, stats, etc.-->
+		<div class = "navBar" role="navigation" aria-label="Main">
+			<a href = "#" class = "left" style="color: #f95a42;">The Ping Pong Page</a>
+			<a id="userButton" href="/login">Login</a> <!--Leads to user page to display user name, stats, etc.-->
 			<a href = "/games">Manage Your Games</a> <!--Leads to seprate page for ppl to register their games-->
 		</div>
 		<div class = "welcomeContainer">
@@ -43,8 +42,8 @@
 			<p id = "descript">Join the ranks. Beat your friends. Get good kid.</p>
 		</div>
 		<div class = "links">
-			<p class = "learn" href= "/qa">Learn More ></p>
-			<p>Play Pong ></p>
+			<a href= "/qa"><p class = "learn">What is this? ></p></a>
+			<a href= "."><p>Play Pong ></p></a>
 		</div>	
 	</body>
 </html>
