@@ -81,6 +81,30 @@ td a, td a:visited {
 	color: #57e5ff;
 }
 
+footer {
+	text-align: center;
+	padding: 3px;
+  	font-size: 1.5vw;
+}
+footer a:link {
+  color:  #979696;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+footer a:visited {
+  color:  #979696;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+
 @media (max-width: 847px) {
 	.navBar {
 		display: flex;
@@ -96,5 +120,8 @@ td a, td a:visited {
 	
 	#userButton {
 		order: 4;
+	}
+	footer {
+		font-size: 15px;
 	}
 }
