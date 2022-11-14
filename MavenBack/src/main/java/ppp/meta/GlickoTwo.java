@@ -44,8 +44,10 @@ public class GlickoTwo {
 	public static void run() {
 		List<OUser> players = CUser.getAllNotBannedUsers();
 		List<OGame> games = CGames.getLatestGamesByStatus(StatusEnum.Status.ACCEPTED, RATING_PERIOD + 1);
+		List<OGame> lastCalculatedGame = CGames.getLatestGamesByStatus(StatusEnum.Status.CALCULATED, 1);
+		int ratingCycle = lastCalculatedGame.isEmpty() ? 1 : lastCalculatedGame.get(0).ratingCycle + 1;
 		List<OUser> updatedPlayers = new ArrayList<>();
-		System.out.println("Running Glicko2 Period...");
+		System.out.println("Running Glicko2 Period... [" + ratingCycle + "]");
 		
 		for (OUser me : players) {
 			System.out.println("--------------------------------\nProcessing for " + me.username);
@@ -154,6 +156,7 @@ public class GlickoTwo {
 		// Now that we've processed the games for all players, let's mark them as CALCULATED
 		for (OGame game : games) {
 			game.status = StatusEnum.Status.CALCULATED;
+			game.ratingCycle = ratingCycle;
 			CGames.update(game);
 		}
 		

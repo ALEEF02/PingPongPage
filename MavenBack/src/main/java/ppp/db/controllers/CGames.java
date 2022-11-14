@@ -521,9 +521,9 @@ public class CGames {
                 rec.date = new Timestamp(System.currentTimeMillis());
             }
             rec.id = WebDb.get().insert(
-                    "INSERT INTO games(date, status, sender, receiver, winner, winner_score, loser_score) " +
-                            "VALUES (?,?,?,?,?,?,?)",
-                    rec.date, rec.status.getNum(), rec.sender, rec.receiver, rec.winner, rec.winnerScore, rec.loserScore);
+                    "INSERT INTO games(date, status, sender, receiver, winner, winner_score, loser_score, rating_cycle) " +
+                            "VALUES (?,?,?,?,?,?,?,?)",
+                    rec.date, rec.status.getNum(), rec.sender, rec.receiver, rec.winner, rec.winnerScore, rec.loserScore, rec.ratingCycle);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -533,8 +533,8 @@ public class CGames {
     public static void update(OGame record) {
         try {
             WebDb.get().query(
-                    "UPDATE games SET date = ?, status = ?, sender = ?, receiver = ?, winner = ?, winner_score = ?, loser_score = ? WHERE id = ?",
-                    record.date, record.status.getNum(), record.sender, record.receiver, record.winner, record.winnerScore, record.loserScore, record.id);
+                    "UPDATE games SET date = ?, status = ?, sender = ?, receiver = ?, winner = ?, winner_score = ?, loser_score = ?, rating_cycle = ? WHERE id = ?",
+                    record.date, record.status.getNum(), record.sender, record.receiver, record.winner, record.winnerScore, record.loserScore, record.ratingCycle, record.id);
         } catch (Exception e) {
             e.printStackTrace();
         }

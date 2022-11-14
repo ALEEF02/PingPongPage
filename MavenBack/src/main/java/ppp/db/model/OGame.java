@@ -9,6 +9,9 @@ import ppp.meta.StatusEnum.Status;
 
 import java.sql.Timestamp;
 
+/**
+ * A game object.
+ */
 public class OGame extends AbstractModel {
     public int id = 0;
     public Timestamp date = null;
@@ -18,6 +21,7 @@ public class OGame extends AbstractModel {
     public int winner = 0;
     public int winnerScore = 0;
     public int loserScore = 0;
+    public int ratingCycle = 0;
     
     private OUser senderUser = new OUser();
     private OUser receiverUser = new OUser();
