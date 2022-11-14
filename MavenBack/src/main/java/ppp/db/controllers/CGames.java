@@ -50,6 +50,7 @@ public class CGames {
         bank.winner = resultset.getInt("winner");
         bank.winnerScore = resultset.getInt("winner_score");
         bank.loserScore = resultset.getInt("loser_score");
+        bank.ratingCycle = resultset.getInt("rating_cycle");
         return bank;
     }
     
