@@ -246,7 +246,8 @@ public class GetGames extends HttpServlet {
 				OGame newGame = new OGame();
 				newGame.sender = me.id;
 				newGame.receiver = toUser.id;
-				newGame.date = new Timestamp(new Date().getTime());
+				newGame.date = new Timestamp(System.currentTimeMillis());
+				//System.out.println(System.currentTimeMillis() + "\n" + newGame.date);
 				
 				if (myScore < 11 && theirScore < 11) {
 					response.setStatus(400);
@@ -331,72 +332,6 @@ public class GetGames extends HttpServlet {
 						
 						GlickoTwo.run();
 						
-						/*
-						List<OGame> gamesPlayed = CGames.getGamesForUserByStatus(me.id, StatusEnum.Status.ACCEPTED);
-						List<OUser> opponents = new ArrayList<>();
-						for (int i = 0; i < GlickoTwo.RATING_PERIOD; i++) {
-							int opponentID = gamesPlayed.get(i).sender == me.id ? gamesPlayed.get(i).receiver : gamesPlayed.get(i).sender;
-							opponents.add(CUser.findById(opponentID, false));
-						}
-						int m = GlickoTwo.RATING_PERIOD;
-						// Step 2 in Glicko2
-						double mu = me.getMu();
-						double phi = me.getPhi();
-						
-						// Step 3
-						double vSum = 0;
-						for (int j = 1; j <= m; j++) {
-							int oppInd = j-1;
-							vSum += ( Math.pow(GlickoTwo.g(opponents.get(oppInd).getPhi()), 2) * GlickoTwo.E(mu, opponents.get(oppInd).getMu(), opponents.get(oppInd).getPhi()) * (1 - GlickoTwo.E(mu, opponents.get(oppInd).getMu(), opponents.get(oppInd).getPhi())) );
-						}
-						double v = 1 / vSum;
-						
-						// Step 4
-						double deltaSum = 0;
-						for (int j = 1; j <= m; j++) {
-							int oppInd = j-1;
-							deltaSum += ( GlickoTwo.g(opponents.get(oppInd).getPhi()) * (gamesPlayed.get(oppInd).calcScore(me.id) - GlickoTwo.E(mu, opponents.get(oppInd).getMu(), opponents.get(oppInd).getPhi())) );
-						}
-						double delta = v * deltaSum;
-						
-						// Step 5
-						final double a = Math.log(Math.pow(me.volatility, 2));
-						double A = a;
-						double B = Math.log(Math.pow(delta, 2) - Math.pow(phi, 2) - v);
-						if (Math.pow(delta, 2) <= Math.pow(phi, 2) + v) {
-							double k = 1;
-							while (GlickoTwo.f((a - (k*GlickoTwo.TAU)), delta, phi, v, a) < 0) {
-								k += 1;
-							}
-							B = a - (k*GlickoTwo.TAU);
-						}
-						double fA = GlickoTwo.f(A, delta, phi, v, a);
-						double fB = GlickoTwo.f(B, delta, phi, v, a);
-						while (Math.abs(B - A) > GlickoTwo.EPSILON) {
-							double C = A + (((A - B) * fA) / (fB - fA));
-							double fC = GlickoTwo.f(C, delta, phi, v, a);
-							if (fC * fB <= 0) {
-								A = B;
-								fA = fB; 
-							} else {
-								fA /= 2;
-							}
-							B = C;
-							fB = fC;
-						}
-						double volatilityPrime = Math.exp(A/2);
-						
-						// Step 6
-						double phiAsterisk = Math.sqrt(Math.pow(phi, 2) + Math.pow(volatilityPrime, 2));
-						
-						// Step 7
-						double phiPrime = 1 / (Math.sqrt( (1 / Math.pow(phiAsterisk, 2)) + (1 / v) ));
-						double muPrime = mu + (Math.pow(phiPrime, 2) * deltaSum);
-						
-						// Step 8
-						double ratingPrime = (GlickoTwo.GLICKO2_CONV * muPrime) + GlickoTwo.BASE_RATING;
-						double rdPrime = GlickoTwo.GLICKO2_CONV * phiPrime;
-						*/
 					}
 					
 				} else if (parameters.containsKey("declineGame")) {

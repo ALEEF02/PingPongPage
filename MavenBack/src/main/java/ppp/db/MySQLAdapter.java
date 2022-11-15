@@ -38,6 +38,7 @@ public class MySQLAdapter {
             dataSource.setPort(DB_PORT);
             dataSource.setDatabaseName(DB_NAME);
             dataSource.setZeroDateTimeBehavior("CONVERT_TO_NULL");
+            dataSource.setServerTimezone("UTC");
             return dataSource.getConnection();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
