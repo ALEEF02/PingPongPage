@@ -23,6 +23,7 @@
 		<link rel="preconnect" href="https://www.google-analytics.com">
 		-->
 		<link rel="preconnect" href="https://fonts.gstatic.com">
+		<link rel="preconnect" href="https://www.gstatic.com">
 		<link rel="apple-touch-icon" href="apple-touch-icon.png">
 		<link rel="apple-touch-startup-image" href="apple-touch-icon.png">
 		
@@ -36,6 +37,8 @@
 		<script>
 			
 			var users = {};
+			var minVol = 1;
+			var maxVol = 0;
 			
 			window.addEventListener('DOMContentLoaded', function() {
 			
@@ -82,6 +85,32 @@
 				
 			});
 			
+			function componentToHex(c) {
+				var hex = c.toString(16);
+				return hex.length == 1 ? "0" + hex : hex;
+			}
+
+			function rgbToHex(array) {
+				var r = array[0];
+				var g = array[1];
+				var b = array[2];
+				return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+			}
+			
+			function getVolColor(vol) {
+				var color1 = [255, 0, 0];
+				var color2 = [0, 255, 0];
+				var weight = (vol - minVol) / (maxVol - minVol);
+				var p = weight;
+				var w = p * 2 - 1;
+				var w1 = (w/1+1) / 2;
+				var w2 = 1 - w1;
+				var rgb = [Math.round(color1[0] * w1 + color2[0] * w2),
+				Math.round(color1[1] * w1 + color2[1] * w2),
+				Math.round(color1[2] * w1 + color2[2] * w2)];
+				return rgbToHex(rgb);
+			}
+			
 			function drawTimeline() {
 				var container = document.getElementById('timeline');
 				var chart = new google.visualization.Timeline(container);
@@ -95,6 +124,14 @@
 					id: 'Deviation'
 				});
 				dataTable.addColumn({
+					type: 'string',
+					id: 'Category'
+				});
+				dataTable.addColumn({
+					type: 'string',
+					role: 'tooltip'
+				});
+				dataTable.addColumn({
 					type: 'date',
 					id: 'Start'
 				});
@@ -104,35 +141,77 @@
 				});
 				
 				for (var i=0; i < users.length; i++) {
-					var user = users[i];
-					var toAdd = [
-						[user.username, "13.6%", new Date(parseInt(parseFloat(user.elo) - (parseFloat(user.rd) * 2)), 1, 1), new Date(parseInt(parseFloat(user.elo) - (parseFloat(user.rd) * 1)), 1, 1)],
-						[user.username, "68.2%", new Date(parseInt(parseFloat(user.elo) - (parseFloat(user.rd) * 1)), 1, 1), new Date(parseInt(parseFloat(user.elo) + (parseFloat(user.rd) * 1)), 1, 1)],
-						[user.username, "13.6%", new Date(parseInt(parseFloat(user.elo) + (parseFloat(user.rd) * 1)), 1, 1), new Date(parseInt(parseFloat(user.elo) + (parseFloat(user.rd) * 2)), 1, 1)]
-					];
-					console.log(user.username + "\n\t" + toAdd);
-					dataTable.addRows(toAdd);
-
-					var options = {
-						timeline: {groupByRowLabel: true},
-						colors: ['#cbb69d', '#603913', '#c69c6e'],
-						vAxis: {
-							baselineColor: '#FFFFFF',
-							format: 'yyyy',
-							title: "Rating",
-							textStyle: {
-								color: "#FFFFFF"
-							},
-							gridlines: {
-								color: '#FFFFFF'
-							}
-						},
-						backgroundColor: "#121113"
-						
-					};
+					if (users[i].vol < minVol) {
+						minVol = users[i].vol;
+					}
+					if (users[i].vol > maxVol) {
+						maxVol = users[i].vol;
+					}
 				}
 				
-				chart.draw(dataTable, options);
+				for (var i=0; i < users.length; i++) {
+					var user = users[i];
+					var toAdd = [
+						[
+							user.username,
+							getVolColor(users[i].vol),
+							"-13.6% (" + user.id + ")",
+							parseInt(parseFloat(user.elo) - (parseFloat(user.rd) * 2)) + " — " + parseInt(parseFloat(user.elo) - (parseFloat(user.rd) * 1)),
+							new Date(parseInt(parseFloat(user.elo) - (parseFloat(user.rd) * 2)), 1, 1),
+							new Date(parseInt(parseFloat(user.elo) - (parseFloat(user.rd) * 1)), 1, 1)
+						],
+						[
+							user.username,
+							getVolColor(users[i].vol),
+							"68.2% (" + user.id + ")",
+							parseInt(parseFloat(user.elo) - (parseFloat(user.rd) * 1)) + " — " + parseInt(parseFloat(user.elo) + (parseFloat(user.rd) * 1)),
+							new Date(parseInt(parseFloat(user.elo) - (parseFloat(user.rd) * 1)), 1, 1),
+							new Date(parseInt(parseFloat(user.elo) + (parseFloat(user.rd) * 1)), 1, 1)
+						],
+						[
+							user.username,
+							getVolColor(users[i].vol),
+							"13.6% (" + user.id + ")",
+							parseInt(parseFloat(user.elo) + (parseFloat(user.rd) * 1)) + " — " + parseInt(parseFloat(user.elo) + (parseFloat(user.rd) * 2)),
+							new Date(parseInt(parseFloat(user.elo) + (parseFloat(user.rd) * 1)), 1, 1),
+							new Date(parseInt(parseFloat(user.elo) + (parseFloat(user.rd) * 2)), 1, 1)]
+					];
+					
+					console.log(user.username + "\t" + getVolColor(users[i].vol) + "\n\t" + toAdd);
+					dataTable.addRows(toAdd);
+				}
+				
+				var volColors = [];
+				for (var j = 0; j < dataTable.getNumberOfRows(); j++) {
+					volColors.push(dataTable.getValue(j, 1));
+				}
+				console.log(volColors);
+
+				var options = {
+					timeline: {groupByRowLabel: true},
+					vAxis: {
+						baselineColor: '#FFFFFF',
+						format: 'yyyy',
+						title: "Rating",
+						textStyle: {
+							color: "#FFFFFF"
+						},
+						gridlines: {
+							color: '#FFFFFF'
+						}
+					},
+					avoidOverlappingGridLines: true,
+					width: '98%',
+					//height: (dataTable.getNumberOfRows() + 1) * 41,
+					backgroundColor: "#121113",
+					colors: volColors
+					
+				};
+				
+				// use a DataView to hide the category column from the Timeline
+				var view = new google.visualization.DataView(dataTable);
+				view.setColumns([0, 2, 3, 4, 5]);
+				chart.draw(view, options);
 			}
 		</script>
 	</head>
@@ -143,7 +222,7 @@
 			<a href = "/games">Manage Your Games</a> <!--Leads to seprate page for ppl to register their games-->
 		</div>
 		<div class = "timelineContainer" style = "overflow-x:auto; overflow-y: hidden;">
-			<div id="timeline" style="height: 100%; min-width: 900px; "></div>
+			<div id="timeline" style="height: 90%; min-width: 900px; "></div>
 		</div>
 	</body>
 </html>
