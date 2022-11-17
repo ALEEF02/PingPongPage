@@ -29,6 +29,7 @@ import ppp.meta.LoginEnum;
  * 		user [exc]:
  * 			name: Return the user by the name
  * 		cached: Specify whether to use the cached users
+ * 		withHistory: Specify to also get the user's Glicko histories.
  * POST:
  */
 
@@ -43,7 +44,9 @@ public class GetUsers extends HttpServlet {
 		Authenticator auth = new Authenticator();
 		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
 		int limit = 10;
-		try {			
+		boolean withHistory = parameters.containsKey("withHistory");
+		
+		try {
 			
 			if (parameters.containsKey("ranks")) {
 				
@@ -100,7 +103,7 @@ public class GetUsers extends HttpServlet {
 				if (parameters.containsKey("withRank")) {
 					user.getRank();
 				}
-				response.getWriter().print(user.toPublicJSON());
+				response.getWriter().print(user.toPublicJSON(false, withHistory));
 				return;
 				
 			} else {
@@ -116,11 +119,10 @@ public class GetUsers extends HttpServlet {
 				response.getWriter().print(user.toPublicJSON());
 				return;
 			}
-			
 			response.setContentType("application/json;");
 		    response.getWriter().print("[");
 		    for (OUser user:users) {
-				response.getWriter().print(user.toPublicJSON(true));
+				response.getWriter().print(user.toPublicJSON(true, withHistory));
 		    	if (users.indexOf(user) != users.size() - 1) {
 		    		response.getWriter().print(",");
 		    	}

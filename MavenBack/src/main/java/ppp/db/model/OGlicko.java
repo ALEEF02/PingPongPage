@@ -1,7 +1,9 @@
 package ppp.db.model;
 
 import ppp.db.AbstractModel;
+import ppp.db.controllers.CGames;
 import ppp.meta.GlickoTwo;
+import ppp.meta.StatusEnum;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -20,5 +22,14 @@ public class OGlicko extends AbstractModel {
     
     public double getPhi() {
     	return rd / GlickoTwo.GLICKO2_CONV;
+    }
+    
+    public String toPublicJSON() {
+    	return "{\"id\":\"" + id + 
+    			"\",\"elo\":" + rating + 
+    			",\"rd\":" + rd + 
+    			",\"vol\":" + volatility + 
+    			",\"date\":\"" + date + 
+    			"\"}";
     }
 }

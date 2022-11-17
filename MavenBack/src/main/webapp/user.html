@@ -24,6 +24,7 @@
 		<link rel="preconnect" href="https://www.google-analytics.com">
 		-->
 		<link rel="preconnect" href="https://fonts.gstatic.com">
+		<link rel="preconnect" href="https://www.gstatic.com">
 		<link rel="apple-touch-icon" href="apple-touch-icon.png">
 		<link rel="apple-touch-startup-image" href="apple-touch-icon.png">
 		
@@ -31,6 +32,8 @@
 		<link rel="stylesheet" type="text/css" href="../userStyle.css">
 		
 		<title>User</title>
+		
+		<script src="https://www.gstatic.com/charts/loader.js"></script>
 		
 		<script>
 			var id = 0;
@@ -55,6 +58,10 @@
 							document.getElementById("uname").innerHTML = userInfo.username;
 							document.getElementById("rank").innerHTML = userInfo.rank;
 							document.title = userInfo.username;
+							google.charts.load("current", {
+								packages: ["corechart"]
+							});
+							google.charts.setOnLoadCallback(drawElo);
 							getGames();
 							
 						} 
@@ -63,7 +70,7 @@
 						}
 					}
 				}
-				userReq.open('GET', '/api/users?withRank=1&user=' + window.location.href.substring(window.location.href.indexOf('/user/') + 6));
+				userReq.open('GET', '/api/users?withRank=1&withHistory=1&user=' + window.location.href.substring(window.location.href.indexOf('/user/') + 6));
 				userReq.send();
 			});
 			
@@ -165,6 +172,126 @@
 				gamesReq.open('GET', '/api/games?status=FILED&user=' + id);
 				gamesReq.send();
 			}
+			
+			function drawElo() {
+				var container = document.getElementById('eloDiv');
+				var chart = new google.visualization.LineChart(container);
+				var dataTable = new google.visualization.DataTable();
+				dataTable.addColumn('date', 'Date');
+				dataTable.addColumn('number', "Rating");
+				dataTable.addColumn({type:'number', id:'Uppper Error', role:'interval'});
+				dataTable.addColumn({type:'number', id:'Upp Error', role:'interval'});
+				dataTable.addColumn({type:'number', id:'Low Error', role:'interval'});
+				dataTable.addColumn({type:'number', id:'Lower Error', role:'interval'});
+				dataTable.addColumn('number', "Volatility");
+				var glickos = userInfo.glickoHist;
+				for (var i=0; i < glickos.length; i++) {
+					var glicko = glickos[i];
+					var toAdd = [
+						[
+							new Date(glicko.date),
+							parseFloat(glicko.elo.toFixed(2)),
+							parseFloat((glicko.elo + (glicko.rd * 2)).toFixed(1)),
+							parseFloat((glicko.elo + glicko.rd).toFixed(1)),
+							parseFloat((glicko.elo - glicko.rd).toFixed(1)),
+							parseFloat((glicko.elo - (glicko.rd * 2)).toFixed(1)),
+							parseFloat(glicko.vol.toFixed(6))
+						]
+					];
+					
+					dataTable.addRows(toAdd);
+				}
+				
+				var options = {
+					title: 'Rating over Time',
+					seriesType: 'line',
+					titleTextStyle: {
+						color: '#FFFFEA',
+						fontName: 'Source Sans Pro'
+					},
+					hAxis: {
+						title: 'Date',
+						baselineColor: '#FFFFEA',
+						textStyle: {
+							color: '#FFFFEA',
+							fontName: 'Source Sans Pro',
+							italic: true
+						},
+						titleTextStyle: {
+							color: '#FFFFEA',
+							fontName: 'Source Sans Pro',
+							italic: true
+						},
+						gridlines: {
+							color: '#FFFFEA'
+						}
+					},
+					
+					vAxes: [
+						{
+							title: 'Rating',
+							baselineColor: '#FFFFEA',
+							textStyle: {
+								color: '#FFFFEA',
+								fontName: 'Source Sans Pro',
+								italic: true
+							},
+							titleTextStyle: {
+								color: '#FFFFEA',
+								fontName: 'Source Sans Pro',
+								italic: true
+							},
+							gridlines: {
+								color: '#7799AA'
+							}
+						},
+						{
+							title: 'Volatility',
+							baselineColor: '#FFFFEA',
+							textStyle: {
+								color: '#FFFFEA',
+								fontName: 'Source Sans Pro',
+								italic: true
+							},
+							titleTextStyle: {
+								color: '#FFFFEA',
+								fontName: 'Source Sans Pro',
+								italic: true
+							},
+							gridlines: {
+								color: '#77AA77'
+							}
+						}
+					],
+					series: {
+						0: {targetAxisIndex:0},
+						1: {targetAxisIndex:1}
+					},
+					legend: {
+						textStyle: {
+							color: '#FFFFEA',
+							fontName: 'Source Sans Pro'
+						},
+						position: 'top',
+						alignment: 'end'
+					},
+					width: '100%',
+					height: '100%',
+					backgroundColor: '#121113',
+					intervals: { 
+						'style':'area',
+						'fillOpacity': 0.4
+					},
+					colors: ['#99F5FF', '#80FF80']
+				};
+				
+				var formatterVol = new google.visualization.NumberFormat({pattern: '.######'});
+				formatterVol.format(dataTable, 6);
+				
+				// use a DataView to hide the category column from the Timeline
+				var view = new google.visualization.DataView(dataTable);
+				chart.draw(view, options);
+			}
 		</script>
 	</head>
 	<body>
@@ -188,6 +315,7 @@
 			<p id="jd"></p>
 			<h2>Last Login:</h2>
 			<p id="ld"></p>
+			<div id="eloDiv" style="height: 600px; width: 100%; min-width: 350px;"></div>
 		</div>
 		
 		<div class = "tableContainer">

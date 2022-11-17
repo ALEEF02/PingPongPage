@@ -2,11 +2,13 @@ package ppp.db.model;
 
 import ppp.db.AbstractModel;
 import ppp.db.controllers.CGames;
+import ppp.db.controllers.CGlicko;
 import ppp.db.controllers.CUser;
 import ppp.meta.GlickoTwo;
 import ppp.meta.StatusEnum;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * A User object
@@ -39,7 +41,7 @@ public class OUser extends AbstractModel {
 	 * @return {@code String} JSON with insensitive info
 	 */
     public String toPublicJSON() {
-    	return toPublicJSON(false);
+    	return toPublicJSON(false, false);
     }
     
 	/**
@@ -48,22 +50,22 @@ public class OUser extends AbstractModel {
 	 * @param numGamesPlayedInCycle if true, get the number of games they've played in the cycle
 	 * @return {@code String} JSON with insensitive info
 	 */
-    public String toPublicJSON(boolean numGamesPlayedInCycle) {
-    	if (numGamesPlayedInCycle) {
-	    	return "{\"id\":\"" + id + 
-	    			"\",\"username\":\"" + username + 
-	    			"\",\"elo\":\"" + rating + 
-	    			"\",\"rd\":\"" + rd + 
-	    			"\",\"vol\":\"" + volatility + 
-	    			"\",\"signUpDate\":\"" + signUpDate + 
-	    			"\",\"lastSignIn\":\"" + lastSignIn + 
-	    			"\",\"banned\":\"" + banned + 
-	    			"\",\"rank\":\"" + rank + 
-	    			"\",\"gamesPlayedInCycle\":\"" + CGames.getNumOfGamesForUser(id, StatusEnum.Status.ACCEPTED, true) + 
-	    			"\"}";
+    public String toPublicJSON(boolean numGamesPlayedInCycle, boolean withHistories) {
+    	
+    	if (!numGamesPlayedInCycle && !withHistories) {
+        	return "{\"id\":\"" + id + 
+        			"\",\"username\":\"" + username + 
+        			"\",\"elo\":\"" + rating + 
+        			"\",\"rd\":\"" + rd + 
+        			"\",\"vol\":\"" + volatility + 
+        			"\",\"signUpDate\":\"" + signUpDate + 
+        			"\",\"lastSignIn\":\"" + lastSignIn + 
+        			"\",\"banned\":\"" + banned + 
+        			"\",\"rank\":\"" + rank + 
+        			"\"}";
     	}
     	
-    	return "{\"id\":\"" + id + 
+    	String rt = "{\"id\":\"" + id + 
     			"\",\"username\":\"" + username + 
     			"\",\"elo\":\"" + rating + 
     			"\",\"rd\":\"" + rd + 
@@ -71,8 +73,27 @@ public class OUser extends AbstractModel {
     			"\",\"signUpDate\":\"" + signUpDate + 
     			"\",\"lastSignIn\":\"" + lastSignIn + 
     			"\",\"banned\":\"" + banned + 
-    			"\",\"rank\":\"" + rank + 
-    			"\"}";
+    			"\",\"rank\":\"" + rank;
+    	
+    	if (withHistories) {
+    		List<OGlicko> glickos = CGlicko.findByUserId(id);
+    		String glickoHist = "[";
+		    for (OGlicko glicko:glickos) {
+		    	glickoHist += glicko.toPublicJSON();
+		    	if (glickos.indexOf(glicko) != glickos.size() - 1) {
+		    		glickoHist += ",";
+		    	}
+		    }
+		    glickoHist += "]";
+	    	rt +=	"\",\"glickoHist\":" + glickoHist;
+    	}
+    	
+    	if (numGamesPlayedInCycle) {
+    		rt +=	"\",\"gamesPlayedInCycle\":\"" + CGames.getNumOfGamesForUser(id, StatusEnum.Status.ACCEPTED, true) + "\"";
+    	}
+    	
+    	rt += "}";
+    	return rt;
     	
     }
     
