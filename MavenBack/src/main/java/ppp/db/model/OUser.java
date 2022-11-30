@@ -73,7 +73,7 @@ public class OUser extends AbstractModel {
     			"\",\"signUpDate\":\"" + signUpDate + 
     			"\",\"lastSignIn\":\"" + lastSignIn + 
     			"\",\"banned\":\"" + banned + 
-    			"\",\"rank\":\"" + rank;
+    			"\",\"rank\":\"" + rank + "\"";
     	
     	if (withHistories) {
     		List<OGlicko> glickos = CGlicko.findByUserId(id);
@@ -85,11 +85,11 @@ public class OUser extends AbstractModel {
 		    	}
 		    }
 		    glickoHist += "]";
-	    	rt +=	"\",\"glickoHist\":" + glickoHist;
+	    	rt +=	",\"glickoHist\":" + glickoHist;
     	}
     	
     	if (numGamesPlayedInCycle) {
-    		rt +=	"\",\"gamesPlayedInCycle\":\"" + CGames.getNumOfGamesForUser(id, StatusEnum.Status.ACCEPTED, true) + "\"";
+    		rt +=	",\"gamesPlayedInCycle\":\"" + CGames.getNumOfGamesForUser(id, StatusEnum.Status.ACCEPTED, true) + "\"";
     	}
     	
     	rt += "}";

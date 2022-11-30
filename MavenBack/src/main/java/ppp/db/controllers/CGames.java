@@ -106,7 +106,16 @@ public class CGames {
     public static int getNumOfGamesForUser(int userId, StatusEnum.Status status) {
     	return getNumOfGamesForUser(userId, status, false);
     }
-    
+
+    /**
+     * Get the number of games that a user has played
+     * 
+     * @param userId the id of the user
+     * @param status the status of the games
+     * @param userCache whether to user the cache or not
+     * 
+     * @returns int - the # of games
+     */
     public static int getNumOfGamesForUser(int userId, StatusEnum.Status status, boolean useCache) {
     	int games = 0;
     	if (!useCache) {
@@ -223,6 +232,12 @@ public class CGames {
     	return getLatestGamesByStatus(status, 20);
     }
     
+    /**
+     * Get the latest games that fit to a specified status
+     * @param status
+     * @param limit
+     * @return The list of Game Objects
+     */
     public static List<OGame> getLatestGamesByStatus(StatusEnum.Status status, int limit) {
     	if (limit < 1 || limit > 200) limit = 20;
     	if (status == StatusEnum.Status.ANY) return getLatestGames(limit);

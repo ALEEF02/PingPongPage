@@ -43,7 +43,7 @@ public class ServiceHandlerThread extends Thread {
                 for (AbstractService instance : instances) {
                     instance.start();
                 }
-                sleep(30_000L); // Run every 30 seconds
+                sleep(600_000L); // Run every 10 minutes
             } catch (Exception e) {
                 e.printStackTrace();
             }

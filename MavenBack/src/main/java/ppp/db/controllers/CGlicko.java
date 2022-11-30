@@ -106,15 +106,16 @@ public class CGlicko {
         s.rating = rs.getDouble("rating");
         s.rd = rs.getDouble("rd");
         s.volatility = rs.getDouble("volatility");
+        s.ratingCycle = rs.getInt("rating_cycle");
         return s;
     }
 	
 	public static void insert(OGlicko record) {
         try {
             record.id = WebDb.get().insert(
-                    "INSERT INTO glicko(userId, date, rating, rd, volatility) " +
-                            "VALUES (?,?,?,?,?)",
-                            record.userId, record.date, record.rating, record.rd, record.volatility);
+                    "INSERT INTO glicko(userId, date, rating, rd, volatility, rating_cycle) " +
+                            "VALUES (?,?,?,?,?,?)",
+                            record.userId, record.date, record.rating, record.rd, record.volatility, record.ratingCycle);
         } catch (Exception e) {
             e.printStackTrace();
         }

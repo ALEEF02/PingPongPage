@@ -48,13 +48,13 @@
 						users = JSON.parse(usersReq.responseText);
 						
 						google.charts.load("current", {
-							packages: ["timeline"]
+							packages: ["timeline", "corechart"]
 						});
 						google.charts.setOnLoadCallback(drawTimeline);
 						
 					}
 				}
-				usersReq.open('GET', '/api/users?ranks=50&cached=1');
+				usersReq.open('GET', '/api/users?ranks=50&cached=1&withHistory=1');
 				usersReq.send();
 			});
 			
@@ -212,6 +212,429 @@
 				var view = new google.visualization.DataView(dataTable);
 				view.setColumns([0, 2, 3, 4, 5]);
 				chart.draw(view, options);
+				users = users.sort(function(a, b) {
+					return a.id - b.id;
+				});
+				drawHistogram();
+			}
+			
+			function drawHistogram() {
+				var container = document.getElementById('histogram');
+				var chart = new google.visualization.Histogram(container);
+				var dataTable = new google.visualization.DataTable();
+				dataTable.addColumn({
+					type: 'string',
+					id: 'Name'
+				});
+				dataTable.addColumn({
+					type: 'number',
+					id: 'Rating'
+				});
+				
+				var toAdd = [];
+				for (var i=0; i < users.length; i++) {
+					var user = users[i];
+					toAdd.push([
+						user.username,
+						parseInt(parseFloat(user.elo))
+					]);
+				}
+				dataTable.addRows(toAdd);
+
+				var options = {
+					title: 'Rating Distribution',
+					titleTextStyle: {
+						color: "#FFFFFF"
+					},
+					legend: { position: 'none' },
+					vAxis: {
+						baselineColor: '#FFFFFF',
+						title: "Number of Players",
+						titleTextStyle: {
+							color: "#FFFFFF"
+						},
+						textStyle: {
+							color: "#FFFFFF"
+						},
+						gridlines: {
+							color: '#555555'
+						},
+						minorGridlines: {
+							count: 0
+						}
+					},
+					hAxis: {
+						title: "Rating",
+						baselineColor: '#FFFFFF',
+						titleTextStyle: {
+							color: "#FFFFFF"
+						},
+						textStyle: {
+							color: "#FFFFFF"
+						},
+						gridlines: {
+							count: 0
+						},
+					},
+					width: '100%',
+					backgroundColor: "#121113",
+					histogram: { bucketSize: 50 },
+					chartArea: {
+						width: '90%',
+						height: '75%'
+					},
+					
+				};
+				
+				chart.draw(dataTable, options);
+				drawBoxPlot();
+			}
+			
+			
+			
+			function drawBoxPlot() {
+				var numGlickos = users[0].glickoHist.length;
+				var toAdd = [new Date(users[0].glickoHist[numGlickos - 1].date)];
+
+				var data = new google.visualization.DataTable();
+				data.addColumn('date', 'Date');
+				
+				for (var i = users.length - 1; i >= 0; i--) {
+					var user = users[i];
+					toAdd[users.length - i] = (parseFloat(user.elo));
+					data.addColumn('number', user.username);
+				}
+
+				data.addColumn({
+					id: 'max',
+					type: 'number',
+					role: 'interval'
+				});
+				data.addColumn({
+					id: 'min',
+					type: 'number',
+					role: 'interval'
+				});
+				data.addColumn({
+					id: 'firstQuartile',
+					type: 'number',
+					role: 'interval'
+				});
+				data.addColumn({
+					id: 'mean',
+					type: 'number',
+					role: 'interval'
+				});
+				data.addColumn({
+					id: 'median',
+					type: 'number',
+					role: 'interval'
+				});
+				data.addColumn({
+					id: 'thirdQuartile',
+					type: 'number',
+					role: 'interval'
+				});
+				
+				data.addRow(getBoxPlotValues(toAdd));
+				
+				// Starting at the second to last Glicko period & going back in time
+				for (var j = numGlickos - 2; j >= 0; j--) {
+					toAdd = [new Date(users[0].glickoHist[j].date)];
+					for (var i = users.length - 1; i >= 0; i--) {
+						var user = users[i];
+						var found = false;
+						for (var e = 0; e < user.glickoHist.length; e++) {
+							if (user.glickoHist[e].ratingCycle == j + 1) {
+								found = true;
+								toAdd[users.length - i] = (parseFloat(user.glickoHist[e].elo));
+								break;
+							}
+						}
+						if (!found) {
+							toAdd[users.length - i] = null;
+						}
+					}
+					data.addRow(getBoxPlotValues(toAdd));
+				}
+
+				/**
+				 * Takes an array of input data and returns an
+				 * array of the input data with the box plot
+				 * interval data appended to each row.
+				 */
+				function getBoxPlotValues(array) {
+					var arr = array.slice(1).sort(function(a, b) {
+						return a - b;
+					});
+					
+					var temp = arr;
+					arr = [];
+					for (var u = 0; u < temp.length; u++) {
+						if (temp[u] != null) {
+							arr.push(temp[u]);
+						}
+					}
+
+					var max = arr[arr.length - 1];
+					var min = arr[0];
+					var median = getMedian(arr);
+					var mean = getMean(arr);
+
+					// First Quartile is the median from lowest to overall median.
+					var firstQuartile = getMedian(arr.slice(0, parseInt(arr.length / 2) + 1));
+
+					// Third Quartile is the median from the overall median to the highest.
+					var thirdQuartile = getMedian(arr.slice(parseInt(arr.length / 2)));
+
+					/*array.splice(1, 0, thirdQuartile);
+					array.splice(1, 0, median);
+					array.splice(1, 0, mean);
+					array.splice(1, 0, firstQuartile);
+					array.splice(1, 0, min);
+					array.splice(1, 0, max);*/
+					
+					array.push(max);
+					array.push(min);
+					array.push(firstQuartile);
+					array.push(mean);
+					array.push(median);
+					array.push(thirdQuartile);
+					
+					return array;
+				}
+				
+				function getMedian(array) {
+					var length = array.length;
+
+					/* If the array is an even length the
+					 * median is the average of the two
+					 * middle-most values. Otherwise the
+					 * median is the middle-most value.
+					 */
+					if (length % 2 === 0) {
+						var midUpper = length / 2;
+						var midLower = midUpper - 1;
+
+						return (array[midUpper] + array[midLower]) / 2;
+					} else {
+						return array[Math.floor(length / 2)];
+					}
+				}
+
+				function getMean(array) {
+					var length = array.length;
+					var total = 0;
+
+					/* If the array is an even length the
+					 * median is the average of the two
+					 * middle-most values. Otherwise the
+					 * median is the middle-most value.
+					 */
+					for (var i = 0; i < length; i++) {
+						total += array[i];
+					}
+					return total / length;
+				}
+
+				var options = {
+					interpolateNulls: true,
+					title: 'Box Plot',
+					titleTextStyle: {
+						color: "#FFFFFF"
+					},
+					legend: {
+						position: 'none'
+					},
+					orientation: "vertical",
+					lineWidth: 0,
+					series: [{
+						'color': '#D3362D'
+					}],
+					intervals: {
+						barWidth: 1,
+						boxWidth: 1,
+						lineWidth: 2,
+						style: 'boxes'
+					},
+					interval: {
+						max: {
+							style: 'bars',
+							fillOpacity: 1,
+							color: '#777777'
+						},
+						min: {
+							style: 'bars',
+							fillOpacity: 1,
+							color: '#777777'
+						},
+						firstQuartile: {
+							color: '#eb349b'
+						},
+						thirdQuartile: {
+							color: '#eb349b'
+						},
+						median: {
+							color: '#eb349b'
+						},
+						mean: {
+							pointSize: 4,
+							color: '#FFFFFF',
+							style: 'points'
+						}
+					},
+					width: '100%',
+					backgroundColor: "#121113",
+					chartArea: {
+						width: '90%',
+						height: '75%'
+					},
+					vAxis: {
+						format: 'M/d/yy',
+						baselineColor: '#FFFFFF',
+						titleTextStyle: {
+							color: "#FFFFFF"
+						},
+						textStyle: {
+							color: "#FFFFFF"
+						},
+						gridlines: {
+							color: '#555555'
+						},
+					},
+					hAxis: {
+						title: "Rating",
+						baselineColor: '#FFFFFF',
+						titleTextStyle: {
+							color: "#FFFFFF"
+						},
+						textStyle: {
+							color: "#FFFFFF"
+						},
+						gridlines: {
+							color: '#555555'
+						},
+						minValue: 1000,
+						maxValue: 1700
+					},
+				};
+
+				var chart = new google.visualization.LineChart(document.getElementById('boxplot'));
+				chart.draw(data, options);
+				drawTreeDiagram();
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			function drawTreeDiagram() {
+				var numGlickos = users[0].glickoHist.length;
+				var toAdd = [new Date(users[0].glickoHist[numGlickos - 1].date)];
+
+				var data = new google.visualization.DataTable();
+				data.addColumn('date', 'Date');
+				
+				for (var i = users.length - 1; i >= 0; i--) {
+					var user = users[i];
+					toAdd[users.length - i] = (parseFloat(user.elo));
+					data.addColumn('number', user.username);
+				}
+				
+				data.addRow(getBoxPlotValues(toAdd));
+				
+				// Starting at the second to last Glicko period & going back in time
+				for (var j = numGlickos - 2; j >= 0; j--) {
+					toAdd = [new Date(users[0].glickoHist[j].date)];
+					for (var i = users.length - 1; i >= 0; i--) {
+						var user = users[i];
+						var found = false;
+						for (var e = 0; e < user.glickoHist.length; e++) {
+							if (user.glickoHist[e].ratingCycle == j + 1) {
+								found = true;
+								toAdd[users.length - i] = (parseFloat(user.glickoHist[e].elo));
+								break;
+							}
+						}
+						if (!found) {
+							toAdd[users.length - i] = null;
+						}
+					}
+					data.addRow(getBoxPlotValues(toAdd));
+				}
+
+				/**
+				 * Takes an array of input data and returns an
+				 * array of the input data with the box plot
+				 * interval data appended to each row.
+				 */
+				function getBoxPlotValues(array) {
+					
+					return array;
+				}
+
+				var options = {
+					interpolateNulls: true,
+					title: 'Rating Tree',
+					titleTextStyle: {
+						color: "#FFFFFF"
+					},
+					legend: {
+						position: 'none'
+					},
+					orientation: "vertical",
+					lineWidth: 3,
+					series: [{
+						'color': '#D3362D'
+					}],
+					intervals: {
+						barWidth: 1,
+						boxWidth: 1,
+						lineWidth: 2,
+						style: 'boxes'
+					},
+					width: '100%',
+					backgroundColor: "#121113",
+					chartArea: {
+						width: '90%',
+						height: '75%'
+					},
+					vAxis: {
+						format: 'M/d/yy',
+						baselineColor: '#FFFFFF',
+						titleTextStyle: {
+							color: "#FFFFFF"
+						},
+						textStyle: {
+							color: "#FFFFFF"
+						},
+						gridlines: {
+							color: '#555555'
+						},
+					},
+					hAxis: {
+						title: "Rating",
+						baselineColor: '#FFFFFF',
+						titleTextStyle: {
+							color: "#FFFFFF"
+						},
+						textStyle: {
+							color: "#FFFFFF"
+						},
+						gridlines: {
+							color: '#555555'
+						},
+						minValue: 1000,
+						maxValue: 1700
+					},
+				};
+
+				var chart = new google.visualization.LineChart(document.getElementById('tree'));
+				chart.draw(data, options);
 			}
 		</script>
 	</head>
@@ -222,7 +645,10 @@
 			<a href = "/games">Manage Your Games</a> <!--Leads to seprate page for ppl to register their games-->
 		</div>
 		<div class = "timelineContainer" style = "overflow-x:auto; overflow-y: hidden;">
-			<div id="timeline" style="height: 90%; min-width: 900px; "></div>
+			<div id="timeline" style="height: 90%; min-width: 1000px; "></div>
+			<div id="histogram" style="height: 50%;"></div>
+			<div id="boxplot" style="height: 50%;"></div>
+			<div id="tree" style="height: 50%;"></div>
 		</div>
 	</body>
 </html>
