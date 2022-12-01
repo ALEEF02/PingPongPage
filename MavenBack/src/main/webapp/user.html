@@ -337,7 +337,7 @@
 					var gameDate = new Date(Date.UTC(game.date.slice(0,4), game.date.slice(5,7) - 1, game.date.slice(8,10), game.date.slice(11,13), game.date.slice(14,16)));
 					
 					console.log("id: " + game.id + "\n\tTime of Day: " + [gameDate.getHours(), gameDate.getMinutes(), 0] + "\n\tDiff: " + diff + "\n\t" + status + "\n\tComb: " + game.combRD);
-					data.push([game.id, [gameDate.getUTCHours(), gameDate.getUTCMinutes(), 0], diff, status, 500 - parseFloat(game.combRD)]);
+					data.push([game.id, [gameDate.getHours(), gameDate.getMinutes(), 0], diff, status, 500 - parseFloat(game.combRD)]);
 					
 				}
 				
