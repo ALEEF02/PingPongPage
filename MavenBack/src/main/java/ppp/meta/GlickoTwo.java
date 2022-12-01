@@ -188,6 +188,17 @@ public class GlickoTwo {
 	}
 	
 	/**
+	 * Calculate the square RD
+	 *
+	 * @param phi Player phi (rating deviation)
+	 * @param phiOp Opponent phi (rating deviation)
+	 * @return double The root sum of squares of the two RDs
+	 */
+	public static double squareRD(double phi, double phiOp) {
+		return Math.sqrt(Math.pow(phi, 2) + Math.pow(phiOp, 2));
+	}
+	
+	/**
 	 * Calculate the 2 player's expected scores.
 	 * Ex: score = 0.653 -> [21, 18]
 	 *

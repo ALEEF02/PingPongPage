@@ -40,6 +40,7 @@
 			var hasRunGames = false;
 			var isLoggedIn = false;
 			var userInfo = {};
+			var games = [];
 		
 			window.addEventListener('DOMContentLoaded', function() {
 				console.log(window.location.href);
@@ -109,7 +110,7 @@
 				
 				gamesReq.onreadystatechange = function(){
 					if(gamesReq.readyState == 4 && gamesReq.status == 200){
-						var games = JSON.parse(gamesReq.responseText);
+						games = JSON.parse(gamesReq.responseText);
 						for (var i = 0; i < games.length; i++) {
 							var newRow = document.createElement('tr');
 							var date = document.createElement('td');
@@ -167,6 +168,10 @@
 							newRow.appendChild(prob);
 							gamesTable.appendChild(newRow);
 						}
+						google.charts.load("current", {
+							packages: ["corechart"]
+						});
+						google.charts.setOnLoadCallback(drawGamesByTime);
 					}
 				}
 				gamesReq.open('GET', '/api/games?status=FILED&user=' + id);
@@ -292,6 +297,126 @@
 				var view = new google.visualization.DataView(dataTable);
 				chart.draw(view, options);
 			}
+			
+			
+			
+			function drawGamesByTime() {
+
+				var data = [];
+				
+				var dataTable = new google.visualization.DataTable();
+				dataTable.addColumn('string', 'id');
+				dataTable.addColumn('timeofday', 'Time of Day');
+				dataTable.addColumn('number', 'Diff');
+				dataTable.addColumn('string', 'Status');
+				dataTable.addColumn('number', 'Confidence');
+				var firstColorWin = false;
+				
+				for (var i = 0; i < games.length; i++) {
+					var game = games[i];
+					var scoreDiff = ((1.0)*(parseInt(game.winnerScore) - parseInt(game.loserScore))) / ((1.0)*(parseInt(game.winnerScore) + parseInt(game.loserScore)));
+					var lossRate = ( (1.0 / Math.log10(21)) * Math.log10((20.0 * scoreDiff) + 1) ) / 2.0;
+					var score = 0.5 - lossRate;
+					
+					var weWon = (userInfo.id == game.winner);
+					if (i == 0) {
+						firstColorWin = weWon;
+					}
+					var expectedScore = parseFloat(game.matchup);
+					
+					if (weWon) {
+						score = 1 - score;
+					}
+					
+					if ((parseFloat(games[i].matchup) < 0.5 && weWon) || (!weWon && parseFloat(games[i].matchup) > 0.5)) {
+						expectedScore = 1 - expectedScore;
+					}
+					
+					var diff = score - expectedScore;
+					var status = (weWon ? "Win" : "Loss");
+					var gameDate = new Date(Date.UTC(game.date.slice(0,4), game.date.slice(5,7) - 1, game.date.slice(8,10), game.date.slice(11,13), game.date.slice(14,16)));
+					
+					console.log("id: " + game.id + "\n\tTime of Day: " + [gameDate.getHours(), gameDate.getMinutes(), 0] + "\n\tDiff: " + diff + "\n\t" + status + "\n\tComb: " + game.combRD);
+					data.push([game.id, [gameDate.getUTCHours(), gameDate.getUTCMinutes(), 0], diff, status, 500 - parseFloat(game.combRD)]);
+					
+				}
+				
+				dataTable.addRows(data);
+				
+				var options = {
+					title: 'Performance by Time of Day',
+					seriesType: 'line',
+					titleTextStyle: {
+						color: '#FFFFEA',
+						fontName: 'Source Sans Pro'
+					},
+					chartArea: {
+						width: '86%',
+						height: '75%'
+					},
+					bubble: {
+						textStyle: {
+							fontSize: 10,
+							color: "#FFFFFF",
+							bold: false,
+							italic: false
+						},
+						opacity: 0.6
+					},
+					hAxis: {
+						title: 'Time of Day',
+						baselineColor: '#FFFFEA',
+						textStyle: {
+							color: '#FFFFEA',
+							fontName: 'Source Sans Pro',
+							italic: true
+						},
+						titleTextStyle: {
+							color: '#FFFFEA',
+							fontName: 'Source Sans Pro',
+							italic: true
+						},
+						gridlines: {
+							color: '#FFFFEA'
+						}
+					},
+					vAxis: {
+						title: 'Performance',
+						baselineColor: '#FFFFEA',
+						textStyle: {
+							color: '#FFFFEA',
+							fontName: 'Source Sans Pro',
+							italic: true
+						},
+						titleTextStyle: {
+							color: '#FFFFEA',
+							fontName: 'Source Sans Pro',
+							italic: true
+						},
+						gridlines: {
+							color: '#7799AA'
+						}
+					},
+					legend: {
+						textStyle: {
+							color: '#FFFFEA',
+							fontName: 'Source Sans Pro'
+						},
+						position: 'top',
+						alignment: 'end'
+					},
+					width: '100%',
+					height: '100%',
+					backgroundColor: '#121113',
+					colors: ['#FF0000', '#00EE00']
+				};
+				if (firstColorWin) {
+					options.colors = ['#00EE00', '#FF0000'];
+				}
+
+				var chart = new google.visualization.BubbleChart(document.getElementById('gamesByTime'));
+				chart.draw(dataTable, options);
+			}
 		</script>
 	</head>
 	<body>
@@ -316,6 +441,7 @@
 			<h2>Last Login:</h2>
 			<p id="ld"></p>
 			<div id="eloDiv" style="height: 600px; width: 100%; min-width: 350px;"></div>
+			<div id="gamesByTime" style="height: 600px; width: 100%; min-width: 350px;"></div>
 		</div>
 		
 		<div class = "tableContainer">
