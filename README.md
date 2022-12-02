@@ -11,8 +11,10 @@
 * Apache
 * Jetty
 * Maven
+* Let's Encrypt
 * Java
 * JavaScript
 * MariaDB / SQL
 * HTML
 * CSS
+* Google Charts
