@@ -54,8 +54,53 @@
 							document.getElementById("elo").innerHTML = parseFloat(userInfo.elo).toFixed(2);
 							document.getElementById("rd").innerHTML = parseFloat(userInfo.rd).toFixed(2);
 							document.getElementById("vol").innerHTML = parseFloat(userInfo.vol).toFixed(7);
-							document.getElementById("jd").innerHTML = userInfo.signUpDate;
-							document.getElementById("ld").innerHTML = userInfo.lastSignIn;
+							
+							var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+							var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+							var dateDate = new Date(Date.UTC(userInfo.signUpDate.slice(0,4), userInfo.signUpDate.slice(5,7) - 1, userInfo.signUpDate.slice(8,10), userInfo.signUpDate.slice(11,13), userInfo.signUpDate.slice(14,16)));
+							var day = days[dateDate.getDay()];
+							var hr = dateDate.getHours();
+							var min = dateDate.getMinutes();
+							
+							if (min < 10){
+								min = "0" + min;
+							}
+							var ampm = "am";
+							if(hr >= 12){
+								ampm = "pm";
+							}
+							if(hr >= 13){
+								hr -= 12;
+							}
+							var d = dateDate.getDate();
+							var month = months[dateDate.getMonth()];
+							var year = dateDate.getFullYear();
+							
+							
+							document.getElementById("jd").innerHTML = day + " " + hr + ":" + min + ampm + " " + month + " " + d + ", " + year;
+							
+							var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+							var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+							var dateDate = new Date(Date.UTC(userInfo.lastSignIn.slice(0,4), userInfo.lastSignIn.slice(5,7) - 1, userInfo.lastSignIn.slice(8,10), userInfo.lastSignIn.slice(11,13), userInfo.lastSignIn.slice(14,16)));
+							var day = days[dateDate.getDay()];
+							var hr = dateDate.getHours();
+							var min = dateDate.getMinutes();
+							
+							if (min < 10){
+								min = "0" + min;
+							}
+							var ampm = "am";
+							if(hr >= 12){
+								ampm = "pm";
+							}
+							if(hr >= 13){
+								hr -= 12;
+							}
+							var d = dateDate.getDate();
+							var month = months[dateDate.getMonth()];
+							var year = dateDate.getFullYear();
+							
+							document.getElementById("ld").innerHTML = day + " " + hr + ":" + min + ampm + " " + month + " " + d + ", " + year;
 							document.getElementById("uname").innerHTML = userInfo.username;
 							document.getElementById("rank").innerHTML = userInfo.rank;
 							document.title = userInfo.username;
@@ -101,7 +146,8 @@
 				login.send();
 			
 			});
-			
+			var gamesWon = 0;
+			var totalGames = 0;
 			function getGames() {
 				if (id == 0 || hasRunGames || !isLoggedIn) return;
 				hasRunGames = true;
@@ -125,6 +171,7 @@
 							var day = days[dateDate.getDay()];
 							var hr = dateDate.getHours();
 							var min = dateDate.getMinutes();
+							
 							if (min < 10){
 								min = "0" + min;
 							}
@@ -147,8 +194,10 @@
 							oppLink.innerHTML = userInfo.id == games[i].sender ? games[i].receiverName : games[i].senderName;
 							oppLink.href = "/user/" + oppLink.innerHTML;
 							
+							totalGames++;
 							if (weWon) {
 								score.innerHTML = "<div class=\"tableG\">" + ourScore + "</div> — <div class=\"tableR\">" + theirScore + "</div>";
+								gamesWon++;
 							} else {
 								score.innerHTML = "<div class=\"tableR\">" + ourScore + "</div> — <div class=\"tableG\">" + theirScore + "</div>";
 							}
@@ -168,6 +217,10 @@
 							newRow.appendChild(prob);
 							gamesTable.appendChild(newRow);
 						}
+						
+						console.log(gamesWon);
+						console.log(totalGames);
+						document.getElementById("gamesWon").innerHTML = gamesWon + " out of " + totalGames + " total games";
 						google.charts.load("current", {
 							packages: ["corechart"]
 						});
@@ -417,6 +470,7 @@
 				var chart = new google.visualization.BubbleChart(document.getElementById('gamesByTime'));
 				chart.draw(dataTable, options);
 			}
+
 		</script>
 	</head>
 	<body>
@@ -427,19 +481,26 @@
 		</div>
 		
 		<div class = "userStats" role="main">
-			<h1 id="uname" class = "heading"><u>...</u></h1>
-			<h2>Rating:</h2>
-			<p id="elo"></p>
-			<h2>Rating Deviation:</h2>
-			<p id="rd"></p>
-			<h2>Volatility:</h2>
-			<p id="vol"></p>
-			<h2>Overall Rank:</h2>
-			<p id="rank"></p>
-			<h2>Join Date:</h2>
-			<p id="jd"></p>
-			<h2>Last Login:</h2>
-			<p id="ld"></p>
+			<div class = "mainStats">
+				<h1 id="uname" class = "heading"><u>...</u></h1>
+				<h4>Rating:</h4>	
+				<p id="elo"></p>
+				<h4>Overall Rank:</h4>
+				<p id="rank"></p>
+				<h4>Games Won:</h4>
+				<p id="gamesWon"></p>
+				<h4>Join Date:</h4>
+				<p id="jd"></p>
+				<h4>Last Login:</h4>
+				<p id="ld"></p>
+			</div>
+			<div class = "glickoStats">
+				<h1 class = "heading">Glicko-2 Specifics</h1>
+				<h4>Rating Deviation:</h4>
+				<p id="rd"></p>
+				<h4>Volatility:</h4>
+				<p id="vol"></p>
+			</div>
 			<div id="eloDiv" style="height: 600px; width: 100%; min-width: 350px;"></div>
 			<div id="gamesByTime" style="height: 600px; width: 100%; min-width: 350px;"></div>
 		</div>
