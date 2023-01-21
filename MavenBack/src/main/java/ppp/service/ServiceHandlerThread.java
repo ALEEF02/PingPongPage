@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Handles starting and running the services
+ *
+ */
 public class ServiceHandlerThread extends Thread {
 	private List<AbstractService> instances;
 	

@@ -11,11 +11,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * data communication with the controllers `services`
+ * Handles the communication between the DB and Client for Service information
  */
 public class CServices {
     private static Map<String, Integer> serviceCache = new ConcurrentHashMap<>();
 
+    /**
+     * Get the Cached ID of a service
+     * @param serviceName The name of the service
+     * @return the ID
+     */
     public static int getCachedId(String serviceName) {
         if (!serviceCache.containsKey(serviceName)) {
             OService service = findBy(serviceName);
@@ -28,6 +33,10 @@ public class CServices {
         return serviceCache.get(serviceName);
     }
 
+    /**
+     * Get every service that is active from the DB
+     * @return A List of Service Objects
+     */
     public static List<OService> getAllActive() {
         ArrayList<OService> list = new ArrayList<>();
         try (ResultSet rs = WebDb.get().select("SELECT * FROM services WHERE activated = 1")) {
@@ -41,6 +50,11 @@ public class CServices {
         return list;
     }
 
+    /**
+     * Find a service by its Name in the DB
+     * @param name The name of the service
+     * @return The Service Object, filled if it exists
+     */
     public static OService findBy(String name) {
         OService token = new OService();
         try (ResultSet rs = WebDb.get().select(
@@ -57,6 +71,12 @@ public class CServices {
         return token;
     }
 
+    /**
+     * Fill a new Service Object from an SQL {@link ResultSet}
+     * @param resultset The SQL {@link ResultSet}
+     * @return A filled Service Object
+     * @throws SQLException
+     */
     private static OService fillRecord(ResultSet resultset) throws SQLException {
         OService service = new OService();
         service.id = resultset.getInt("id");
@@ -67,6 +87,11 @@ public class CServices {
         return service;
     }
 
+    /**
+	 * Updates the database record to the one provided.
+	 *
+	 * @param record The OService record.
+	 */
     public static void update(OService record) {
         if (record.id == 0) {
             insert(record);
@@ -83,6 +108,11 @@ public class CServices {
         }
     }
 
+    /**
+	 * Inserts a Service object into the database.The Service object's {@code id} is updated once the request is complete.
+	 *
+	 * @param record The OService record.
+	 */
     public static void insert(OService record) {
         try {
             record.id = WebDb.get().insert(

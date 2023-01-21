@@ -11,6 +11,9 @@ import java.util.Calendar;
 
 import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
 
+/**
+ * Handles the actual communication with the DB
+ */
 public class MySQLAdapter {
 
     private String DB_NAME;
@@ -28,7 +31,11 @@ public class MySQLAdapter {
         DB_PORT = port;
         System.out.println("Init SQL w/ " + DB_USER + "@" + DB_ADRES + "." + DB_NAME);
     }
-
+    
+    /**
+     * Connect to the SQL Server
+     * @return The {@link Connection} Object
+     */
     private Connection createConnection() {
         try {
             MysqlConnectionPoolDataSource dataSource = new MysqlConnectionPoolDataSource();
@@ -48,6 +55,10 @@ public class MySQLAdapter {
         return null;
     }
 
+    /**
+     * Retrieve the connection to the SQL Server
+     * @return The {@link Connection} Object
+     */
     public Connection getConnection() {
         if (c == null) {
             c = createConnection();
@@ -55,6 +66,13 @@ public class MySQLAdapter {
         return c;
     }
 
+    /**
+     * Select from the SQL DB
+     * @param sql
+     * @param params
+     * @return The results
+     * @throws SQLException
+     */
     public ResultSet select(String sql, Object... params) throws SQLException {
         PreparedStatement query;
         query = getConnection().prepareStatement(sql);

@@ -13,33 +13,51 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Handles the communication between the DB and Client for Game information
+ */
 public class CGames {
 	
-	// Since our client runs on a single machine at once, it is viable to use a local cache to speed up API times.
+	// Since our application runs on a single machine at once, it is viable to use a local cache to speed up API times.
     private static Map<Integer, OGame> gamesCache = new ConcurrentHashMap<>();
     
     /**
      * Dump (if there's games already) and fill the cache
      */
-    public static void init() { 
-    	gamesCache = new ConcurrentHashMap<>();
+    public static void init() {
+    	Map<Integer, OGame> tempGamesCache = new ConcurrentHashMap<>();
     	List<OGame> games = getALLGames();
     	for (OGame game : games) {
-    		gamesCache.put(game.id, game);
+    		tempGamesCache.put(game.id, game);
     	}
+    	gamesCache = tempGamesCache;
     }
     
+    /**
+     * Properly update a game in the local game cache
+     * @param toAdd the updated game object
+     */
     private static void updateCachedGame(OGame toAdd) {
     	if (toAdd.id != 0) {
     		gamesCache.put(toAdd.id, toAdd);
     	}
     }
     
+    /**
+     * Get every game, regardless of status, in the local cache
+     * @return a List of games
+     */
     private static List<OGame> getAllCachedGames() {
     	List<OGame> ret = new ArrayList<>(gamesCache.values());
     	return ret;
     }
-
+    
+    /**
+     * Fill a new User Object from an SQL ResultSet
+     * @param resultset The SQL ResultSet
+     * @return A filled User Object
+     * @throws SQLException
+     */
     private static OGame fillRecord(ResultSet resultset) throws SQLException {
         OGame bank = new OGame();
         bank.id = resultset.getInt("id");
@@ -133,7 +151,7 @@ public class CGames {
 	    	        System.out.println(e);
 	    	    }
 	        	
-	        } else if (status == StatusEnum.Status.FILED) {
+	        } else if (status == StatusEnum.Status.FILED) { // Must be accepted or calculated
 	        	
 	        	try (ResultSet rs = WebDb.get().select(
 	    	            "SELECT COUNT(id) " +
@@ -161,7 +179,7 @@ public class CGames {
 				
 	        }
 	        
-    	} else {
+    	} else { // Same thing as above, but retreiving from the cache
     		
     		List<OGame> allGames = getAllCachedGames();
     		if (status == StatusEnum.Status.ANY) {
@@ -191,6 +209,11 @@ public class CGames {
 	    return games;
     }
     
+    /**
+     * Find a specific game from the DB
+     * @param id of the game in question
+     * @return The game object, filled if it exists, {@code id=0} if it doesn't
+     */
     public static OGame getGameById(int id) {
         OGame ret = new OGame();
         try (ResultSet rs = WebDb.get().select(
@@ -207,10 +230,19 @@ public class CGames {
         return ret;
     }
     
+    /**
+     * Get the 20 latest games from the DB
+     * @return A list of Game Objects
+     */
     public static List<OGame> getLatestGames() {
     	return getLatestGames(20);
     }
     
+    /**
+     * Get the latest games from the DB
+     * @param limit The number of games to retrieve. Maximum 200
+     * @return A list of Game Objects
+     */
     public static List<OGame> getLatestGames(int limit) {
     	if (limit < 1 || limit > 200) limit = 20;
         List<OGame> ret = new ArrayList<>();
@@ -228,15 +260,20 @@ public class CGames {
         return ret;
     }
     
+    /**
+     * Get the latest games from the DB that fit to a specified status
+     * @param status The status of the games to find
+     * @return A list of Game Objects
+     */
     public static List<OGame> getLatestGamesByStatus(StatusEnum.Status status) {
     	return getLatestGamesByStatus(status, 20);
     }
     
     /**
-     * Get the latest games that fit to a specified status
-     * @param status
-     * @param limit
-     * @return The list of Game Objects
+     * Get the latest games from the DB that fit to a specified status
+     * @param status The status of the games to find
+     * @param limit The number of games to retrieve. Maximum 200
+     * @return A list of Game Objects
      */
     public static List<OGame> getLatestGamesByStatus(StatusEnum.Status status, int limit) {
     	if (limit < 1 || limit > 200) limit = 20;
@@ -277,8 +314,8 @@ public class CGames {
     /**
      * Get every game from the DB that matches the status
      * 
-     * @param status
-     * @return the games
+     * @param status The status of the games to find
+     * @return A list of every Game Object that matches. Can be empty.
      */
     public static List<OGame> getAllGamesByStatus(StatusEnum.Status status) {
     	if (status == StatusEnum.Status.ANY) return getALLGames();
@@ -315,6 +352,12 @@ public class CGames {
         return ret;
     }
 
+    /**
+     * Get every game involving a specific user from the DB
+     * 
+     * @param userId the internal ID of the user
+     * @return A list of every Game Object that matches. Can be empty.
+     */
     public static List<OGame> getGamesForUser(int userId) {
         List<OGame> ret = new ArrayList<>();
         try (ResultSet rs = WebDb.get().select(
@@ -330,7 +373,57 @@ public class CGames {
         }
         return ret;
     }
+    
+    /**
+     * Get every game involving a specific user from the DB
+     * 
+     * @param userId The internal ID of the user
+     * @param status The status of the games to find
+     * @return A list of every Game Object that matches. Can be empty.
+     */
+    public static List<OGame> getGamesForUserByStatus(int userId, StatusEnum.Status status) {
+        List<OGame> ret = new ArrayList<>();
+        if (status == StatusEnum.Status.ANY) {
+        	return getGamesForUser(userId);
+        }
+        
+        if (status == StatusEnum.Status.FILED) {
+            try (ResultSet rs = WebDb.get().select(
+            		"SELECT * " +
+    	                    "FROM games " + 
+    	                    "WHERE status > 1 AND (receiver = ? OR sender = ?) " +
+    	            		"ORDER BY id DESC ", userId, userId)) {
+                while (rs.next()) {
+                    ret.add(fillRecord(rs));
+                }
+                rs.getStatement().close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+            return ret;
+    	}
+        
+		try (ResultSet rs = WebDb.get().select(
+	            "SELECT * " +
+	                    "FROM games " +
+	                    "WHERE status = ? AND (receiver = ? OR sender = ?) " + 
+	            		"ORDER BY id DESC", status.getNum(), userId, userId)) {
+	        while (rs.next()) {
+	            ret.add(fillRecord(rs));
+	        }
+	        rs.getStatement().close();
+	    } catch (Exception e) {
+	        System.out.println(e);
+	    }
+	    return ret;
+    }
 
+    /**
+     * Get every game a specific user sent from the DB
+     * @param userId The internal ID of the user
+     * @param status The status of the games to find
+     * @return A list of every Game Object that matches. Can be empty.
+     */
     public static List<OGame> getUsersSentGames(int userId, StatusEnum.Status status) {
         List<OGame> ret = new ArrayList<>();
         if (status == StatusEnum.Status.ANY) {
@@ -376,6 +469,12 @@ public class CGames {
         }
     }
     
+    /**
+     * Get every game a specific user received from the DB
+     * @param userId The internal ID of the user
+     * @param status The status of the games to find
+     * @return A list of every Game Object that matches. Can be empty.
+     */
     public static List<OGame> getUsersReceivedGames(int userId, StatusEnum.Status status) {
         List<OGame> ret = new ArrayList<>();
         if (status == StatusEnum.Status.ANY) {
@@ -420,50 +519,13 @@ public class CGames {
 	        return ret;
         }
     }
-
-    public static List<OGame> getGamesForUserByStatus(int userId, StatusEnum.Status status) {
-        List<OGame> ret = new ArrayList<>();
-        if (status == StatusEnum.Status.ANY) {
-        	return getGamesForUser(userId);
-        }
-        
-        if (status == StatusEnum.Status.FILED) {
-            try (ResultSet rs = WebDb.get().select(
-            		"SELECT * " +
-    	                    "FROM games " + 
-    	                    "WHERE status > 1 AND (receiver = ? OR sender = ?) " +
-    	            		"ORDER BY id DESC ", userId, userId)) {
-                while (rs.next()) {
-                    ret.add(fillRecord(rs));
-                }
-                rs.getStatement().close();
-            } catch (Exception e) {
-                System.out.println(e);
-            }
-            return ret;
-    	}
-        
-		try (ResultSet rs = WebDb.get().select(
-	            "SELECT * " +
-	                    "FROM games " +
-	                    "WHERE status = ? AND (receiver = ? OR sender = ?) " + 
-	            		"ORDER BY id DESC", status.getNum(), userId, userId)) {
-	        while (rs.next()) {
-	            ret.add(fillRecord(rs));
-	        }
-	        rs.getStatement().close();
-	    } catch (Exception e) {
-	        System.out.println(e);
-	    }
-	    return ret;
-    }
     
     /**
 	 * Get all games between two users, regardless of status
 	 *
 	 * @param userId1 One userId
 	 * @param userId2 Another userId
-	 * @return List<OGame> All games found. Can be empty.
+	 * @return A list of every Game Object that matches. Can be empty.
 	 */
     public static List<OGame> getGamesBetweenUsers(int userId1, int userId2) {
     	return getGamesBetweenUsers(userId2, userId2, StatusEnum.Status.ANY);
@@ -475,7 +537,7 @@ public class CGames {
 	 * @param userId1 One userId
 	 * @param userId2 Another userId
 	 * @param status Status of game to find
-	 * @return List<OGame> All games found. Can be empty.
+	 * @return A list of every Game Object that matches. Can be empty.
 	 */
     public static List<OGame> getGamesBetweenUsers(int userId1, int userId2, StatusEnum.Status status) {
         List<OGame> ret = new ArrayList<>();
@@ -519,7 +581,16 @@ public class CGames {
         }
         return ret;
     }
-
+    
+    /**
+     * Creates a new Game Object and inserts it into the DB. This does not check for score validity.<br>
+     * The Game object's {@code id} is updated once the request is complete.
+     * @param sender The sender's ID
+     * @param receiver The receiver's ID
+     * @param winner The winner's ID
+     * @param winnerScore The winner's score
+     * @param loserScore The loser's score
+     */
     public static void insert(int sender, int receiver, int winner, int winnerScore, int loserScore) {
     	OGame rec = new OGame();
         rec.status = StatusEnum.Status.PENDING;
@@ -531,6 +602,10 @@ public class CGames {
         insert(rec);
     }
 
+    /**
+     * Inserts a new Game Object into the DB. The Game object's {@code id} is updated once the request is complete.
+     * @param rec The OGame record to be inserted
+     */
     public static void insert(OGame rec) {
         try {
             if (rec.date == null) {
@@ -546,6 +621,11 @@ public class CGames {
         updateCachedGame(rec);
     }
     
+    /**
+	 * Updates the database record to the one provided.
+	 *
+	 * @param record The OGame record
+	 */
     public static void update(OGame record) {
         try {
             WebDb.get().query(
@@ -557,6 +637,11 @@ public class CGames {
         updateCachedGame(record);
     }
     
+    /**
+	 * Deletes the database record of the provided game
+	 *
+	 * @param record The OGame record
+	 */
 	public static void delete(OGame record) {
 		if (record.id == 0) return;
         try {

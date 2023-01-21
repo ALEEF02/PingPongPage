@@ -6,6 +6,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Invalidates the user's session
+ */
 @WebServlet("/logout")
 public class LogoutServlet extends HttpServlet {
 	

@@ -11,6 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import ppp.ServerConfig;
 import ppp.api.GetGames;
 import ppp.db.controllers.CGlicko;
 import ppp.db.controllers.CUser;
@@ -24,6 +25,10 @@ public class AuthServlet extends HttpServlet {
 	
 	Authenticator emailer = new Authenticator();
 	
+	/**
+	 * Creates a new 24-bit, Base64 Token
+	 * @return The unique token
+	 */
 	private String genNewToken() {
 		SecureRandom random = new SecureRandom();
 		Base64.Encoder b64Encoder = Base64.getUrlEncoder();
@@ -48,7 +53,7 @@ public class AuthServlet extends HttpServlet {
 				return;
 			}
 			LoginEnum.Status successfulAuth = emailer.compareAuthCode(email, inputAuthCode);
-			if (successfulAuth != LoginEnum.Status.SUCCESS) {
+			if (successfulAuth != LoginEnum.Status.SUCCESS) { // The inputed code does not match what we sent to the specified email
 				response.setStatus(successfulAuth.getCode());
 				response.getWriter().println(GetGames.createError(successfulAuth.getMsg()));
 				return;
@@ -56,8 +61,8 @@ public class AuthServlet extends HttpServlet {
 
 			// At this point we know that this person is that of the email provided. Setup account if it doesn't exist now.
 			response.getWriter().println("huh. That worked. now what?");
-			request.getSession().setAttribute("email", email);
-			request.getSession().setMaxInactiveInterval(-1);
+			request.getSession().setAttribute("email", email); // Store the email in the internal session
+			request.getSession().setMaxInactiveInterval(-1); // Set the session to not expire
 			response.setStatus(200);
 			OUser user = CUser.findByEmail(email);
 			Date now = new Date();
@@ -70,7 +75,7 @@ public class AuthServlet extends HttpServlet {
 				
 				Calendar calendar = Calendar.getInstance();
 				calendar.setTime(now);            
-				calendar.add(Calendar.DAY_OF_YEAR, 7);
+				calendar.add(Calendar.DAY_OF_YEAR, ServerConfig.TOKEN_VALIDITY_PERIOD);
 				user.tokenExpiryDate = new Timestamp(calendar.getTime().getTime());
 				
 				user.token = genNewToken();
@@ -79,6 +84,7 @@ public class AuthServlet extends HttpServlet {
 				// Record their starting Glicko values
 				OGlicko glickoRecord = new OGlicko();
 				glickoRecord.userId = user.id;
+				glickoRecord.checkRatingCycle();
 				CGlicko.insert(glickoRecord);
 				
 			} else { // This is not the user's first login. However, their previous auth is expired. Let's gen them a new one and store it. This will invalidate the old one, too.
@@ -87,7 +93,7 @@ public class AuthServlet extends HttpServlet {
 				
 				Calendar calendar = Calendar.getInstance();
 				calendar.setTime(now);            
-				calendar.add(Calendar.DAY_OF_YEAR, 7);
+				calendar.add(Calendar.DAY_OF_YEAR, ServerConfig.TOKEN_VALIDITY_PERIOD);
 				user.tokenExpiryDate = new Timestamp(calendar.getTime().getTime());
 				
 				user.token = genNewToken();
@@ -97,7 +103,7 @@ public class AuthServlet extends HttpServlet {
 			
 		} else if (request.getParameterMap().containsKey("loggingIn")) {
 			
-			// This is a good example of the login process. However, it should be removed from here and implemented on each API level!
+			// TODO: This is a good example of the login process. However, it should be removed from here and implemented on each API level!
 			
 			String email = (String)request.getSession().getAttribute("email");
 			
@@ -126,7 +132,7 @@ public class AuthServlet extends HttpServlet {
 			}
 			LoginEnum.Status emailStatus = emailer.sendAuthEmail(email);
 			if (emailStatus != LoginEnum.Status.EMAIL_SENT) {
-				response.setStatus(429);
+				response.setStatus(emailStatus.getCode()); // 429, but using .getCode is good future-proofing
 				response.getWriter().println(GetGames.createError(emailStatus.getMsg()));
 			} else {
 				response.setStatus(200);

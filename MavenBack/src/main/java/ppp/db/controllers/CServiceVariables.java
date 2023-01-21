@@ -30,7 +30,13 @@ public class CServiceVariables {
         }
         return record;
     }
-
+    
+    /**
+     * Fill a new ServiceVariable Object from an SQL {@link ResultSet}
+     * @param resultset The SQL {@link ResultSet}
+     * @return A filled ServiceVariable Object
+     * @throws SQLException
+     */
     private static OServiceVariable fillRecord(ResultSet resultset) throws SQLException {
         OServiceVariable record = new OServiceVariable();
         record.serviceId = resultset.getInt("service_id");
@@ -39,6 +45,11 @@ public class CServiceVariables {
         return record;
     }
 
+    /**
+	 * Updates a ServiceVariable object into the database or inserts it, if it doesn't exist.The ServiceVariable object's {@code id} is updated once the request is complete.
+	 *
+	 * @param record The OServiceVariable record.
+	 */
     public static void insertOrUpdate(OServiceVariable record) {
         try {
             WebDb.get().insert(

@@ -18,9 +18,11 @@ public class Authenticator {
 	
 	// Simple Java Mail docs: https://www.simplejavamail.org/features.html
 	
-	// index 0: Time of email sent
-	// index 1: AuthCode
-	// index 2: Attempts
+	/**
+	 * index 0: Time of email sent<br>
+	 * index 1: AuthCode<br>
+	 * index 2: Attempts
+	 */
 	private static Map<String, Integer[]> emailsSent = new HashMap<String, Integer[]>();
 	
 	/**
@@ -32,24 +34,24 @@ public class Authenticator {
 	 */
 	public LoginEnum.Status compareAuthCode(String email, int inputAuthCode) {
 		
-		// TODO: Sanatize email input
+		// TODO: Sanitize email input
 		email = email.toLowerCase();
 		
-		if (!emailsSent.containsKey(email)) return LoginEnum.Status.EMAIL_INVALID;
+		if (!emailsSent.containsKey(email)) return LoginEnum.Status.EMAIL_INVALID; // We haven't sent an email to this person, how could they have a code?
 		
 		int timeSent = emailsSent.get(email)[0];
-		if ((System.currentTimeMillis() / 1000D) - timeSent > 60 * 5) return LoginEnum.Status.AUTH_TOO_LATE;
+		if ((System.currentTimeMillis() / 1000D) - timeSent > 60 * ServerConfig.AUTH_CODE_VALIDITY_PERIOD) return LoginEnum.Status.AUTH_TOO_LATE;
 		
 		int attempts = emailsSent.get(email)[2];
-		if (attempts > 2) return LoginEnum.Status.TOO_MANY_ATTEMPTS;
+		if (attempts > 2) return LoginEnum.Status.TOO_MANY_ATTEMPTS; // 3 attempts max
 		
 		int sentAuthCode = emailsSent.get(email)[1];
-		if (sentAuthCode != inputAuthCode) {
+		if (sentAuthCode != inputAuthCode) { // The provided code is incorrect. Increment the attempts counter.
 			Integer[] update = emailsSent.get(email);
 			update[2]++;
 			emailsSent.replace(email, update);
 			return LoginEnum.Status.AUTH_INVALID;
-		} else {
+		} else { // The provided code is correct. Remove the email from the Map and return success.
 			emailsSent.remove(email);
 			return LoginEnum.Status.SUCCESS;
 		}
@@ -70,7 +72,7 @@ public class Authenticator {
 	}
 	
 	/**
-	 * Checks the input email and token to be logged in
+	 * Checks the input email and token to be logged in.
 	 *
 	 * @param email The email address of the user
 	 * @param token The token for the user
@@ -86,13 +88,11 @@ public class Authenticator {
 		if (user.banned) return LoginEnum.Status.BANNED; // Banned users cannot login
 		
 		// Successful login. Timestamp & log it.
-		user.lastSignIn = new Timestamp(new Date().getTime());
+		user.lastSignIn = new Timestamp(new Date().getTime()); // Should we use  new Timestamp(System.currentTimeMillis()); instead?
 		CUser.update(user);
 		
 		return LoginEnum.Status.SUCCESS;
 	}
-	
-	
 	
 	/**
 	 * Send an email to the user with an authentication code for login.
@@ -102,20 +102,22 @@ public class Authenticator {
 	 */
 	public LoginEnum.Status sendAuthEmail(String toEmailAddress) {
 		toEmailAddress = toEmailAddress.toLowerCase();
-		// TODO: Sanatize email input
+		// TODO: Sanatize email input.
 		double now = (System.currentTimeMillis() / 1000D);
         if (emailsSent.containsKey(toEmailAddress)) {
 	        double time = now - emailsSent.get(toEmailAddress)[0];
-	        if (time < 60 * 10) { // 10 minutes, but will expire after 5 minutes. This extra 5 minute delay is anti-brute force
+	        if (time < 60 * ServerConfig.AUTH_CODE_DELAY_PERIOD) { // 10 minutes, but will expire after 5 minutes. This extra 5 minute delay is anti-brute force
 	            return LoginEnum.Status.AUTH_ALREADY_SENT;
 	        }
         }
-		final int authCode = (int)(Math.random() * Math.pow(10, ServerConfig.AUTH_NUM_DIGITS));
+		final int authCode = (int)(Math.random() * Math.pow(10, ServerConfig.AUTH_NUM_DIGITS)); // TODO: This can produce numbers LESS than the number of digits with the current implementation.
+		
+		// Everything looks in order. Create, send, and store the email
 		Email email = EmailBuilder.startingBlank()
 				.from("PingPongPage", ServerConfig.EMAIL_USER)
 				.to(toEmailAddress)
 			    .withSubject("One-Time Password")
-				.withPlainText("Hi! Your one-time password is: " + authCode + ". It'll expire in 5 minutes.\nThanks for using our service\n\t- Backend Software Engineer, Anthony Ford")
+				.withPlainText("Hi! Your one-time password is: " + authCode + ". It'll expire in " + ServerConfig.AUTH_CODE_VALIDITY_PERIOD + " minutes.\nThanks for using our service\n\t- Backend Software Engineer, Anthony Ford")
 				.buildEmail();
 		
 		Emailer.getMailer(true).sendMail(email);

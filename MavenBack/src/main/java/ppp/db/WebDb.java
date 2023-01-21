@@ -5,6 +5,10 @@ import ppp.ServerConfig;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+/**
+ * Wrapper for {@link MySQLAdapter}. Can handle multiple connections
+ *
+ */
 public class WebDb {
 
     private static final String DEFAULT_CONNECTION = "main";

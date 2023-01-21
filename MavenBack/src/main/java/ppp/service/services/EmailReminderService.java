@@ -20,7 +20,7 @@ import ppp.meta.StatusEnum;
 import ppp.service.AbstractService;
 
 /**
- * Reminds users about their pending games
+ * Reminds users about their pending games. Email them once every day if they have a pending game older than a day
  */
 public class EmailReminderService extends AbstractService {
 

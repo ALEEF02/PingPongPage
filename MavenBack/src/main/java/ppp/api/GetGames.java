@@ -2,8 +2,6 @@ package ppp.api;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -23,17 +21,17 @@ import ppp.meta.LoginEnum;
 import ppp.meta.StatusEnum;
 import ppp.meta.StatusEnum.Status;
 
-/*
- * API REF:
- * Ind: independent, Exc: exclusive of other exclusives
- * Parameters, highest priority first:
- * 	None: 20 latest games, regardless of status
- * 	status [ind]: The status of the game.
- * 	ratingP [exc]: The number of games that still need to be played until the rating period ends
- * 	limit [ind]: The maximum number of games to return when NOT looking for a User's games. Valid 1-200. Default 20.
- * 	sender [exc]: games of the sender 
- * 	receiver [exc]: games being received
- * 	user [exc]: Any games with the user(s)
+/**
+ * Games API Servlet
+ * Ind: independent, Exc: exclusive of other exclusives<br>
+ * Parameters, highest priority first:<br>&nbsp;&nbsp;
+ * 	None: 20 latest games, regardless of status<br>&nbsp;&nbsp;
+ * 	status [ind]: The status of the game.<br>&nbsp;&nbsp;
+ * 	ratingP [exc]: The number of games that still need to be played until the rating period ends<br>&nbsp;&nbsp;
+ * 	limit [ind]: The maximum number of games to return when NOT looking for a User's games. Valid 1-200. Default 20.<br>&nbsp;&nbsp;
+ * 	sender [exc]: games of the sender<br>&nbsp;&nbsp; 
+ * 	receiver [exc]: games being received<br>&nbsp;&nbsp;
+ * 	user [exc]: Any games with the user(s)<br>&nbsp;&nbsp;&nbsp;&nbsp;
  * 		if two users are provided, all games between those two are returned
  */
 @WebServlet("/api/games")
@@ -42,15 +40,15 @@ public class GetGames extends HttpServlet {
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Map<String, String[]> parameters = request.getParameterMap();
-		List<OGame> games = null;
+		List<OGame> games = null; // Our list of games to be returned
 		StatusEnum.Status status = Status.ANY;
-		int limit = 20;
+		int limit = 20; // Return a maximum of 20 games by default
 
 		Authenticator auth = new Authenticator();
-		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
+		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS; // Check with the Authenticator to see if the request is authorized
 		
 		try {
-			if (parameters.containsKey("ratingP")) {
+			if (parameters.containsKey("ratingP")) { // Return the number of games in and needed to end the rating period. Used for the iOS Scriptable Widget
 				int gamesLeft = CGames.getNumOfGamesUntilRating();
 				response.setStatus(200);
 				response.setContentType("application/json;");
@@ -60,18 +58,18 @@ public class GetGames extends HttpServlet {
 				return;
 			}
 			
-			if (parameters.containsKey("status")) {
+			if (parameters.containsKey("status")) { // Filter the games by their Status
 				status = StatusEnum.Status.fromString(parameters.get("status")[0]);
 			}
 			
-			if (parameters.containsKey("limit")) {
+			if (parameters.containsKey("limit")) { // Alter the default limit
 				try {
 					limit = Integer.parseInt(parameters.get("limit")[0]);
-				} catch (Exception e) {}
+				} catch (Exception e) {} // If the parameter is bad, just ignore it and stick with the default
 			}
 			
 			
-			if (parameters.containsKey("sender")) {
+			if (parameters.containsKey("sender")) { // Filter games only with a specific sender
 				
 				if (!loggedIn) {
 					response.setStatus(401);
@@ -89,7 +87,7 @@ public class GetGames extends HttpServlet {
 			    }
 				games = CGames.getUsersSentGames(user, status);
 				
-			} else if (parameters.containsKey("receiver")) {
+			} else if (parameters.containsKey("receiver")) { // Filter games only with a specific receiver
 				
 				if (!loggedIn) {
 					response.setStatus(401);
@@ -107,7 +105,7 @@ public class GetGames extends HttpServlet {
 			    }
 				games = CGames.getUsersReceivedGames(user, status);
 				
-			} else if (parameters.containsKey("user")) {
+			} else if (parameters.containsKey("user")) { // Filter games including one user OR between two specfic users
 				
 				if (!loggedIn) {
 					response.setStatus(401);
@@ -116,7 +114,7 @@ public class GetGames extends HttpServlet {
 				}
 				
 				int user = 0;
-				if (parameters.get("user").length == 2) {
+				if (parameters.get("user").length == 2) { // Two users were provided
 					
 					int user2 = 0;
 					
@@ -143,9 +141,9 @@ public class GetGames extends HttpServlet {
 					
 				}
 				
-			} else if (status != StatusEnum.Status.ANY) {
+			} else if (status != StatusEnum.Status.ANY) { // A status was specified earlier
 				games = CGames.getLatestGamesByStatus(status, limit);
-			} else {
+			} else { // No (valid) parameters (other than perhaps limit) were passed, so we'll return the latest completed games
 				games = CGames.getLatestGames(limit);
 			}
 
@@ -193,7 +191,7 @@ public class GetGames extends HttpServlet {
 		
 		Authenticator auth = new Authenticator();
 		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
-		if (!loggedIn) {
+		if (!loggedIn) { // Every request to modify games must be authenticated.
 			response.setStatus(401);
 			response.getWriter().println("https://www.youtube.com/watch?v=GPXkjtpGCFI&t=7s");
 			return;
@@ -209,7 +207,7 @@ public class GetGames extends HttpServlet {
 		try {
 			
 			if (parameters.containsKey("newGame")) {
-				status = StatusEnum.Status.PENDING;
+				status = StatusEnum.Status.PENDING; // Any new game created will start as pending
 				if (!(parameters.containsKey("to") && parameters.containsKey("myScore") & parameters.containsKey("theirScore"))) {
 					response.setStatus(400);
 					response.getWriter().println(createError("Missing Parameters"));
@@ -219,6 +217,7 @@ public class GetGames extends HttpServlet {
 				int myScore = 0;
 				int theirScore = 0;
 				
+				// Parse scores to integers
 				try {
 					myScore = Integer.parseInt(parameters.get("myScore")[0]);
 					theirScore = Integer.parseInt(parameters.get("theirScore")[0]);
@@ -228,8 +227,7 @@ public class GetGames extends HttpServlet {
 				    return;
 			    }
 				
-				// TODO: Sanitize ALL these inputs
-				
+				// Check the opponent user
 				OUser toUser = CUser.findByUsername(parameters.get("to")[0]);
 				if (toUser.id == 0 || toUser.id == me.id) {
 					response.setStatus(400);
@@ -237,6 +235,7 @@ public class GetGames extends HttpServlet {
 					return;
 				}
 				
+				// Limit to 3 pending games between users at once
 				if (CGames.getGamesBetweenUsers(me.id, toUser.id, status).size() >= 3) {
 					response.setStatus(429);
 					response.getWriter().println(createError("You already have 3 pending games with this user. Resolve those first!"));
@@ -246,9 +245,10 @@ public class GetGames extends HttpServlet {
 				OGame newGame = new OGame();
 				newGame.sender = me.id;
 				newGame.receiver = toUser.id;
-				newGame.date = new Timestamp(System.currentTimeMillis());
+				newGame.date = new Timestamp(System.currentTimeMillis()); // Using Timestamp fixes an issue regarding SQL timezones
 				//System.out.println(System.currentTimeMillis() + "\n" + newGame.date);
 				
+				// Check score validity
 				if (myScore < 11 && theirScore < 11) {
 					response.setStatus(400);
 					response.getWriter().println(createError("Winner should be at least 11"));
@@ -292,6 +292,7 @@ public class GetGames extends HttpServlet {
 					return;
 				}
 				
+				// Parse the id and find the respective game
 				int gameId = 0; 
 				try {
 					gameId = Integer.parseInt(parameters.get("id")[0]);
@@ -308,27 +309,30 @@ public class GetGames extends HttpServlet {
 				    return;
 				}
 				
+				// Make sure the user is in the position to perform the requested action. This should never occur from a standard user request.
 				if (((parameters.containsKey("acceptGame") || parameters.containsKey("declineGame")) && existingGame.receiver != me.id) || (parameters.containsKey("cancelGame") && existingGame.sender != me.id)) {
 					response.setStatus(401);
 					response.getWriter().println(createError("Not your game!"));
 				    return;
 				}
-
+				
+				// Ensure the game isn't already finalized
 				if (existingGame.status != StatusEnum.Status.PENDING) {
 					response.setStatus(400);
 					response.getWriter().println(createError("This game has already been finalized"));
 				    return;
 				}
 				
+				// Everything looks good, let's process the request
 				if (parameters.containsKey("acceptGame")) {
 					existingGame.status = StatusEnum.Status.ACCEPTED;
 					CGames.update(existingGame);
 					response.setStatus(200);
 					
-					// TODO: Epic elo things here :D
+					// Epic elo things here :D
 					int numGamesUntilRating = CGames.getNumOfGamesUntilRating();
 					System.out.println(numGamesUntilRating + " of " + GlickoTwo.RATING_PERIOD + " games until Glicko");
-					if (numGamesUntilRating <= 0) {
+					if (numGamesUntilRating <= 0) { // Prevent games that are confirmed at the same time from running Glicko again
 						
 						GlickoTwo.run();
 						

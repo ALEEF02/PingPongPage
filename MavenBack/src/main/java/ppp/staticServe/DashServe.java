@@ -18,6 +18,9 @@ import ppp.db.model.OUser;
 import ppp.meta.GlickoTwo;
 import ppp.meta.LoginEnum;
 
+/**
+ * An admin dashboard for admin things
+ */
 @WebServlet("/dash")
 public class DashServe extends HttpServlet {
 	
@@ -30,6 +33,7 @@ public class DashServe extends HttpServlet {
 		if (loggedIn) user = CUser.findByEmail((String)request.getSession().getAttribute("email"));
 
 		try {
+			// Allow for Anthony
 			if (loggedIn && user.username.equalsIgnoreCase("aford1")) {
 				RequestDispatcher view = request.getRequestDispatcher("dash.html");
 				System.out.println(view.toString());
@@ -61,9 +65,9 @@ public class DashServe extends HttpServlet {
 			return;
 		}
 		OUser me = CUser.findByEmail((String)request.getSession().getAttribute("email"));
-		if (me.id != 1) {
+		if (me.id != 1) { // Anthony has an id of 1
 			response.setStatus(401);
-		    response.getWriter().print(GetGames.createError("https://www.youtube.com/watch?v=GPXkjtpGCFI&t=7s"));
+		    response.getWriter().println(GetGames.createError("https://www.youtube.com/watch?v=GPXkjtpGCFI&t=7s"));
 		    return;
 		}
 		

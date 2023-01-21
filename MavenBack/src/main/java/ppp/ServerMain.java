@@ -15,6 +15,7 @@ import ppp.db.WebDb;
 import ppp.db.controllers.CGames;
 import ppp.db.controllers.CGlicko;
 import ppp.db.controllers.CUser;
+import ppp.meta.GlickoTwo;
 
 /**
  * Starts up a server that serves static files and annotated servlets.
@@ -33,17 +34,18 @@ public class ServerMain {
 		URL webAppDir =
 			ServerMain.class.getClassLoader().getResource("META-INF/resources");
 		webAppContext.setResourceBase(webAppDir.toURI().toString());
+		
+		// An attempted fix for the welcome servlet. Keeping it here, not sure why lmao
 		/*ServletHolder holderDef = new ServletHolder("default", DefaultServlet.class);
 		holderDef.setInitParameter("welcomeServlets","true");
 		webAppContext.addServlet(holderDef, "/");*/
 
-		// Look for annotations in the classes directory (dev server) and in the
-		// jar file (live server).
+		// Look for annotations in the classes directory (dev server) and in the jar file (live server).
 		webAppContext.setAttribute(
 			"org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
 			".*/target/classes/|.*\\.jar");
 
-		// Load the env variables
+		// Load the env variables from the config. This will also build a new cfg file if none exists.
         new ConfigurationBuilder(ServerConfig.class, new File("application.cfg")).build(true);
 		
 		// Connect to the DB
@@ -56,6 +58,7 @@ public class ServerMain {
 		CUser.init();
 		CGames.init();
 		CGlicko.init();
+		GlickoTwo.init();
 		System.out.println("done.");
 		
 		// Initialize the services

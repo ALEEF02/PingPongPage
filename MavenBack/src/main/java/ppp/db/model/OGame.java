@@ -10,7 +10,7 @@ import ppp.meta.StatusEnum.Status;
 import java.sql.Timestamp;
 
 /**
- * A game object.
+ * A Game object
  */
 public class OGame extends AbstractModel {
     public int id = 0;
@@ -21,6 +21,9 @@ public class OGame extends AbstractModel {
     public int winner = 0;
     public int winnerScore = 0;
     public int loserScore = 0;
+    /**
+     * The iteration of Glicko this game was CALCULATED in. Should be BEFORE every Glicko Record with a matching {@link OGlicko#ratingCycle}
+     */
     public int ratingCycle = 0;
     
     private OUser senderUser = new OUser();
@@ -47,6 +50,10 @@ public class OGame extends AbstractModel {
     	return score;
     }
     
+    /**
+     * Formats the Game into a JSON. Can be served to an HTTP Request 
+     * @return a JSON formatted string
+     */
     public String toJSON() {
     	senderUser = CUser.getCachedUser(sender);
     	receiverUser = CUser.getCachedUser(receiver);

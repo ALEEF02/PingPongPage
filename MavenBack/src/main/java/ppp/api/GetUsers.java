@@ -30,7 +30,6 @@ import ppp.meta.LoginEnum;
  * 			name: Return the user by the name
  * 		cached: Specify whether to use the cached users
  * 		withHistory: Specify to also get the user's Glicko histories.
- * POST:
  */
 
 @WebServlet("/api/users")
@@ -43,11 +42,11 @@ public class GetUsers extends HttpServlet {
 		List<OUser> users = null;
 		Authenticator auth = new Authenticator();
 		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
-		int limit = 10;
+		int limit = 10; // Return maximum 10 users by default
 		boolean withHistory = parameters.containsKey("withHistory");
 		
 		try {
-			
+			// Get the top-ranked players
 			if (parameters.containsKey("ranks")) {
 				
 				boolean cache = false;
@@ -64,6 +63,7 @@ public class GetUsers extends HttpServlet {
 					cache = true;
 				}
 				
+				// mRD limits the maximum Rating Deviation a user can have. This is useful for filtering out new players, as they have the highest RD (350)
 				if (parameters.containsKey("mRD")) {
 					int minRD = 350;
 					try {
@@ -77,13 +77,16 @@ public class GetUsers extends HttpServlet {
 				} else {
 					users = CUser.getTopRanks(limit, cache);
 				}
-				
+			
+			// Get a specific user
 			} else if (parameters.containsKey("user")) {
 				
 				// TODO: Sanatize user input
 				
 				String userQuery = parameters.get("user")[0];
 				OUser user;
+				
+				response.setContentType("application/json;");
 				
 				try {
 					user = CUser.findByUsername(userQuery);
@@ -92,20 +95,20 @@ public class GetUsers extends HttpServlet {
 				    response.getWriter().print("{}");
 				    return;
 			    }
-				
-				response.setContentType("application/json;");
 				if (user.id == 0) {
 					response.setStatus(404);
 				    response.getWriter().print("{}");
 				    return;
 				}
 				
+				// Fetch the user's rank
 				if (parameters.containsKey("withRank")) {
 					user.getRank();
 				}
 				response.getWriter().print(user.toPublicJSON(false, withHistory));
 				return;
-				
+			
+			// Return the logged in user's own information. This can be used as a front-end login check for UI adjustment
 			} else {
 				if (!loggedIn) {
 					response.setStatus(401);
@@ -119,6 +122,8 @@ public class GetUsers extends HttpServlet {
 				response.getWriter().print(user.toPublicJSON());
 				return;
 			}
+			
+			// Return the users in a JSON array
 			response.setContentType("application/json;");
 		    response.getWriter().print("[");
 		    for (OUser user:users) {

@@ -27,10 +27,18 @@ public class OUser extends AbstractModel {
     public boolean banned = false;
     public int rank = -1;
     
+    /**
+     * Gets the converted rating, Mu, of this record
+     * @return the Mu value
+     */
     public double getMu() {
     	return (rating - GlickoTwo.BASE_RATING) / GlickoTwo.GLICKO2_CONV;
     }
     
+    /**
+     * Gets the converted rating deviation, Phi, of this record
+     * @return the Phi value
+     */
     public double getPhi() {
     	return rd / GlickoTwo.GLICKO2_CONV;
     }
@@ -98,7 +106,7 @@ public class OUser extends AbstractModel {
     }
     
     /**
-	 * Retrieves the user's rank. Sets it as the variable {@value rank} of this object.
+	 * Retrieves the user's rank. Sets it as the variable {@code rank} of this object.
 	 */
     public void getRank() {
     	rank = CUser.getUserRank(id);

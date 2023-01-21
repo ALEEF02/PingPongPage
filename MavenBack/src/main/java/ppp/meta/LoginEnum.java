@@ -2,6 +2,9 @@ package ppp.meta;
 
 import ppp.meta.LoginEnum.Status;
 
+/**
+ * Contains useful enums for the login process
+ */
 public final class LoginEnum {
 	
 	public static enum Status {
@@ -37,17 +40,30 @@ public final class LoginEnum {
 			this.extra = extra;
 		}
 	    
+	    /**
+	     * Get the HTTP Status code that can be used with the status message
+	     * @return A 3-byte integer
+	     */
 	    public int getCode()
 	    {
 	        return type;
 	    }
 	    
+	    /**
+	     * Get a user-readable message on what the status code means
+	     * @return String describing the status
+	     */
 	    public String getMsg()
 	    {
 	    	if (extra.equalsIgnoreCase("")) return this.toString();
 	        return this.toString() + " - " + extra;
 	    }
 	
+	    /**
+	     * Get the appropriate Status for a specified HTTP code. This probably has no use, but it's here anyways :D
+	     * @param type The HTTP code
+	     * @return The status, UNKNOWN_ERROR if it doesn't exist
+	     */
 	    public static Status fromNum(int type)
 	    {
 	        for (Status statusType : values())
@@ -60,6 +76,11 @@ public final class LoginEnum {
 	        return UNKNOWN_ERROR;
 	    }
 	    
+	    /**
+	     * Get the appropriate Status for a specified Name. Useful for retrieving statuses to the DB (but still useless bc we don't do that)
+	     * @param key The Status name
+	     * @return The status, UNKNOWN_ERROR if it doesn't exist
+	     */
 	    public static Status fromString(String key)
 	    {
 	        for (Status status : values())

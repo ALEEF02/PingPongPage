@@ -10,42 +10,89 @@ import ppp.db.model.OGame;
 import ppp.db.model.OGlicko;
 import ppp.db.model.OUser;
 
+/**
+ *
+ * User Explanation:<br>
+ * <p>
+ * We use the Glicko2 system to rank players. It has been used in countless ranking applications and stands as one of the best ranking systems currently available<br>
+ * Each player has 3 values:<br>&nbsp;&nbsp;
+ * 		Rating: or your 'elo'. It's how skilled the system currently thinks you are. Every player starts at 1400.<br>&nbsp;&nbsp;
+ * 		Rating Deviation: The standard deviation or confidence of your rating. Lower numbers means that your rating is more accurate.<br>&nbsp;&nbsp;
+ * 		Volatility: How consistent your play is. If you have lots of on and off days, you'll have a higher volatility. If your gameplay is consistent, it will lower<br>
+ * Using these 3 values we can gather the skill of your gameplay.<br><br>
+ * 
+ * From each game we can calculate a "score" against each opponent. Score varies from 0-1, where 0 is a loss, 0.5 is a draw, and 1 is a win. In games like chess, score would be purely one of these 3 possibilities. At PingPongPage, we've decided to use a spectrum instead.<br>&nbsp;&nbsp;
+ * 		We start by calculating the game "diff". Diff is (winner's score - loser's score) / total points played.<br>&nbsp;&nbsp;
+ * 		We then plug diff into 0.5 - ([ (1 / log(21)) * log((20 * diff) + 1) ] / 2), which is the "loss rate"<br>&nbsp;&nbsp;
+ * 			If the player won, simply subtract loss rate from 1 to reciprocate it <br>&nbsp;&nbsp;&nbsp;&nbsp;
+ * 		This score value can be visualized here: https://www.desmos.com/calculator/h2efschvsv<br><br>
+ * 
+ * Every "Rating Period", currently 50 games, we'll batch evaluate the games that have been played. This is why your values will not change after each game. Having a Rating Period prevents "racing" conditions where, if say 2 games are submitted but the second game is accepted first, the 3 values of the players in the first game would have changed, even though when the game was played they were different.
+ *
+ * @author Anthony Ford :D
+ * @see <a href=http://www.glicko.net/glicko/glicko2.pdf>Glicko2 Paper</a>
+ */
 public class GlickoTwo {
 	
 	// http://www.glicko.net/glicko/glicko2.pdf
 	
-	public static final int BASE_RATING = 1400; // Paper recommends 1500
-	public static final int BASE_RD = 350; // Rating deviation
-	public static final double BASE_VOLATILITY = 0.06; // The degree of expected fluctuation in a player’s rating. Paper recommends 0.6
-	public static final int RATING_PERIOD = 50; // This is the number of TOTAL ACCEPTED GAMES that need to be played before we run Glicko2 Analysis. Paper recommends 10-15 games PER PLAYER! Rating period = avg number of games per player * num of players / 2
-	public static final double TAU = 1.0; // Constraint of the change in volatility over time. Lower number is more constrained. Paper recommends 0.3-1.2
-	public static final double GLICKO2_CONV = 173.7178; // A value used in converting between standard and Glicko2 values
-	public static final double EPSILON = 0.000001; // Convergence Tolerance
-	
-	/*
-	 * User Explanation:
-	 * 
-	 * We use the Glicko2 system to rank players. It has been used in countless ranking applications and stands as one of the best ranking systems currently available
-	 * Each player has 3 values:
-	 * 		Rating: or your 'elo'. It's how skilled the system currently thinks you are. Every player starts at 1400.
-	 * 		Rating Deviation: The standard deviation or confidence of your rating. Lower numbers means that your rating is more accurate.
-	 * 		Volatility: How consistent your play is. If you have lots of on and off days, you'll have a higher volatility. If your gameplay is consistent, it will lower
-	 * Using these 3 values we can gather the skill of your gameplay.
-	 * 
-	 * From each game we can calculate a "score" against each opponent. Score varies from 0-1, where 0 is a loss, 0.5 is a draw, and 1 is a win. In games like chess, score would be purely one of these 3 possibilities. At PingPongPage, we've decided to use a spectrum instead.
-	 * 		We start by calculating the game "diff". Diff is (winner's score - loser's score) / total points played.
-	 * 		We then plug diff into 0.5 - ([ (1 / log(21)) * log((20 * diff) + 1) ] / 2), which is the "loss rate"
-	 * 			If the player won, simply subtract loss rate from 1 to reciprocate it 
-	 * 		This score value can be visualized here: https://www.desmos.com/calculator/h2efschvsv
-	 * 
-	 * Every "Rating Period", currently 25 games, we'll batch evaluate the games that have been played. This is why your values will not change after each game. Having a Rating Period prevents "racing" conditions where, if say 2 games are submitted but the second game is accepted first, the 3 values of the players in the first game would have changed, even though when the game was played they were different.
+	/**
+	 * The rating new users start at. Paper recommends 1500.
 	 */
+	public static final int BASE_RATING = 1400;
+	/**
+	 * The rating deviation of players. A confidence interval, of sorts
+	 */
+	public static final int BASE_RD = 350;
+	/**
+	 * The degree of expected fluctuation in a player’s rating. Paper recommends 0.6!
+	 */
+	public static final double BASE_VOLATILITY = 0.06;
+	/**
+	 * This is the number of TOTAL ACCEPTED GAMES that need to be played before we run Glicko2 Analysis. Paper recommends 10-15 games PER PLAYER!<br>
+	 * Rating period = avg number of games per player * num of players / 2
+	 */
+	public static final int RATING_PERIOD = 50;
+	/**
+	 * Constraint of the change in volatility over time. Lower number is more constrained. Paper recommends 0.3-1.2
+	 */
+	public static final double TAU = 1.0;
+	/**
+	 * A value used in converting between standard and Glicko2 values.<br>
+	 * <b>DO NOT MODIFY</b>
+	 */
+	public static final double GLICKO2_CONV = 173.7178;
+	/**
+	 * Convergence Tolerance. Paper recommends 0.000001
+	 */
+	public static final double EPSILON = 0.000001; 
 	
+	private static int ratingCycle = 0;
+	
+	/**
+	 * Set the current rating cycle internally
+	 */
+	public static void init() {
+		List<OGame> lastCalculatedGame = CGames.getLatestGamesByStatus(StatusEnum.Status.CALCULATED, 1);
+		ratingCycle = lastCalculatedGame.isEmpty() ? 1 : lastCalculatedGame.get(0).ratingCycle;
+	}
+	
+	/**
+	 * Get the current rating cycle
+	 * @return the rating cycle
+	 */
+	public static int getRatingCycle() {
+		return ratingCycle;
+	}
+	
+	/**
+	 * Runs a Glicko2 Cycle. Will take roughly 1 second per 10 users
+	 */
 	public static void run() {
 		List<OUser> players = CUser.getAllNotBannedUsers();
 		List<OGame> games = CGames.getLatestGamesByStatus(StatusEnum.Status.ACCEPTED, RATING_PERIOD + 1);
 		List<OGame> lastCalculatedGame = CGames.getLatestGamesByStatus(StatusEnum.Status.CALCULATED, 1);
-		int ratingCycle = lastCalculatedGame.isEmpty() ? 1 : lastCalculatedGame.get(0).ratingCycle + 1;
+		ratingCycle = lastCalculatedGame.isEmpty() ? 1 : lastCalculatedGame.get(0).ratingCycle + 1; // Update the rating cycle counter
 		List<OUser> updatedPlayers = new ArrayList<>();
 		System.out.println("Running Glicko2 Period... [" + ratingCycle + "]");
 		
@@ -54,6 +101,7 @@ public class GlickoTwo {
 			List<OUser> opponents = new ArrayList<>();
 			List<OGame> gamesPlayed = new ArrayList<>();
 			int m = 0;
+			// For every game, see if the current player was in that game. If so, get the opponent and game
 			for (int i = 0; i < games.size(); i++) {
 				if (games.get(i).sender != me.id && games.get(i).receiver != me.id) continue; // Current player is not in this game, continue
 				int opponentID = games.get(i).sender == me.id ? games.get(i).receiver : games.get(i).sender;
@@ -63,7 +111,7 @@ public class GlickoTwo {
 			}
 			
 			System.out.println("\tOf the " + games.size() + " games, we're in " + m);
-			if (m == 0) { // Current player played no games in the Rating Period
+			if (m == 0) { // Current player played no games in the Rating Period. Paper says to increase the RD and leave other values
 				double rdPrime = GLICKO2_CONV * (Math.sqrt(Math.pow(me.getPhi(), 2) + Math.pow(me.volatility, 2)));
 				System.out.println("\tRD: " + me.rd + " -> " + rdPrime);
 				System.out.println("\tRating does not change");
@@ -167,6 +215,7 @@ public class GlickoTwo {
 			glickoRecord.rating = updatedPlayer.rating;
 			glickoRecord.rd = updatedPlayer.rd;
 			glickoRecord.volatility = updatedPlayer.volatility;
+			glickoRecord.ratingCycle = ratingCycle;
 			CGlicko.insert(glickoRecord);
 			CUser.update(updatedPlayer);
 		}
@@ -175,7 +224,7 @@ public class GlickoTwo {
 	}
 	
 	/**
-	 * Calculate the chance of winning / expected score.
+	 * Calculate the chance of winning / expected score. Similar to {@link GlickoTwo#E E()}, but evaluated with the quadrature sum of the two players' deviations instead of just the opponent's deviation
 	 *
 	 * @param winMu Winner's mu (rating)
 	 * @param loseMu Loser's mu (rating)
@@ -184,11 +233,11 @@ public class GlickoTwo {
 	 * @return double Expected score, 0.0 - 1.0
 	 */
 	public static double chanceOfWinning(double winMu, double loseMu, double phi, double phiOp) {
-		return 1.0 / (1.0 + Math.exp(-1.0 * g( Math.sqrt(Math.pow(phi, 2) + Math.pow(phiOp, 2))) * (winMu - loseMu)));
+		return 1.0 / (1.0 + Math.exp(-1.0 * g(squareRD(phi, phiOp)) * (winMu - loseMu)));
 	}
 	
 	/**
-	 * Calculate the square RD
+	 * Calculate the quadrature sum of the two players' RDs
 	 *
 	 * @param phi Player phi (rating deviation)
 	 * @param phiOp Opponent phi (rating deviation)
@@ -202,7 +251,7 @@ public class GlickoTwo {
 	 * Calculate the 2 player's expected scores.
 	 * Ex: score = 0.653 -> [21, 18]
 	 *
-	 * @param score from {@link #chanceOfWinning() chanceOfWinning()}
+	 * @param score from {@link GlickoTwo#chanceOfWinning chanceOfWinning()}
 	 * @return Integer[] with [winner, loser] scores
 	 */
 	public static Integer[] expectedScore(double score) {
@@ -229,6 +278,7 @@ public class GlickoTwo {
 	
 	/**
 	 * Step 3 Helper formula
+	 * Calculates the expected outcome, factoring in both ratings and the opponent rating deviation
 	 *
 	 * @param mu Player's mu (rating)
 	 * @param muj Opponent mu (rating)
@@ -241,6 +291,7 @@ public class GlickoTwo {
 	
 	/**
 	 * Step 3 Helper formula
+	 * Calculates the 'significance' of the game from 0-1, where values closer to 1 result from a smaller phi
 	 *
 	 * @param phij Opponent phi (rating deviation)
 	 * @return double g value

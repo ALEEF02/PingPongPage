@@ -15,10 +15,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import ppp.db.model.OUser;
 import ppp.meta.GlickoTwo;
 
+/**
+ * Handles the communication between the DB and Client for User information
+ */
 public class CUser {
 	
+	// Since our application runs on a single machine at once, it is viable to use a local cache to speed up API times.
     private static Map<Integer, OUser> userCache = new ConcurrentHashMap<>(); // Our cached users will be tokenless.
     
+    /**
+     * Grab all users from the DB and put them into the cache
+     */
     public static void init() {
     	List<OUser> users = getALLUsers();
     	for (OUser user : users) {
@@ -40,6 +47,11 @@ public class CUser {
     	return userCache.get(internalId);
     }
     
+    /**
+     * Update a user in the INTERNAL CACHE
+     * 
+     * @param toAdd the user object to update
+     */
     private static void updateCachedUser(OUser toAdd) {
     	if (toAdd.id != 0) {
     		userCache.put(toAdd.id, toAdd);
@@ -135,6 +147,12 @@ public class CUser {
         return s;
     }
 
+    /**
+     * Fill a new User Object from an SQL {@link ResultSet}
+     * @param rs The SQL {@link ResultSet}
+     * @return A filled User Object
+     * @throws SQLException
+     */
     private static OUser fillRecord(ResultSet rs) throws SQLException {
         OUser s = new OUser();
         s.id = rs.getInt("id");
@@ -150,18 +168,34 @@ public class CUser {
         return s;
     }
     
+    /**
+     * Fill a new User Object from an SQL ResultSet with rank
+     * @param rs The SQL ResultSet with the "rank" filled
+     * @return A filled User Object
+     * @throws SQLException
+     */
     private static OUser fillRecordRanking(ResultSet rs) throws SQLException {
         OUser s = fillRecord(rs);
         s.rank = rs.getInt("rank");
         return s;
     }
     
+    /**
+     * Fill a new User Object from an SQL ResultSet with the user's token
+     * @param rs The SQL ResultSet with the "token" filled
+     * @return A filled User Object
+     * @throws SQLException
+     */
     private static OUser fillRecordToken(ResultSet rs) throws SQLException {
         OUser s = fillRecord(rs);
         s.token = rs.getString("token");
         return s;
     }
 
+    /**
+     * Retrieve all BANNED Users from the DB
+     * @return a List of all banned Users
+     */
     public static List<OUser> getBannedUsers() {
         List<OUser> list = new ArrayList<>();
         try (ResultSet rs = WebDb.get().select("SELECT * FROM users WHERE banned = 1")) {
@@ -175,6 +209,10 @@ public class CUser {
         return list;
     }
     
+    /**
+     * Retrieve all NOT BANNED Users from the Cache
+     * @return a List of all not banned Users
+     */
     public static List<OUser> getCachedAllNotBannedUsers() {
     	List<OUser> users = new ArrayList<>(userCache.values());
     	users.forEach(user -> {
@@ -185,6 +223,10 @@ public class CUser {
     	return users;
     }
     
+    /**
+     * Retrieve all NOT BANNED Users from the Cache
+     * @return a List of all not banned Users
+     */
     public static List<OUser> getAllNotBannedUsers() {
         List<OUser> list = new ArrayList<>();
         try (ResultSet rs = WebDb.get().select("SELECT * FROM users WHERE banned = 0")) {
@@ -198,6 +240,10 @@ public class CUser {
         return list;
     }
     
+    /**
+     * Retrieve all NOT BANNED Users from the DB
+     * @return a List of all not banned Users
+     */
     public static List<OUser> getALLUsers() {
         List<OUser> list = new ArrayList<>();
         try (ResultSet rs = WebDb.get().select("SELECT * FROM users")) {
@@ -234,22 +280,41 @@ public class CUser {
     }
     
     /**
-     * 
+     * Get the highest ranked players
      * @param numPlayers
-     * @return Top # users, from highest to lowest rank.
+     * @return A List of Users in descending order of rank.
      */
     public static List<OUser> getTopRanks(int numPlayers) {
     	return getTopRanks(numPlayers, 400);
     }
     
+    /**
+     * Get the highest ranked players
+     * @param numPlayers maximum number of users to return
+     * @param useCache Should we use the internal cache?
+     * @return A List of Users in descending order of rank.
+     */
     public static List<OUser> getTopRanks(int numPlayers, boolean useCache) {
     	return getTopRanks(numPlayers, 400, useCache);
     }
 
+    /**
+     * Get the highest ranked players
+     * @param numPlayers maximum number of users to return
+     * @param maxRD Maximum Rating Deviation of players
+     * @return A List of Users in descending order of rank.
+     */
     public static List<OUser> getTopRanks(int numPlayers, int maxRD) {
     	return getTopRanks(numPlayers, maxRD, false);
     }
     
+    /**
+     * Get the highest ranked players
+     * @param numPlayers Maximum number of players to fetch
+     * @param maxRD Maximum Rating Deviation of players
+     * @param useCache Should we use the internal cache?
+     * @return A List of Users that match the request, in descending order of rank.
+     */
     public static List<OUser> getTopRanks(int numPlayers, int maxRD, boolean useCache) {
     	if (numPlayers < 1 || numPlayers > 50) numPlayers = 10;
         List<OUser> ret = new ArrayList<>();
@@ -346,6 +411,11 @@ public class CUser {
         }
     }
 
+    /**
+	 * Inserts a User object into the database. Can add a token. The OUser object's {@code id} is updated once the request is complete.
+	 *
+	 * @param record The OUser record.
+	 */
     public static void insert(OUser record) {
         try {
             record.id = WebDb.get().insert(
@@ -359,8 +429,10 @@ public class CUser {
     }
 }
 
-class SortRating implements Comparator<OUser> {  
-	// Used for sorting in ascending order of ID  
+/**
+ * Used for sorting in ascending order of ID
+ */
+class SortRating implements Comparator<OUser> {
 	public int compare(OUser a, OUser b) {  
 		if (a.rating - b.rating < 0) return 1;
 		if (a.rating - b.rating == 0) return 0;

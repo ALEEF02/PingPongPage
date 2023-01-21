@@ -1,5 +1,8 @@
 package ppp.meta;
 
+/**
+ * Contains useful enums for the status of games
+ */
 public final class StatusEnum {
 	
 	public static enum Status {
@@ -8,7 +11,10 @@ public final class StatusEnum {
 	    ACCEPTED(2),
 	    CALCULATED(3),
 	    ANY(-1),
-	    FILED(-2); // Accepted or Calculated AKA cannot be changed by the user
+	    /**
+	     * Accepted or Calculated AKA cannot be changed by the user 
+	     */
+	    FILED(-2);
 	
 	    private final int type;
 		
@@ -17,11 +23,20 @@ public final class StatusEnum {
 			this.type = type;
 		}
 	    
+	    /**
+	     * Get a number representing the status which can be easily stored in the DB
+	     * @return The number for the status
+	     */
 	    public int getNum()
 	    {
 	        return type;
 	    }
 	
+	    /**
+	     * Get the appropriate status from its corresponding number. Useful for turning DB numbers back into statuses
+	     * @param type The number representation of the status
+	     * @return The appropriate status, ANY by default
+	     */
 	    public static Status fromNum(int type)
 	    {
 	        for (Status statusType : values())
@@ -34,6 +49,11 @@ public final class StatusEnum {
 	        return ANY;
 	    }
 	    
+	    /**
+	     * Get the appropriate status from its corresponding string.
+	     * @param type The string representation of the status
+	     * @return The appropriate status, ANY by default
+	     */
 	    public static Status fromString(String key)
 	    {
 	        for (Status status : values())
