@@ -49,9 +49,9 @@
 				var email = document.getElementById('email').value;
 				var auth = document.getElementById('auth').value;
 				var postData = 'email=' + email;
-				document.getElementById('submitButton').disabled = true;
+				document.getElementById('submitButton').disabled = true;//disables button until end of function 
 				if (auth != "") {
-					postData += '&authCode=' + auth;
+					postData += '&authCode=' + auth;//if an auth code has been entered, the post request will contain it 
 				}
 				var ajaxRequest = new XMLHttpRequest();
 				ajaxRequest.open('POST', '/api/auth');
@@ -59,7 +59,7 @@
 				ajaxRequest.send(postData);
 				ajaxRequest.onreadystatechange = function(){
 					if (ajaxRequest.readyState == 4) {
-						if (ajaxRequest.status == 200 && auth != "") {
+						if (ajaxRequest.status == 200 && auth != "") {//if request is sucessful without a auth, user has logged in 
 							// User has successfully logged in!
 							window.location.replace("/");
 						} else if (ajaxRequest.status == 200) {

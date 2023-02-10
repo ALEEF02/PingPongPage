@@ -53,10 +53,11 @@
 			login.open('GET', '/api/users');
 			login.send();
 		
-		
+		//below 3 functions all make post requests to the server for when a game is either accepted, declined, or canceled by the original user 
+		//post requests are different for each but overall function structure is the same 
 			function acceptGame(id) {
 				var idNum = id.target.id.substring(id.target.id.indexOf("accept") + 6);
-				var postData = 'acceptGame=1&id=' + idNum;
+				var postData = 'acceptGame=1&id=' + idNum;//postData is either acceptGame, declineGame, or cancelGame
 				document.getElementById(id.target.id).disabled = true;
 				document.getElementById('decline' + idNum).disabled = true;
 				var ajaxRequest = new XMLHttpRequest();
@@ -123,7 +124,7 @@
 				var myScore = document.getElementById('myScore').value;
 				var theirScore = document.getElementById('theirScore').value;
 				var postData = 'newGame=1&to=' + toUser + '&myScore=' + myScore + '&theirScore=' + theirScore;
-				document.getElementById("submitButton").disabled = true;
+				document.getElementById("submitButton").disabled = true;//disables the submit button until the server sucessfully accepts the request 
 				var ajaxRequest = new XMLHttpRequest();
 				ajaxRequest.open('POST', '/api/games');
 				ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -159,7 +160,7 @@
 						var games = JSON.parse(gamesReq.responseText);
 						for (var i = 0; i < games.length; i++) {
 						
-							var newRow = document.createElement('tr');
+							var newRow = document.createElement('tr');//create new table row and user links 
 							var date = document.createElement('td');
 							var winner = document.createElement('td');
 							var loser = document.createElement('td');
@@ -199,7 +200,7 @@
 							winnerScore.innerHTML = games[i].winnerScore;
 							loserScore.innerHTML = games[i].loserScore;
 							
-							if (games[i].receiver == us.id) {
+							if (games[i].receiver == us.id) {//if we are the reciever, generate an accept and decline button 
 								var accept = document.createElement('button');
 								var decline = document.createElement('button');
 								accept.innerHTML = "\&#10003;";
@@ -210,7 +211,7 @@
 								decline.onclick = function(bruh = games[i].id){declineGame(bruh)};
 								action.appendChild(accept);
 								action.appendChild(decline);
-							} else {
+							} else {//if we are not the reciever, generate a cancel butto 
 								var cancel = document.createElement('button');
 								cancel.innerHTML = "X";
 								cancel.id = "cancel" + games[i].id;
@@ -231,7 +232,7 @@
 						}
 					}
 				}
-				gamesReq.open('GET', '/api/games?status=PENDING&user=' + us.id);
+				gamesReq.open('GET', '/api/games?status=PENDING&user=' + us.id);//make a request for all pending games with our id for the table 
 				gamesReq.send();
 			}
 		</script>
@@ -242,22 +243,22 @@
 			<a id="userButton" href="/login">...</a> <!--Leads to user page to display user name, stats, etc.-->
 			<a href = "/games">Manage Your Games</a> <!--Leads to seprate page for ppl to register their games-->
 		</div>
-		<div class="recent" role="main"> <!-- Using this class as a temporary to look decent while I work on the backend & functionality -->
+		<div class="recent" role="main"> <!-- div were people can input scores and submit  -->
 			<h1 class = "heading"><u>Create new game:</u></h1>
 			<p id="errorMessage" style="color: red;"></p>
 			<p>Opponent Username:</p>
-			<input type="text" id="toUser" placeholder="aford1">
+			<input type="text" id="toUser" placeholder="aford1"><!--opponent username input-->
 			<p>My Score:</p>
-			<input type="number" id="myScore" placeholder="1">
+			<input type="number" id="myScore" placeholder="1"><!--our score input-->
 			<p>Their Score:</p>
-			<input type="number" id="theirScore" placeholder="21">
+			<input type="number" id="theirScore" placeholder="21"><!--opponent score input-->
 			<div class = "buttonContainer">
 				<p>
 					<button type="button" id="submitButton" onclick="submitGame()">Submit Game</button>
 				</p>
 			</div> 
 		</div>
-		<div class ="pendingGames">
+		<div class ="pendingGames"><!--div for pending games table-->
 			<h1 class = "heading"><u>Your Pending Games:</u></h1>
 			<div style="overflow-x:auto;">
 				<table id="gamesTable" class="leaderboard"> <!-- Using this class as a temporary to look decent while I work on the backend & functionality -->

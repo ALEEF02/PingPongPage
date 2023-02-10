@@ -1,13 +1,13 @@
 .leaderboard{float:left;}
 .recent{float: right;}
 
-.pendingGames{
+.pendingGames{/*pending games is floating right and takes up 75% of thes screen */
 	float: right;
 	padding: 10px;	
 	width: 75%;
 	/*background: #262521;*/
 }
-.recent{
+.recent{/*recent games floats left and is 25% of the screen */
 	float: left;
 	padding: 10px;
 	width: 20%;
@@ -26,7 +26,7 @@ table{
 	width: 100%;
 }
 
-input[type=text], input[type=number]{
+input[type=text], input[type=number]{/*number/text input info */
   width: 95%;
   padding: 12px 20px;
   margin: auto;	
@@ -44,7 +44,7 @@ input[type=text], input[type=number]{
 	justify-content: center;
 	
 }
-#submitButton{
+#submitButton{/*button is flex in center of div */
 	/*background-color: #7fa751;*/
 	background-color: #8c463d;
 	text-align: center;
@@ -61,23 +61,23 @@ input[type=text], input[type=number]{
 	
 	cursor: pointer;
 }
-#submitButton:hover{
+#submitButton:hover{/*changes button hover color */
 	background-color: white;
 	color: #8c463d;
 }
 
-#submitButton:disabled {
+#submitButton:disabled {/*changes button color when disabled by js in games.html */
 	background-color: #57403d;
 }
 
 @media (max-width: 800px) {
-	.pendingGames, .recent{
+	.pendingGames, .recent{/*table and input divs take up whole screen and are stacked on top of each other */
 		float:none;
 		width: 100%;
 		 
 	}
 	
-	input[type=text], input[type=number]{
+	input[type=text], input[type=number]{ /*input fields take up whole screen */
 		margin: 0px;	
 		width: 100%;
 	}

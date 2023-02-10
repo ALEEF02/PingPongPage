@@ -2,7 +2,7 @@
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);/*places input container in the center of the screen*/
 	width: 500px;
 	height: 600px;
 	background: #262521;
@@ -47,15 +47,15 @@ input[type=text]{
 	left: 50px;
 	top: 30px;
 	
-	cursor: pointer;
+	cursor: pointer;/*changes cursor to pointer when hovering*/
 }
 
-.emailBtn:hover{
+.emailBtn:hover{/*changes button color when hovering*/
 	background-color: white;
 	color: #8c463d;
 }
 
-.emailBtn:disabled {
+.emailBtn:disabled {/*changes email button when disabled*/
 	background-color: #57403d;
 }
 
@@ -64,12 +64,12 @@ p {
 }
 
 @media (max-width: 800px) {
-	.inputContainer{
+	.inputContainer{/*makes the input div the whole screen width*/
 		width: 95vw;
 		align-items: center;
 	}
 	
-	.emailBtn{
+	.emailBtn{/*submit button is roughly 70% of the screen */
 		width: 70vw;
 		margin: auto;
 		left: 0px;

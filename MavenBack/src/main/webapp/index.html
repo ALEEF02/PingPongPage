@@ -79,7 +79,7 @@
 					if(gamesReq.readyState == 4 && gamesReq.status == 200){
 						var games = JSON.parse(gamesReq.responseText);
 						for (var i = 0; i < games.length; i++) {
-							var newRow = document.createElement('tr');
+							var newRow = document.createElement('tr');//create new row elements for recent games table 
 							var date = document.createElement('td');
 							var winner = document.createElement('td');
 							var loser = document.createElement('td');
@@ -108,7 +108,7 @@
 							var month = months[dateDate.getMonth()];
 							var year = dateDate.getFullYear();
 							date.innerHTML = day + " " + hr + ":" + min + ampm + " " + month + " " + d + ", " + year;
-							winnerLink.innerHTML = games[i].winner == games[i].sender ? games[i].senderName : games[i].receiverName;
+							winnerLink.innerHTML = games[i].winner == games[i].sender ? games[i].senderName : games[i].receiverName;//checks if sender or reciever is the winner
 							loserLink.innerHTML = games[i].winner == games[i].sender ? games[i].receiverName : games[i].senderName;
 							winnerLink.href = "/user/" + winnerLink.innerHTML;
 							loserLink.href = "/user/" + loserLink.innerHTML;
@@ -133,7 +133,7 @@
 						}
 					}
 				}
-				gamesReq.open('GET', '/api/games?status=FILED');
+				gamesReq.open('GET', '/api/games?status=FILED');//sends a request for all games that have been filed(accepted by both users)
 				gamesReq.send();
 				
 				var playerTable = document.getElementById("playerTable");
@@ -143,7 +143,7 @@
 					if(usersReq.readyState == 4 && usersReq.status == 200){
 						var users = JSON.parse(usersReq.responseText);
 						for (var i = 0; i < users.length; i++) {
-							var newRow = document.createElement('tr');
+							var newRow = document.createElement('tr');//create new row elements for users table 
 							var user = document.createElement('td');
 							var userLink = document.createElement('a');
 							var elo = document.createElement('td');
@@ -163,7 +163,7 @@
 					}
 				}
 				usersReq.open('GET', '/api/users?ranks=50&mRD=300&cached=1');
-				usersReq.send();
+				usersReq.send();//makes a request for all players that have less than 300 RD so that new/inactive players are now shown 
 			});
 		</script>
 		
@@ -201,7 +201,7 @@
 		<a href = "/games">Manage Your Games</a> <!--Leads to seprate page for ppl to register their games-->
 	</div>
 	<div class = "tablesContainer" role="main">
-		<div class = "topPlayers">
+		<div class = "topPlayers"><!--div for players table-->
 		
 			<h1 class ="heading"><u>Top Players</u></h1>
 			
@@ -216,7 +216,7 @@
 			</div>
 			
 		</div>
-		<div class = "recentGames">
+		<div class = "recentGames"><!--div for recent games table-->
 			
 			<h1 class = "heading"><u>Recent Games</u></h1>
 			
@@ -235,7 +235,7 @@
 		</div>
 	</div>
 	<footer style="text-align: center;">
-  		<p><a href="/qa">Click here to learn more about the Ping Pong Page!</a></p>
+  		<p><a href="/qa">Click here to learn more about the Ping Pong Page!</a></p><!--leads to q&a page-->
 	</footer>
 	</body>
 </html>

@@ -60,7 +60,9 @@ p, h1, th, td {color: white;}
 	float: right;
 	text-decoration: none;	
 }
+/*nav bar elements with class left will be shifted left*/
 .navBar a.left{float:left;}
+/*changes color when hovering over links*/
 .navBar a:hover{
 	background-color: #8c463d;
 }
@@ -69,15 +71,15 @@ table, td, th{
 	border: 2px solid white;
 	text-align: center;
 	border-spacing: 0;
-	border-collapse: collapse;
+	border-collapse: collapse;/*removes the double border*/
 }
 
 tr:nth-child(even) {
 	/*background-color: #8c463d;*/
-	background-color: #373738;
+	background-color: #373738;/*alternates color of table rows*/
 }
 
-td a, td a:visited {
+td a, td a:visited {/*changes color of links and table elements after they have been clicked on */
 	color: #57e5ff;
 }
 
@@ -105,20 +107,20 @@ footer a:hover {
 }
 
 
-@media (max-width: 847px) {
+@media (max-width: 847px) {/*mobile and smaller screen info*/
 	.navBar {
-		display: flex;
+		display: flex;/*changes to flex display and arranges the links into a column*/
 		align-items: center;
 		justify-content: center;
 		flex-direction: column;
 	}
-	.navBar a {
+	.navBar a {/*links take up all of the navbar width */
 		float: none;
 		width: 100%;
 		padding: 6px;
 	}
 	
-	#userButton {
+	#userButton {/*login button is lowest in the column*/
 		order: 4;
 	}
 	footer {

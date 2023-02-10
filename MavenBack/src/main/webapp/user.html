@@ -54,7 +54,7 @@
 							document.getElementById("elo").innerHTML = parseFloat(userInfo.elo).toFixed(2);
 							document.getElementById("rd").innerHTML = parseFloat(userInfo.rd).toFixed(2);
 							document.getElementById("vol").innerHTML = parseFloat(userInfo.vol).toFixed(7);
-							
+							//assigns elo, rating deviation, and volatility to variables while also reducing them 
 							var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 							var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 							var dateDate = new Date(Date.UTC(userInfo.signUpDate.slice(0,4), userInfo.signUpDate.slice(5,7) - 1, userInfo.signUpDate.slice(8,10), userInfo.signUpDate.slice(11,13), userInfo.signUpDate.slice(14,16)));
@@ -74,7 +74,7 @@
 							}
 							var d = dateDate.getDate();
 							var month = months[dateDate.getMonth()];
-							var year = dateDate.getFullYear();
+							var year = dateDate.getFullYear();//formats the date so that it is more readable
 							
 							
 							document.getElementById("jd").innerHTML = day + " " + hr + ":" + min + ampm + " " + month + " " + d + ", " + year;
@@ -107,7 +107,7 @@
 							google.charts.load("current", {
 								packages: ["corechart"]
 							});
-							google.charts.setOnLoadCallback(drawElo);
+							google.charts.setOnLoadCallback(drawElo);//calls the google charts function for user specific elo graph
 							getGames();
 							
 						} 
@@ -117,7 +117,7 @@
 					}
 				}
 				userReq.open('GET', '/api/users?withRank=1&withHistory=1&user=' + window.location.href.substring(window.location.href.indexOf('/user/') + 6));
-				userReq.send();
+				userReq.send();//sends a get request for all data about the specif user (name from link)
 			});
 			
 			window.addEventListener('load', function() {
@@ -158,7 +158,7 @@
 					if(gamesReq.readyState == 4 && gamesReq.status == 200){
 						games = JSON.parse(gamesReq.responseText);
 						for (var i = 0; i < games.length; i++) {
-							var newRow = document.createElement('tr');
+							var newRow = document.createElement('tr');//create all elements of the user games table 
 							var date = document.createElement('td');
 							var opp = document.createElement('td');
 							var oppLink = document.createElement('a');
@@ -186,7 +186,7 @@
 							var month = months[dateDate.getMonth()];
 							var year = dateDate.getFullYear();
 							
-							var weWon = (userInfo.id == games[i].winner);
+							var weWon = (userInfo.id == games[i].winner);//true if user id equals winner id
 							var ourScore = (userInfo.id == games[i].winner ? games[i].winnerScore : games[i].loserScore);
 							var theirScore = (userInfo.id == games[i].winner ? games[i].loserScore : games[i].winnerScore);
 							
@@ -203,11 +203,13 @@
 							}
 							
 							if (games[i].pred[0] == games[i].pred[1]) {
-								prob.innerHTML = "<div class=\"tableY\">Toss-up</div>";
+								prob.innerHTML = "<div class=\"tableY\">Toss-up</div>";//if players expected scores equal, toss up
 							} else if ((parseFloat(games[i].matchup) < 0.5 && weWon) || (!weWon && parseFloat(games[i].matchup) > 0.5)) {
+							//places expected score of opponent on left side 
 								prob.innerHTML = "<div class=\"tableR\">" + games[i].pred[1] + "</div> — <div class=\"tableG\">" + games[i].pred[0] + "</div>";
 							} else {
 								prob.innerHTML = "<div class=\"tableG\">" + games[i].pred[0] + "</div> — <div class=\"tableR\">" + games[i].pred[1] + "</div>";
+								//expected score of opponent is on right side 
 							}
 							prob.innerHTML += "<div class=\"tableC\">(" + parseFloat(games[i].matchup).toFixed(3) + ")</div>"
 							opp.appendChild(oppLink);
@@ -224,11 +226,11 @@
 						google.charts.load("current", {
 							packages: ["corechart"]
 						});
-						google.charts.setOnLoadCallback(drawGamesByTime);
+						google.charts.setOnLoadCallback(drawGamesByTime);//calls the google charts function for bubble graph 
 					}
 				}
 				gamesReq.open('GET', '/api/games?status=FILED&user=' + id);
-				gamesReq.send();
+				gamesReq.send();//makes a get request for all games from the specific user that are filed 
 			}
 			
 			function drawElo() {
@@ -237,23 +239,23 @@
 				var dataTable = new google.visualization.DataTable();
 				dataTable.addColumn('date', 'Date');
 				dataTable.addColumn('number', "Rating");
-				dataTable.addColumn({type:'number', id:'Uppper Error', role:'interval'});
-				dataTable.addColumn({type:'number', id:'Upp Error', role:'interval'});
+				dataTable.addColumn({type:'number', id:'Uppper Error', role:'interval'});//two standard deviations for rd
+				dataTable.addColumn({type:'number', id:'Upp Error', role:'interval'});//one standard deviation for rd 
 				dataTable.addColumn({type:'number', id:'Low Error', role:'interval'});
 				dataTable.addColumn({type:'number', id:'Lower Error', role:'interval'});
 				dataTable.addColumn('number', "Volatility");
-				var glickos = userInfo.glickoHist;
+				var glickos = userInfo.glickoHist;//gets all values of a person's elo from different rating periods 
 				for (var i=0; i < glickos.length; i++) {
 					var glicko = glickos[i];
 					var toAdd = [
 						[
 							new Date(glicko.date),
-							parseFloat(glicko.elo.toFixed(2)),
-							parseFloat((glicko.elo + (glicko.rd * 2)).toFixed(1)),
-							parseFloat((glicko.elo + glicko.rd).toFixed(1)),
+							parseFloat(glicko.elo.toFixed(2)),//elo
+							parseFloat((glicko.elo + (glicko.rd * 2)).toFixed(1)),//elo+rd
+							parseFloat((glicko.elo + glicko.rd).toFixed(1)),//elo+2*rd 
 							parseFloat((glicko.elo - glicko.rd).toFixed(1)),
 							parseFloat((glicko.elo - (glicko.rd * 2)).toFixed(1)),
-							parseFloat(glicko.vol.toFixed(6))
+							parseFloat(glicko.vol.toFixed(6))//volatility
 						]
 					];
 					
@@ -480,7 +482,7 @@
 			<a href = "/games">Manage Your Games</a> <!--Leads to seprate page for ppl to register their games-->
 		</div>
 		
-		<div class = "userStats" role="main">
+		<div class = "userStats" role="main"><!--Contains general stats including last login and join date-->
 			<div class = "mainStats">
 				<h1 id="uname" class = "heading"><u>...</u></h1>
 				<h4>Rating:</h4>	
@@ -494,20 +496,20 @@
 				<h4>Last Login:</h4>
 				<p id="ld"></p>
 			</div>
-			<div class = "glickoStats">
+			<div class = "glickoStats"><!--Contains glick specific stats for each person (rating deviation and volatility)-->
 				<h1 class = "heading">Glicko-2 Specifics</h1>
 				<h4>Rating Deviation:</h4>
 				<p id="rd"></p>
 				<h4>Volatility:</h4>
 				<p id="vol"></p>
 			</div>
-			<div id="eloDiv" style="height: 600px; width: 100%; min-width: 350px;"></div>
-			<div id="gamesByTime" style="height: 600px; width: 100%; min-width: 350px;"></div>
+			<div id="eloDiv" style="height: 600px; width: 100%; min-width: 350px;"></div><!--div for elo line graph-->
+			<div id="gamesByTime" style="height: 600px; width: 100%; min-width: 350px;"></div><!--div for elo bubble graph-->
 		</div>
 		
-		<div class = "tableContainer">
+		<div class = "tableContainer"><!--div for recent games-->
 			<h1 class = "heading"><u>Recent Games</u></h1>
-			<div style="overflow-x:auto;">
+			<div style="overflow-x:auto;"><!--mobile scrolling-->
 				<table id = "gamesTable">
 					<tr>
 						<th>Date</th>
