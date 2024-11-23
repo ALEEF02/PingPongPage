@@ -13,8 +13,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ppp.ServerConfig;
 import ppp.api.GetGames;
+import ppp.db.UserRepository;
 import ppp.db.controllers.CGlicko;
 import ppp.db.controllers.CUser;
+import ppp.db.controllers.CUserRepository;
 import ppp.db.model.OGlicko;
 import ppp.db.model.OUser;
 import ppp.meta.LoginEnum;
@@ -22,8 +24,9 @@ import ppp.meta.StatusEnum;
 
 @WebServlet("/api/auth")
 public class AuthServlet extends HttpServlet {
-	
-	Authenticator emailer = new Authenticator();
+
+	UserRepository repository = new CUserRepository();
+	Authenticator emailer = new Authenticator(repository);
 	
 	/**
 	 * Creates a new 24-bit, Base64 Token

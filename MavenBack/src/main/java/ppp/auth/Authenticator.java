@@ -10,6 +10,7 @@ import org.simplejavamail.email.EmailBuilder;
 
 import jakarta.servlet.http.HttpServletRequest;
 import ppp.ServerConfig;
+import ppp.db.UserRepository;
 import ppp.db.controllers.CUser;
 import ppp.db.model.OUser;
 import ppp.meta.LoginEnum;
@@ -24,6 +25,13 @@ public class Authenticator {
 	 * index 2: Attempts
 	 */
 	private static Map<String, Integer[]> emailsSent = new HashMap<String, Integer[]>();
+	
+	// Access to CUser that can be unit tested
+	private final UserRepository userRepository;
+
+    public Authenticator(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 	
 	/**
 	 * Checks the input authentication code to the one sent
@@ -80,7 +88,7 @@ public class Authenticator {
 	 */
 	public LoginEnum.Status login(String email, String token) {
 		email = email.toLowerCase();
-		OUser user = CUser.findByEmail(email, true);
+        OUser user = userRepository.findByEmail(email, true);
 		if (user.id == 0) return LoginEnum.Status.USER_INVALID;
 		if (user.email == "") return LoginEnum.Status.EMAIL_INVALID;
 		if (user.token == "" || user.tokenExpiryDate.before(new Date()) || user.token.length() < 2) return LoginEnum.Status.TOKEN_EXPIRED;
@@ -89,7 +97,7 @@ public class Authenticator {
 		
 		// Successful login. Timestamp & log it.
 		user.lastSignIn = new Timestamp(new Date().getTime()); // Should we use  new Timestamp(System.currentTimeMillis()); instead?
-		CUser.update(user);
+		userRepository.update(user);
 		
 		return LoginEnum.Status.SUCCESS;
 	}

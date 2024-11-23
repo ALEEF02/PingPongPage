@@ -11,7 +11,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ppp.auth.Authenticator;
+import ppp.db.UserRepository;
 import ppp.db.controllers.CUser;
+import ppp.db.controllers.CUserRepository;
 import ppp.db.model.OUser;
 import ppp.meta.LoginEnum;
 
@@ -40,7 +42,8 @@ public class GetUsers extends HttpServlet {
 		
 		Map<String, String[]> parameters = request.getParameterMap();
 		List<OUser> users = null;
-		Authenticator auth = new Authenticator();
+		UserRepository repository = new CUserRepository();
+		Authenticator auth = new Authenticator(repository);
 		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
 		int limit = 10; // Return maximum 10 users by default
 		boolean withHistory = parameters.containsKey("withHistory");
