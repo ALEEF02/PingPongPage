@@ -13,6 +13,7 @@
     <maven.compiler.target>11</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jetty.version>11.0.12</jetty.version>
+    <powermock.version>2.0.9</powermock.version>
     <exec.mainClass>ppp.ServerMain</exec.mainClass>
   </properties>
   
@@ -63,6 +64,14 @@
 		<groupId>org.simplejavamail</groupId>
 		<artifactId>simple-java-mail</artifactId>
 		<version>7.5.0</version>
+	</dependency>
+	
+	<!-- J-unit testing -->
+	<dependency>
+	    <groupId>org.mockito</groupId>
+	    <artifactId>mockito-junit-jupiter</artifactId>
+	    <version>5.14.2</version>
+	    <scope>compile</scope>
 	</dependency>
 	
 	<!-- Anti "; DROP TABLE *;" -->
