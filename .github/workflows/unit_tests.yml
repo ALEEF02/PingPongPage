@@ -36,4 +36,6 @@ jobs:
 
       # Step 4: Build and test with Maven
       - name: Build and run tests
-        run: mvn clean test
+        run: |
+            cd MavenBack/
+            mvn clean test
