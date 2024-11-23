@@ -9,6 +9,8 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.kaaz.configuration.ConfigurationBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ppp.service.ServiceHandlerThread;
 //import ppp.ServerConfig;
 import ppp.db.WebDb;
@@ -23,12 +25,15 @@ import ppp.meta.GlickoTwo;
 
 public class ServerMain {
 
-	public static void main(String[] args) throws Exception {
+	private static final Logger logger = LoggerFactory.getLogger(ServerMain.class);
 
+	public static void main(String[] args) throws Exception {
 		// Create a server that listens on port 8080.
 		Server server = new Server(8080);
 		WebAppContext webAppContext = new WebAppContext();
 		server.setHandler(webAppContext);
+		logger.info("Creating server...");
+		logger.error("AAAAAAAAAAAHHHHHHHHHHH");
 
 		// Load static content from the resources directory.
 		URL webAppDir =
@@ -50,11 +55,14 @@ public class ServerMain {
 		
 		// Connect to the DB
 		System.out.print("DB connecting...\n\t");
+		logger.info("DB connecting...");
 		WebDb.init();
 		System.out.println("DB connected.");
+		logger.info("DB connected.");
 		
 		// Initialize out DB caches
 		System.out.print("Initializing caches... ");
+		logger.info("Initializing caches...");
 		CUser.init();
 		CGames.init();
 		CGlicko.init();
@@ -63,6 +71,7 @@ public class ServerMain {
 		
 		// Initialize the services
 		System.out.print("Initializing services... ");
+		logger.info("Initializing services...");
 		Thread serviceHandler = new ServiceHandlerThread();
         serviceHandler.start();
 		System.out.println("done.");
@@ -70,6 +79,7 @@ public class ServerMain {
 		// Start the server! 🚀
 		server.start();
 		System.out.println("Server started!");
+		logger.info("Server started!");
 
 		// Keep the main thread alive while the server is running.
 		server.join();
