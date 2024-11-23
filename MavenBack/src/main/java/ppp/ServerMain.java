@@ -32,8 +32,7 @@ public class ServerMain {
 		Server server = new Server(8080);
 		WebAppContext webAppContext = new WebAppContext();
 		server.setHandler(webAppContext);
-		logger.info("Creating server...");
-		logger.error("AAAAAAAAAAAHHHHHHHHHHH");
+		logger.info("Web server created.");
 
 		// Load static content from the resources directory.
 		URL webAppDir =
@@ -54,31 +53,26 @@ public class ServerMain {
         new ConfigurationBuilder(ServerConfig.class, new File("application.cfg")).build(true);
 		
 		// Connect to the DB
-		System.out.print("DB connecting...\n\t");
 		logger.info("DB connecting...");
 		WebDb.init();
-		System.out.println("DB connected.");
 		logger.info("DB connected.");
 		
 		// Initialize out DB caches
-		System.out.print("Initializing caches... ");
 		logger.info("Initializing caches...");
 		CUser.init();
 		CGames.init();
 		CGlicko.init();
 		GlickoTwo.init();
-		System.out.println("done.");
+		logger.info("Caches initialized.");
 		
 		// Initialize the services
-		System.out.print("Initializing services... ");
 		logger.info("Initializing services...");
 		Thread serviceHandler = new ServiceHandlerThread();
         serviceHandler.start();
-		System.out.println("done.");
+		logger.info("Services initialized.");
         
 		// Start the server! 🚀
 		server.start();
-		System.out.println("Server started!");
 		logger.info("Server started!");
 
 		// Keep the main thread alive while the server is running.
