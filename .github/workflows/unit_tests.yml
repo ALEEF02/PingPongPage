@@ -32,9 +32,10 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('MavenBack/**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-m2
-        working-directory: MavenBack
+          working-directory: MavenBack
 
       # Step 4: Build and test with Maven
       - name: Build and run tests
-        working-directory: MavenBack
+        with:
+          working-directory: MavenBack
         run: mvn clean test
