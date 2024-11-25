@@ -1,2 +1,4 @@
 /target/
 *.cfg
+.idea
+/logs
