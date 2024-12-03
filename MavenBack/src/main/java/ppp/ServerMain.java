@@ -28,6 +28,7 @@ public class ServerMain {
 	private static final Logger logger = LoggerFactory.getLogger(ServerMain.class);
 
 	public static void main(String[] args) throws Exception {
+
 		// Create a server that listens on port 8080.
 		Server server = new Server(8080);
 		WebAppContext webAppContext = new WebAppContext();
@@ -49,8 +50,15 @@ public class ServerMain {
 			"org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
 			".*/target/classes/|.*\\.jar");
 
+		String environment = System.getProperty("environment", "dev");
+		logger.info("Application environment: {}", environment);
+		String configFileName = environment.equalsIgnoreCase("prod")
+				? "application.cfg"
+				: "application-development.cfg";
+
 		// Load the env variables from the config. This will also build a new cfg file if none exists.
-        new ConfigurationBuilder(ServerConfig.class, new File("application.cfg")).build(true);
+		// If running in dev mode, the db credentials should be obtained from the docker-compose
+        new ConfigurationBuilder(ServerConfig.class, new File(configFileName)).build(true);
 		
 		// Connect to the DB
 		logger.info("DB connecting...");
