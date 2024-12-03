@@ -28,4 +28,4 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/ALEEF02/pingpongpage:latest
