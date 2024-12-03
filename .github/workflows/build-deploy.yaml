@@ -25,7 +25,7 @@ jobs:
         id: push
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./MavenBack
           push: true
           tags: |
             ghcr.io/aleef02/pingpongpage:latest
