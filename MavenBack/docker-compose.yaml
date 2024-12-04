@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: ppp-db-dev
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE: ppp
+      MARIADB_USER: devuser
+      MARIADB_PASSWORD: devpassword
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./initdb:/docker-entrypoint-initdb.d
+
+volumes:
+  mariadb_data:

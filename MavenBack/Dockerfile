@@ -5,8 +5,8 @@ COPY pom.xml ./
 COPY src ./src
 RUN mvn clean verify -DskipTests
 
-FROM eclipse-temurin:21-jre-alpine
+FROM maven:3.9.4-eclipse-temurin-21
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app /app
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["mvn", "exec:java", "-Denvironment=prod"]
