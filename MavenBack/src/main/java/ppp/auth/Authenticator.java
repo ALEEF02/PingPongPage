@@ -11,7 +11,6 @@ import org.simplejavamail.email.EmailBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import ppp.ServerConfig;
 import ppp.db.UserRepository;
-import ppp.db.controllers.CUser;
 import ppp.db.model.OUser;
 import ppp.meta.LoginEnum;
 
@@ -24,7 +23,7 @@ public class Authenticator {
 	 * index 1: AuthCode<br>
 	 * index 2: Attempts
 	 */
-	private static Map<String, Integer[]> emailsSent = new HashMap<String, Integer[]>();
+	protected static Map<String, Integer[]> emailsSent = new HashMap<String, Integer[]>();
 	
 	// Access to CUser that can be unit tested
 	private final UserRepository userRepository;
