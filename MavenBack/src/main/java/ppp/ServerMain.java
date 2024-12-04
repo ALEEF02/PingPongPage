@@ -52,6 +52,11 @@ public class ServerMain {
 		// Load the env variables from the config. This will also build a new cfg file if none exists.
         new ConfigurationBuilder(ServerConfig.class, new File("application.cfg")).build(true);
 		
+        if (ServerConfig.EMAIL_USER.isBlank()) {
+        	logger.error("No EMAIL_USER provided!");
+        	System.exit(-1);
+        }
+        
 		// Connect to the DB
 		logger.info("DB connecting...");
 		WebDb.init();

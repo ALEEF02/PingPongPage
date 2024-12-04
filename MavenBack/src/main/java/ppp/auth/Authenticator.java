@@ -120,14 +120,19 @@ public class Authenticator {
 		final int authCode = (int)(Math.random() * Math.pow(10, ServerConfig.AUTH_NUM_DIGITS)); // TODO: This can produce numbers LESS than the number of digits with the current implementation.
 		
 		// Everything looks in order. Create, send, and store the email
-		Email email = EmailBuilder.startingBlank()
-				.from("PingPongPage", ServerConfig.EMAIL_USER)
-				.to(toEmailAddress)
-			    .withSubject("One-Time Password")
-				.withPlainText("Hi! Your one-time password is: " + authCode + ". It'll expire in " + ServerConfig.AUTH_CODE_VALIDITY_PERIOD + " minutes.\nThanks for using our service\n\t- Backend Software Engineer, Anthony Ford")
-				.buildEmail();
+		try {
+			Email email = EmailBuilder.startingBlank()
+					.from("PingPongPage", ServerConfig.EMAIL_USER)
+					.to(toEmailAddress)
+				    .withSubject("One-Time Password")
+					.withPlainText("Hi! Your one-time password is: " + authCode + ". It'll expire in " + ServerConfig.AUTH_CODE_VALIDITY_PERIOD + " minutes.\nThanks for using our service\n\t- Backend Software Engineer, Anthony Ford")
+					.buildEmail();
+			
+			Emailer.getMailer(true).sendMail(email);
+		} catch (Exception e) {
+			return LoginEnum.Status.EMAILING_ERROR;
+		}
 		
-		Emailer.getMailer(true).sendMail(email);
 		Integer mapVal[] = {Integer.valueOf((int)now), Integer.valueOf(authCode), 0};
         emailsSent.put(toEmailAddress, mapVal);
 		return LoginEnum.Status.EMAIL_SENT;

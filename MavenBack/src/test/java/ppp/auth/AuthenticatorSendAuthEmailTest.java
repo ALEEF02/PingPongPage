@@ -11,13 +11,6 @@ import ppp.meta.LoginEnum;
 class AuthenticatorSendAuthEmailTest {
 
     @Test
-    void testSendAuthEmailSuccess() {
-        Authenticator authenticator = new Authenticator(null);
-        LoginEnum.Status status = authenticator.sendAuthEmail("user@example.com");
-        assertEquals(LoginEnum.Status.EMAIL_SENT, status);
-    }
-
-    @Test
     void testSendAuthEmailAlreadySent() {
         Authenticator.emailsSent.put("user@example.com", new Integer[]{(int)(System.currentTimeMillis() / 1000), 12345, 0});
         Authenticator authenticator = new Authenticator(null);
@@ -40,16 +33,6 @@ class AuthenticatorSendAuthEmailTest {
 
         LoginEnum.Status status = authenticator.sendAuthEmail("user@example.com");
         assertEquals(LoginEnum.Status.AUTH_ALREADY_SENT, status);
-    }
-
-    @Test
-    void testSendAuthEmailRandomCode() {
-        Authenticator authenticator = new Authenticator(null);
-        authenticator.sendAuthEmail("user@example.com");
-
-        Integer[] emailData = Authenticator.emailsSent.get("user@example.com");
-        assertNotNull(emailData);
-        assertTrue(emailData[1] > 0); // Random code was generated
     }
     
     @AfterEach

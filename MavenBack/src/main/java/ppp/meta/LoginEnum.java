@@ -22,6 +22,7 @@ public final class LoginEnum {
 	    BANNED(401, "omegalol"),
 	    
 	    UNKNOWN_ERROR(500),
+	    EMAILING_ERROR(503, "The emailer is having issues. Please contact PPP administrators."),
 	    
 	    EMAIL_SENT(200),
 	    SUCCESS(200);
