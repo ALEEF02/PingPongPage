@@ -12,8 +12,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ppp.api.GetGames;
 import ppp.auth.Authenticator;
+import ppp.db.UserRepository;
 import ppp.db.controllers.CGames;
 import ppp.db.controllers.CUser;
+import ppp.db.controllers.CUserRepository;
 import ppp.db.model.OUser;
 import ppp.meta.GlickoTwo;
 import ppp.meta.LoginEnum;
@@ -27,7 +29,8 @@ public class DashServe extends HttpServlet {
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-		Authenticator auth = new Authenticator();
+		UserRepository repository = new CUserRepository();
+		Authenticator auth = new Authenticator(repository);
 		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
 		OUser user = new OUser();
 		if (loggedIn) user = CUser.findByEmail((String)request.getSession().getAttribute("email"));
@@ -56,8 +59,9 @@ public class DashServe extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		Map<String, String[]> parameters = request.getParameterMap();
-		
-		Authenticator auth = new Authenticator();
+
+		UserRepository repository = new CUserRepository();
+		Authenticator auth = new Authenticator(repository);
 		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
 		if (!loggedIn) {
 			response.setStatus(401);

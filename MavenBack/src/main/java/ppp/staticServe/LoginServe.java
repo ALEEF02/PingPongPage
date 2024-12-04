@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ppp.auth.Authenticator;
+import ppp.db.UserRepository;
+import ppp.db.controllers.CUserRepository;
 import ppp.meta.LoginEnum;
 
 @WebServlet("/login")
@@ -18,7 +20,8 @@ public class LoginServe extends HttpServlet {
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-		Authenticator auth = new Authenticator();
+		UserRepository repository = new CUserRepository();
+		Authenticator auth = new Authenticator(repository);
 		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
 
 		try {

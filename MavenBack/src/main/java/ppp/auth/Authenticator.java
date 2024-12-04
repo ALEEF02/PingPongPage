@@ -10,7 +10,7 @@ import org.simplejavamail.email.EmailBuilder;
 
 import jakarta.servlet.http.HttpServletRequest;
 import ppp.ServerConfig;
-import ppp.db.controllers.CUser;
+import ppp.db.UserRepository;
 import ppp.db.model.OUser;
 import ppp.meta.LoginEnum;
 
@@ -23,7 +23,14 @@ public class Authenticator {
 	 * index 1: AuthCode<br>
 	 * index 2: Attempts
 	 */
-	private static Map<String, Integer[]> emailsSent = new HashMap<String, Integer[]>();
+	protected static Map<String, Integer[]> emailsSent = new HashMap<String, Integer[]>();
+	
+	// Access to CUser that can be unit tested
+	private final UserRepository userRepository;
+
+    public Authenticator(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 	
 	/**
 	 * Checks the input authentication code to the one sent
@@ -80,7 +87,7 @@ public class Authenticator {
 	 */
 	public LoginEnum.Status login(String email, String token) {
 		email = email.toLowerCase();
-		OUser user = CUser.findByEmail(email, true);
+        OUser user = userRepository.findByEmail(email, true);
 		if (user.id == 0) return LoginEnum.Status.USER_INVALID;
 		if (user.email == "") return LoginEnum.Status.EMAIL_INVALID;
 		if (user.token == "" || user.tokenExpiryDate.before(new Date()) || user.token.length() < 2) return LoginEnum.Status.TOKEN_EXPIRED;
@@ -89,7 +96,7 @@ public class Authenticator {
 		
 		// Successful login. Timestamp & log it.
 		user.lastSignIn = new Timestamp(new Date().getTime()); // Should we use  new Timestamp(System.currentTimeMillis()); instead?
-		CUser.update(user);
+		userRepository.update(user);
 		
 		return LoginEnum.Status.SUCCESS;
 	}
@@ -113,14 +120,19 @@ public class Authenticator {
 		final int authCode = (int)(Math.random() * Math.pow(10, ServerConfig.AUTH_NUM_DIGITS)); // TODO: This can produce numbers LESS than the number of digits with the current implementation.
 		
 		// Everything looks in order. Create, send, and store the email
-		Email email = EmailBuilder.startingBlank()
-				.from("PingPongPage", ServerConfig.EMAIL_USER)
-				.to(toEmailAddress)
-			    .withSubject("One-Time Password")
-				.withPlainText("Hi! Your one-time password is: " + authCode + ". It'll expire in " + ServerConfig.AUTH_CODE_VALIDITY_PERIOD + " minutes.\nThanks for using our service\n\t- Backend Software Engineer, Anthony Ford")
-				.buildEmail();
+		try {
+			Email email = EmailBuilder.startingBlank()
+					.from("PingPongPage", ServerConfig.EMAIL_USER)
+					.to(toEmailAddress)
+				    .withSubject("One-Time Password")
+					.withPlainText("Hi! Your one-time password is: " + authCode + ". It'll expire in " + ServerConfig.AUTH_CODE_VALIDITY_PERIOD + " minutes.\nThanks for using our service\n\t- Backend Software Engineer, Anthony Ford")
+					.buildEmail();
+			
+			Emailer.getMailer(true).sendMail(email);
+		} catch (Exception e) {
+			return LoginEnum.Status.EMAILING_ERROR;
+		}
 		
-		Emailer.getMailer(true).sendMail(email);
 		Integer mapVal[] = {Integer.valueOf((int)now), Integer.valueOf(authCode), 0};
         emailsSent.put(toEmailAddress, mapVal);
 		return LoginEnum.Status.EMAIL_SENT;

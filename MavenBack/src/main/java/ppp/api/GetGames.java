@@ -12,8 +12,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ppp.auth.Authenticator;
+import ppp.db.UserRepository;
 import ppp.db.controllers.CGames;
 import ppp.db.controllers.CUser;
+import ppp.db.controllers.CUserRepository;
 import ppp.db.model.OGame;
 import ppp.db.model.OUser;
 import ppp.meta.GlickoTwo;
@@ -37,14 +39,16 @@ import ppp.meta.StatusEnum.Status;
 @WebServlet("/api/games")
 public class GetGames extends HttpServlet {
 	
+	UserRepository repository = new CUserRepository();
+	Authenticator auth = new Authenticator(repository);
+	
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Map<String, String[]> parameters = request.getParameterMap();
 		List<OGame> games = null; // Our list of games to be returned
 		StatusEnum.Status status = Status.ANY;
 		int limit = 20; // Return a maximum of 20 games by default
-
-		Authenticator auth = new Authenticator();
+		
 		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS; // Check with the Authenticator to see if the request is authorized
 		
 		try {
@@ -188,8 +192,7 @@ public class GetGames extends HttpServlet {
 		
 		Map<String, String[]> parameters = request.getParameterMap();
 		StatusEnum.Status status = Status.ANY;
-		
-		Authenticator auth = new Authenticator();
+
 		boolean loggedIn = auth.login(request) == LoginEnum.Status.SUCCESS;
 		if (!loggedIn) { // Every request to modify games must be authenticated.
 			response.setStatus(401);
